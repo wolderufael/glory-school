@@ -28,7 +28,6 @@ export default function MultiStepForm() {
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async () => {
-
     try{
 
   const formData = {
