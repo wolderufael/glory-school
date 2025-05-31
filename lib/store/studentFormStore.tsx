@@ -18,8 +18,7 @@ type FormState = {
         pastSchools: PastSecondarySchool[];
     }) => void;
     setFamilyInfo: (data: ParentInfoType[]) => void;
-    setEmploymentHistory: (data: EmploymentHistoryType[]) => void;
-   
+    setEmploymentHistory: (data: EmploymentHistoryType[]) => void; 
 };
 
 export const useStudentFormStore = create<FormState>((set) => ({
