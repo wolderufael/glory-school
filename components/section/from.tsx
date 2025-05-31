@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,193 +9,125 @@ import { Calendar, Clock, GraduationCap } from 'lucide-react';
 import { toast } from "sonner";
 import { CreateSectionFormData, CreateSectionSchema } from '@/utils/createSection';
 import { get } from 'http';
-
+import { useDepartment } from '@/lib/react-query/hooks/useDepartment';
+import { useGetSection } from '@/lib/react-query/hooks/useAcademicYear';
+import { create } from 'domain';
+import { on } from 'events';
+import { useCreateSection } from '@/lib/react-query/mutations/Section';
+ 
 type sectionSchema = {
     studentCount: number;
 };
+
+  const departmentId = 1
+
 
 const CreateSection = () => {
 
   
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [studentCount, setStudentCount] = useState<number>(0);
-  const [academicYear, setAcademicYear] = useState<{ id: string; name: string }>({ id: '', name: '' });
   const [numberOfSection, setNumberOfSection] = useState<number>(1);
   const [sections, setSections] = useState<sectionSchema[]>([]);
   
   
-  const departmentId = 1
+const {data: academicYear, isLoading: isAcademicYearLoading} = useGetSection();
+const {data: studentCount, isLoading: isStudentCountLoading } = useDepartment(departmentId);
 
-  const getStudentCount = async ()=>{
-    try {
-      // Simulate API call to get student count
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/students/count/by-department-section?departmentId=${departmentId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch student count');
-      }
-      const data = await response.json();
-        if (!data || typeof data.count !== 'number') {
-            throw new Error('Invalid response format');
-        }
-        
-        return data.count;
-    } catch (error) {
-      console.error('Error fetching student count:', error);
-      return 0; // Fallback to 0 if there's an error
-    }
-
-  }
-
-  const getAcademicYear = async () => {
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/current-year`);
-        if (!res.ok) {
-            throw new Error('Failed to fetch academic year');
-        }
-        const data = await res.json();
-        if (!data || typeof data.name !== 'string') {
-            throw new Error('Invalid response format');
-        }
-        return data;
-    } catch (error) {
-        console.error('Error fetching academic year:', error);
-        return ''; // Fallback to empty string if there's an error
-    }
-  };
-
-
-  useEffect(() => {
-    const fetchAcademicYear = async () => {
-      const res = await getAcademicYear();
-      if (res) {
-        setAcademicYear(res);
-        setFormData(prev => ({ ...prev, academicYear: res }));
-      }
-    };
-   
-    const fetchStudentCount = async () => {
-      const res = await getStudentCount();
-      if (res) {
-        setStudentCount(res);
-      }
-    };
-    fetchAcademicYear();
-    fetchStudentCount();
-  }, []);
+  const {mutate: createSectionMutation, isPending: isCreatingSection} = useCreateSection();
 
 
   const [formData, setFormData] = useState<CreateSectionFormData>({
-     academicYearId: academicYear.id,
+     academicYearId: academicYear?.id || '',
      departmentId: 1,
      numberOfSection: 2
   });
 
+  useEffect(() => {
+    if (academicYear?.id) {
+      setFormData(prev => ({ ...prev, academicYearId: academicYear.id }));
+    }
+  }, [academicYear]);
+
+
+  useEffect(() => {
+    if (studentCount > 0 && numberOfSection > 0) {
+      const n = numberOfSection;
+      const base = Math.floor(studentCount / n);
+      const remainder = studentCount % n;
+      const newSections: sectionSchema[] = Array.from({ length: n }, (_, idx) => ({
+        studentCount: idx < remainder ? base + 1 : base
+      }));
+      setSections(newSections);
+    } else {
+      setSections([]);
+    }
+  }, [studentCount, numberOfSection]);
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
     if (name === 'numberOfSection') {
-      let numValue = Number(value);
-      if (isNaN(numValue) || value === '') numValue = 1;
+      const numValue = Math.max(1, Number(value) || 1);
       setNumberOfSection(numValue);
       setFormData(prev => ({ ...prev, [name]: numValue }));
-
-      if (numValue && studentCount > 0) {
-        const n = numValue;
-        if (n > 0) {
-          const base = Math.floor(studentCount / n);
-          const remainder = studentCount % n;
-          const newSections: sectionSchema[] = Array.from({ length: n }, (_, idx) => ({
-            studentCount: idx < remainder ? base + 1 : base
-          }));
-          setSections(newSections);
-        } else {
-          setSections([]);
-        }
-      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+    
+    // Clear errors for this field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
+  const handleValidate = () => {
+    const parsed = CreateSectionSchema.safeParse(formData);
+    
+    if (!parsed.success) {
+      const filledErrors: Record<string, string> = {};
+      parsed.error.errors.forEach(error => {
+        filledErrors[error.path[0] as string] = error.message;
+      });
+      setErrors(filledErrors);
+      return false;
+    }
+    
+    return true;
+  };
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parsed = CreateSectionSchema.safeParse(formData);
-    if (!parsed.success) {
-      const filledErrors: Record<string, string> = {};
-      parsed.error.errors.forEach(error => {
-        filledErrors[error.path[0] as string] = error.message;
-      });
-      setErrors(filledErrors);
-      return;
-    }
+ if( !handleValidate()) return
 
-    setIsLoading(true);
-    
-    try {
-      const res  = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sections/`, {
-               method:"POST",
-               body: JSON.stringify(formData),
-               headers:{
-                  'Content-Type': 'application/json'
-               },
-      })
+    createSectionMutation(formData, {
+      onSuccess: () => {
+        setNumberOfSection(1);
+        setSections([]);
+      }
+    });
 
-      if(res){
-      
-      toast("Section Year Created",{
-        description: "The section has been created successfully!",
-      });
-      
-      setFormData({
-        academicYearId: academicYear.id,
-        departmentId: 1,
-      });
-    }
-}
-     catch (error) {
-      toast("Error", {
-        description: "Something went wrong. Please try again.",
-        style: {
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          borderColor: '#f5c6cb',
-        },
-      });
-    } finally {
-      setIsLoading(false);
-    }
   }
 
 
-  const handleCheck = () => {
-    const parsed = CreateSectionSchema.safeParse(formData);
-    if (!parsed.success) {
-      const filledErrors: Record<string, string> = {};
-      parsed.error.errors.forEach(error => {
-        filledErrors[error.path[0] as string] = error.message;
-      });
-      setErrors(filledErrors);
-      return;
+
+  useMemo(() => {
+    if (academicYear?.id) {
+      setFormData({ academicYearId: academicYear.id });
     }
-    setAcademicYear(prev => ({ ...prev, id: formData.academicYearId }));
+  }, [academicYear, setFormData]);
+
+const handlePreview = ()=>{
+  if(handleValidate()){
     setNumberOfSection(formData.numberOfSection ?? 1);
-    const n = Number(formData.numberOfSection ?? 1);
-    if (n > 0) {
-      const base = Math.floor(studentCount / n);
-      const remainder = studentCount % n;
-      const fetchedSections: sectionSchema[] = Array.from({ length: n }, (_, idx) => ({
-        studentCount: idx < remainder ? base + 1 : base
-      }));
-      setSections(fetchedSections);
-    } else {
-      setSections([]);
-    }
-  };
+  }
+
+};
+
 
   return (
     <div className="min-h-screen w-full  bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -251,8 +183,8 @@ const CreateSection = () => {
                     )}
                   </div>
 
-                   <Button onClick={handleCheck} className="space-y-2 flex items-center justify-center">
-                          Check 
+                   <Button onClick={handlePreview} className="space-y-2 flex items-center justify-center">
+                          Preview 
                     </Button>
 
                 </div>
@@ -276,10 +208,10 @@ const CreateSection = () => {
               <div className="flex justify-end gap-4 pt-6">
                 <Button 
                   type="submit" 
-                  disabled={isLoading}
+                  disabled={isCreatingSection }
                   className="min-w-[120px]"
                 >
-                  {isLoading ? "Creating..." : "Create Section"}
+                  {isCreatingSection ? "Creating..." : "Create Section"}
                 </Button>
               </div>
             </CardContent>
