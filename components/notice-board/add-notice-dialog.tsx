@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useAddNotice } from "@/lib/react-query/mutations/useAddNotice";
+import { form } from "framer-motion/client";
 
 interface College {
   id: number;
@@ -39,51 +41,36 @@ export function AddNoticeCard({ colleges, departments, onNoticeAdded, onCancel }
     deadline: "",
     is_active: true,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+   const {mutate, isPending, error} = useAddNotice()
+
+
+   const filteredDepartments = formData.college_id
+    ? departments.filter(dept => dept.college_id.toString() === formData.college_id)
+    : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    try {
-      const response = await fetch("/api/notices", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          college_id: Number.parseInt(formData.college_id),
-        }),
-      });
-
-      if (response.ok) {
-        toast("Success", {
-          description: "Notice has been added successfully.",
-        });
-        setFormData({
-          college_id: "",
-          message: "",
-          deadline: "",
-          department_id: "",
-          is_active: true,
-        });
-        onNoticeAdded();
-      } else {
-        throw new Error("Failed to add notice");
-      }
-    } catch (error) {
-      toast("Error", {
-        description: "Failed to add notice. Please try again.",
-        style: {
-          color: "red",
-          backgroundColor: "#f8d7da",
-          borderColor: "#f5c6cb",
-        },
-      });
-    } finally {
-      setIsSubmitting(false);
+    const payload = {
+      ...formData,
+      college_id: Number(formData.college_id),
+      department_id: Number(formData.department_id),
     }
+
+    mutate(payload, {
+      onSuccess:()=>{
+        setFormData({
+          college_id:'',
+          department_id:'',
+          message:'',
+          deadline:'',
+          is_active:true
+        }),
+        onNoticeAdded()
+      }
+    });
+
   };
 
   return (
@@ -116,19 +103,24 @@ export function AddNoticeCard({ colleges, departments, onNoticeAdded, onCancel }
         <div className="space-y-3">
           <Label htmlFor="department">Department <span className="text-red-500">*</span></Label>
           <Select
-            value={formData.college_id}
-            onValueChange={(value) => setFormData((prev) => ({ ...prev, college_id: value }))}
+            value={formData.department_id}
+            onValueChange={(value) => setFormData((prev) => ({ ...prev, department_id: value }))}
             required
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a department" />
             </SelectTrigger>
             <SelectContent>
-              {colleges.map((college) => (
-                <SelectItem key={college.id} value={college.id.toString()}>
-                  {college.name}
+              {filteredDepartments.map((department) => (
+                <SelectItem key={department.id} value={department.id.toString()}>
+                  {department.name}
                 </SelectItem>
               ))}
+              {filteredDepartments.length === 0 && (
+                <SelectItem disabled value="">
+                  No departments available for selected college
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -188,10 +180,10 @@ export function AddNoticeCard({ colleges, departments, onNoticeAdded, onCancel }
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isPending}
             className="min-w-[100px] bg-blue-600 hover:bg-blue-700"
           >
-            {isSubmitting ? "Adding..." : "Add Notice"}
+            {isPending ? "Adding..." : "Add Notice"}
           </Button>
         </div>
       </form>
