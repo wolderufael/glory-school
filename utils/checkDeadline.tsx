@@ -1,9 +1,7 @@
-const CheckDeadline = (deadline: string): boolean => {
-      const currentDate  = new Date()
-      const deadlineDate = new Date(deadline)
-
-         
-      return currentDate > deadlineDate
+const CheckDeadlineAvailability = (deadline: string): boolean => {
+    const currentDate = new Date();
+    const deadlineDate = new Date(deadline);
+    return currentDate <= deadlineDate;
 }
 
-export default CheckDeadline;
+export default CheckDeadlineAvailability;
