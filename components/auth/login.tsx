@@ -56,7 +56,7 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Simulate login API call
+  
      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`, {
        method: 'POST',
        headers: {

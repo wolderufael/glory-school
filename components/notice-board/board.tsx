@@ -3,26 +3,9 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, Clock, Building2, Plus } from "lucide-react"
 
-
-
-interface Notice {
-  notice_id: number
-  college_id: number
-  college_name: string
-  message: string
-  deadline: string
-  published_at: string
-  is_active: boolean
-}
-
-interface College {
-  id: number
-  name: string
-}
 
 export function NoticeBoard() {
 //   const [notices, setNotices] = useState<Notice[]>([])
@@ -55,39 +38,14 @@ export function NoticeBoard() {
   ]
 
 
-//   useEffect(() => {
-//     fetchNotices()
-//     fetchColleges()
-//   }, [selectedCollege])
-
 const colleges = [
     { id: 1, name: "Engineering College" },
     { id: 2, name: "Medical College" },
     { id: 3, name: "Arts College" },
 ]
 
-  const fetchNotices = async () => {
-    try {
-      const url = selectedCollege === "all" ? "/api/notices" : `/api/notices?college_id=${selectedCollege}`
-      const response = await fetch(url)
-      const data = await response.json()
-    //   setNotices(data)
-    } catch (error) {
-      console.error("Error fetching notices:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
-//   const fetchColleges = async () => {
-//     try {
-//       const response = await fetch("/api/colleges")
-//       const data = await response.json()
-//       setColleges(data)
-//     } catch (error) {
-//       console.error("Error fetching colleges:", error)
-//     }
-//   }
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {

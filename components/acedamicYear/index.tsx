@@ -11,7 +11,8 @@ import { toast } from "sonner";
 import { AcademicYearFormData, academicYearSchema } from '@/utils/academicYearSchema';
 
 const AcademicYearForm = () => {
-  const [formData, setFormData] = useState<AcademicYearFormData>({
+
+  const initialData = {
     name: '',
     startDate: '',
     endDate: '',
@@ -23,7 +24,9 @@ const AcademicYearForm = () => {
     semeester1RegistrationEndDate: '',
     semeester2RegistrationStartDate: '',
     semeester2RegistrationEndDate: '',
-  });
+  };
+
+  const [formData, setFormData] = useState<AcademicYearFormData>(initialData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,19 +63,7 @@ const AcademicYearForm = () => {
       });
       
     
-      setFormData({
-        name: '',
-        startDate: '',
-        endDate: '',
-        semester1StartDate: '',
-        semester1EndDate: '',
-        semester2StartDate: '',
-        semester2EndDate: '',
-        semeester1RegistrationStartDate: '',
-        semeester1RegistrationEndDate: '',
-        semeester2RegistrationStartDate: '',
-        semeester2RegistrationEndDate: '',
-      });
+      setFormData(initialData);
     } catch (error) {
       toast("Error", {
         description: "Something went wrong. Please try again.",
@@ -333,19 +324,7 @@ const AcademicYearForm = () => {
                   type="button" 
                   variant="outline"
                   onClick={() => {
-                    setFormData({
-                      name: '',
-                      startDate: '',
-                      endDate: '',
-                      semester1StartDate: '',
-                      semester1EndDate: '',
-                      semester2StartDate: '',
-                      semester2EndDate: '',
-                      semeester1RegistrationStartDate: '',
-                      semeester1RegistrationEndDate: '',
-                      semeester2RegistrationStartDate: '',
-                      semeester2RegistrationEndDate: '',
-                    });
+                    setFormData(initialData);
                     setErrors({});
                   }}
                 >

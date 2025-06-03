@@ -6,13 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Clock, GraduationCap } from 'lucide-react';
-import { toast } from "sonner";
 import { CreateSectionFormData, CreateSectionSchema } from '@/utils/createSection';
-import { get } from 'http';
 import { useDepartment } from '@/lib/react-query/hooks/useDepartment';
 import { useGetSection } from '@/lib/react-query/hooks/useAcademicYear';
-import { create } from 'domain';
-import { on } from 'events';
 import { useCreateSection } from '@/lib/react-query/mutations/Section';
  
 type sectionSchema = {
