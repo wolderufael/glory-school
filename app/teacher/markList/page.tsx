@@ -1,5 +1,5 @@
 import ListTable from "@/components/markList/table"
-import { List } from "lucide-react"
+
 
 const StudentList = ()=>{
     return (
