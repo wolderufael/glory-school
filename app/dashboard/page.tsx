@@ -120,32 +120,6 @@ const Dashboard = () => {
                 <div className="space-y-6">
                   
                   {/* Quick Stats */}
-                  <Card className="bg-white border-slate-200">
-
-                     <AcademicCalendar  />
-
-                    <CardHeader>
-                      <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5" />
-                        Quick Stats
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-slate-600">GPA</span>
-                        <span className="text-sm font-semibold text-slate-800">3.45</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-slate-600">Credit Hours</span>
-                        <span className="text-sm font-semibold text-slate-800">128</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-slate-600">Attendance</span>
-                        <span className="text-sm font-semibold text-green-600">95%</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
                    <Card className="bg-white border-slate-200">
                     <CardHeader>
                       <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
