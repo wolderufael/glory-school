@@ -1,81 +1,133 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, GraduationCap } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Calendar, Clock, GraduationCap } from "lucide-react";
 
 import { toast } from "sonner";
-import { AcademicYearFormData, academicYearSchema } from '@/utils/academicYearSchema';
+import {
+  AcademicYearFormData,
+  academicYearSchema,
+} from "@/utils/academicYearSchema";
+import { useAddAcademicYear } from "@/lib/react-query/mutations/useAddAcademicYear";
+import { z } from "zod";
+import { parseISO, startOfDay, formatISO } from "date-fns";
+
+type AcademicYearData = z.infer<typeof academicYearSchema>;
+
+// Professional date formatting utility that handles various edge cases
+const formatToPrismaDateTime = (dateStr: string): string => {
+  if (!dateStr) return "";
+  try {
+    // Parse the input date string
+    const date = parseISO(dateStr);
+
+    // Set time to start of day (midnight) in UTC
+    const normalizedDate = startOfDay(date);
+
+    // Format to ISO string that Prisma expects
+    return formatISO(normalizedDate);
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    return "";
+  }
+};
+
+// Helper function to format all academic year dates
+const formatAcademicYearDates = (data: AcademicYearData): AcademicYearData => {
+  const dateFields = [
+    "startDate",
+    "endDate",
+    "semester1StartDate",
+    "semester1EndDate",
+    "semester2StartDate",
+    "semester2EndDate",
+    "semeester1RegistrationStartDate",
+    "semeester1RegistrationEndDate",
+    "semeester2RegistrationStartDate",
+    "semeester2RegistrationEndDate",
+  ] as const;
+
+  return {
+    ...data,
+    ...Object.fromEntries(
+      dateFields.map((field) => [field, formatToPrismaDateTime(data[field])])
+    ),
+  };
+};
 
 const AcademicYearForm = () => {
-
-  const initialData = {
-    name: '',
-    startDate: '',
-    endDate: '',
-    semester1StartDate: '',
-    semester1EndDate: '',
-    semester2StartDate: '',
-    semester2EndDate: '',
-    semeester1RegistrationStartDate: '',
-    semeester1RegistrationEndDate: '',
-    semeester2RegistrationStartDate: '',
-    semeester2RegistrationEndDate: '',
-  };
-
-  const [formData, setFormData] = useState<AcademicYearFormData>(initialData);
+  const [formData, setFormData] = useState<AcademicYearFormData>({
+    name: "",
+    startDate: "",
+    endDate: "",
+    semester1StartDate: "",
+    semester1EndDate: "",
+    semester2StartDate: "",
+    semester2EndDate: "",
+    semeester1RegistrationStartDate: "",
+    semeester1RegistrationEndDate: "",
+    semeester2RegistrationStartDate: "",
+    semeester2RegistrationEndDate: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-
+  const { mutate, isPending } = useAddAcademicYear();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const parsed = academicYearSchema.safeParse(formData);
     if (!parsed.success) {
       const filledErrors: Record<string, string> = {};
-      parsed.error.errors.forEach(error => {
+      parsed.error.errors.forEach((error) => {
         filledErrors[error.path[0] as string] = error.message;
       });
       setErrors(filledErrors);
       return;
     }
 
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast("Academic Year Created",{
-        description: "The academic year has been created successfully!",
-      });
-      
-    
-      setFormData(initialData);
-    } catch (error) {
-      toast("Error", {
-        description: "Something went wrong. Please try again.",
-        style: {
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          borderColor: '#f5c6cb',
-        },
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // Clear previous errors if validation passes
+    setErrors({});
+
+    // Format all dates using the helper function
+    const formattedData = formatAcademicYearDates(formData);
+    console.log("Submitting data:", JSON.stringify(formattedData, null, 2));
+
+    mutate(formattedData, {
+      onSuccess: () => {
+        setFormData({
+          name: "",
+          startDate: "",
+          endDate: "",
+          semester1StartDate: "",
+          semester1EndDate: "",
+          semester2StartDate: "",
+          semester2EndDate: "",
+          semeester1RegistrationStartDate: "",
+          semeester1RegistrationEndDate: "",
+          semeester2RegistrationStartDate: "",
+          semeester2RegistrationEndDate: "",
+        });
+      },
+    });
   };
 
   return (
@@ -88,7 +140,9 @@ const AcademicYearForm = () => {
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">Create Academic Year</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Create Academic Year
+            </CardTitle>
             <CardDescription>
               Set up a new academic year with semester and registration dates
             </CardDescription>
@@ -96,13 +150,12 @@ const AcademicYearForm = () => {
 
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-8">
-           
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   Basic Information
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-sm font-medium">
@@ -125,7 +178,8 @@ const AcademicYearForm = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="startDate" className="text-sm font-medium">
-                      Academic Year Start Date <span className="text-red-500">*</span>
+                      Academic Year Start Date{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="startDate"
@@ -142,7 +196,8 @@ const AcademicYearForm = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="endDate" className="text-sm font-medium">
-                      Academic Year End Date <span className="text-red-500">*</span>
+                      Academic Year End Date{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="endDate"
@@ -165,11 +220,15 @@ const AcademicYearForm = () => {
                   <Clock className="w-5 h-5" />
                   Semester 1 Dates
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="semester1StartDate" className="text-sm font-medium">
-                      Semester 1 Start Date <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semester1StartDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 1 Start Date{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semester1StartDate"
@@ -177,16 +236,24 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semester1StartDate}
                       onChange={handleChange}
-                      className={errors.semester1StartDate ? "border-red-500" : ""}
+                      className={
+                        errors.semester1StartDate ? "border-red-500" : ""
+                      }
                     />
                     {errors.semester1StartDate && (
-                      <p className="text-red-500 text-sm">{errors.semester1StartDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semester1StartDate}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="semester1EndDate" className="text-sm font-medium">
-                      Semester 1 End Date <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semester1EndDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 1 End Date{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semester1EndDate"
@@ -194,18 +261,26 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semester1EndDate}
                       onChange={handleChange}
-                      className={errors.semester1EndDate ? "border-red-500" : ""}
+                      className={
+                        errors.semester1EndDate ? "border-red-500" : ""
+                      }
                     />
                     {errors.semester1EndDate && (
-                      <p className="text-red-500 text-sm">{errors.semester1EndDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semester1EndDate}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="semeester1RegistrationStartDate" className="text-sm font-medium">
-                      Semester 1 Registration Start <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semeester1RegistrationStartDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 1 Registration Start{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semeester1RegistrationStartDate"
@@ -213,16 +288,26 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semeester1RegistrationStartDate}
                       onChange={handleChange}
-                      className={errors.semeester1RegistrationStartDate ? "border-red-500" : ""}
+                      className={
+                        errors.semeester1RegistrationStartDate
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors.semeester1RegistrationStartDate && (
-                      <p className="text-red-500 text-sm">{errors.semeester1RegistrationStartDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semeester1RegistrationStartDate}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="semeester1RegistrationEndDate" className="text-sm font-medium">
-                      Semester 1 Registration End <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semeester1RegistrationEndDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 1 Registration End{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semeester1RegistrationEndDate"
@@ -230,10 +315,16 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semeester1RegistrationEndDate}
                       onChange={handleChange}
-                      className={errors.semeester1RegistrationEndDate ? "border-red-500" : ""}
+                      className={
+                        errors.semeester1RegistrationEndDate
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors.semeester1RegistrationEndDate && (
-                      <p className="text-red-500 text-sm">{errors.semeester1RegistrationEndDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semeester1RegistrationEndDate}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -245,11 +336,15 @@ const AcademicYearForm = () => {
                   <Clock className="w-5 h-5" />
                   Semester 2 Dates
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="semester2StartDate" className="text-sm font-medium">
-                      Semester 2 Start Date <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semester2StartDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 2 Start Date{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semester2StartDate"
@@ -257,16 +352,24 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semester2StartDate}
                       onChange={handleChange}
-                      className={errors.semester2StartDate ? "border-red-500" : ""}
+                      className={
+                        errors.semester2StartDate ? "border-red-500" : ""
+                      }
                     />
                     {errors.semester2StartDate && (
-                      <p className="text-red-500 text-sm">{errors.semester2StartDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semester2StartDate}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="semester2EndDate" className="text-sm font-medium">
-                      Semester 2 End Date <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semester2EndDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 2 End Date{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semester2EndDate"
@@ -274,18 +377,26 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semester2EndDate}
                       onChange={handleChange}
-                      className={errors.semester2EndDate ? "border-red-500" : ""}
+                      className={
+                        errors.semester2EndDate ? "border-red-500" : ""
+                      }
                     />
                     {errors.semester2EndDate && (
-                      <p className="text-red-500 text-sm">{errors.semester2EndDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semester2EndDate}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="semeester2RegistrationStartDate" className="text-sm font-medium">
-                      Semester 2 Registration Start <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semeester2RegistrationStartDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 2 Registration Start{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semeester2RegistrationStartDate"
@@ -293,16 +404,26 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semeester2RegistrationStartDate}
                       onChange={handleChange}
-                      className={errors.semeester2RegistrationStartDate ? "border-red-500" : ""}
+                      className={
+                        errors.semeester2RegistrationStartDate
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors.semeester2RegistrationStartDate && (
-                      <p className="text-red-500 text-sm">{errors.semeester2RegistrationStartDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semeester2RegistrationStartDate}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="semeester2RegistrationEndDate" className="text-sm font-medium">
-                      Semester 2 Registration End <span className="text-red-500">*</span>
+                    <Label
+                      htmlFor="semeester2RegistrationEndDate"
+                      className="text-sm font-medium"
+                    >
+                      Semester 2 Registration End{" "}
+                      <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="semeester2RegistrationEndDate"
@@ -310,28 +431,46 @@ const AcademicYearForm = () => {
                       type="date"
                       value={formData.semeester2RegistrationEndDate}
                       onChange={handleChange}
-                      className={errors.semeester2RegistrationEndDate ? "border-red-500" : ""}
+                      className={
+                        errors.semeester2RegistrationEndDate
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
                     {errors.semeester2RegistrationEndDate && (
-                      <p className="text-red-500 text-sm">{errors.semeester2RegistrationEndDate}</p>
+                      <p className="text-red-500 text-sm">
+                        {errors.semeester2RegistrationEndDate}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end gap-4 pt-6">
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   variant="outline"
                   onClick={() => {
-                    setFormData(initialData);
+                    setFormData({
+                      name: "",
+                      startDate: "",
+                      endDate: "",
+                      semester1StartDate: "",
+                      semester1EndDate: "",
+                      semester2StartDate: "",
+                      semester2EndDate: "",
+                      semeester1RegistrationStartDate: "",
+                      semeester1RegistrationEndDate: "",
+                      semeester2RegistrationStartDate: "",
+                      semeester2RegistrationEndDate: "",
+                    });
                     setErrors({});
                   }}
                 >
                   Reset
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isLoading}
                   className="min-w-[120px]"
                 >

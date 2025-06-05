@@ -10,27 +10,26 @@ export const useCreateSection = () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sections/`, {
         method: "POST",
         body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) throw new Error('Failed to create section');
+      if (!res.ok) throw new Error("Failed to create section");
       return res.json();
     },
     onSuccess: () => {
-       queryClient.invalidateQueries({
-      queryKey: ['sections'],
-    });
       queryClient.invalidateQueries({
-        queryKey: ['student-count'],
+        queryKey: ["sections"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["student-count"],
       });
       toast.success("Section Created", {
         description: "The section has been created successfully!",
       });
-     
     },
     onError: () => {
       toast.error("Error", {
         description: "Something went wrong. Please try again.",
       });
-    }
+    },
   });
-}
+};
