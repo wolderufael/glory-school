@@ -43,3 +43,13 @@ export interface AssessmentSubmission {
   teachingAssignmentId: number;
   assessments: CreateAssessmentRequest[];
 }
+
+
+export interface AssessmentInfoResponse {
+  academicYear: { name: string },
+  department: { name: string },
+  section: { sectionName: string },
+  course: { title: string },
+  academicSemester: { name: string },
+  id: number;
+}

@@ -19,6 +19,7 @@ import { CreateAssessmentRequest } from '@/utils/assessment';
 import { useAssessments } from '@/lib/react-query/hooks/useAssessment';
 import { ModuleInfoForm } from './moduleInfoForm';
 import { AssessmentCell } from './assessmentCell';
+import { useByteachingAssessment } from '@/lib/react-query/hooks/useByteachingAssessment';
 
 
 interface StudentMark {
@@ -32,12 +33,12 @@ interface StudentMark {
   theory: number;
   total: number;
   grade_in_letter: string;
+  
 }
 
 const ListTable = () => {
   const { data: students, isLoading, error } = useStudent();
   const { assessments, updateLocalAssessment, submitAssessments, isSubmitting } = useAssessments();
-  
   const [moduleInfo, setModuleInfo] = useState({
     academicYear: '',
     department: '',
@@ -47,9 +48,31 @@ const ListTable = () => {
     program: '',
     teachingAssignmentId: 1 
   });
+  const [assessmentRows, setAssessmentRows] = useState<any[]>([]); // store fetched assessment data
+  const [fetchedAssessments, setFetchedAssessments] = useState<any[]>([]);
+  const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [selectedTeachingAssignmentId, setSelectedTeachingAssignmentId] = useState<number | null>(null);
+  const {
+    data: fetchedAssessmentsData,
+    isLoading: isAssessmentsLoading,
+    isError: isAssessmentsError,
+    error: assessmentsError,
+    refetch: refetchAssessments
+  } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
 
-  const handleModuleInfoChange = (field: string, value: string) => {
-    setModuleInfo(prev => ({ ...prev, [field]: value }));
+  // When Get is clicked in ModuleInfoForm, update selectedTeachingAssignmentId
+  const handleGetAssessment = (id: number) => {
+    setSelectedTeachingAssignmentId(id);
+    refetchAssessments();
+  };
+
+  // Fix handleGetMark to use the hook
+  const handleGetMark = async (id: number) => {
+    const assessmentResult = useByteachingAssessment(id);
+    if (assessmentResult && assessmentResult.data) {
+      setAssessmentRows(assessmentResult.data);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,11 +141,13 @@ const ListTable = () => {
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       <form onSubmit={handleSubmit}>
-        <ModuleInfoForm 
-          moduleInfo={moduleInfo} 
-          onInfoChange={handleModuleInfoChange} 
-        />
-        
+        <ModuleInfoForm handleGet={handleGetAssessment} />
+        {isAssessmentsLoading && (
+          <div className="text-blue-600 py-4">Loading assessments...</div>
+        )}
+        {isAssessmentsError && (
+          <div className="text-red-600 py-4">Error loading assessments: {assessmentsError?.message || ''}</div>
+        )}
         <Card>
           <CardContent className="p-6">
             <Table>
@@ -143,49 +168,51 @@ const ListTable = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students?.map((student: StudentMark) => {
-                  const numericStudentId = parseInt(student.student_main_id.replace('ST', ''));
+                {(fetchedAssessmentsData && fetchedAssessmentsData.length > 0 ? fetchedAssessmentsData : students)?.map((item: any) => {
+                  // If fetchedAssessments, use its structure, else use StudentMark
+                  const student = item.student || item;
+                  const practical1 = item.practical1 ?? 0;
+                  const practical2 = item.practical2 ?? 0;
+                  const practical3 = item.practical3 ?? 0;
+                  const theory = item.theory ?? 0;
+                  const totalPractical = (practical1 || 0) + (practical2 || 0) + (practical3 || 0);
+                  const totalMark = totalPractical + (theory || 0);
+                  const grade = item.gradeInLetter || 'F';
+                  const studentId = student.student_main_id || `ST${student.id}`;
+                  const fullName = student.first_name ? `${student.first_name} ${student.middle_name} ${student.last_name}` : `${student.user?.firstName || ''} ${student.user?.middleName || ''} ${student.user?.lastName || ''}`;
                   return (
-                    <TableRow key={student.student_main_id}>
-                      <TableCell>{student.student_main_id}</TableCell>
-                      <TableCell>
-                        {`${student.first_name} ${student.middle_name} ${student.last_name}`}
-                      </TableCell>
-                      <TableCell>{student.sex}</TableCell>
-                      <TableCell>{student.id_no}</TableCell>
+                    <TableRow key={studentId}>
+                      <TableCell>{studentId}</TableCell>
+                      <TableCell>{fullName}</TableCell>
+                      <TableCell>{student.sex || student.gender || ''}</TableCell>
+                      <TableCell>{student.id_no || student.idNo || ''}</TableCell>
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'practical1')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical1', value)}
+                        value={practical1}
+                        onChange={(value) => updateLocalAssessment(student.id, 'practical1', value)}
                         max={30}
                         placeholder="0"
                       />
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'practical2')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical2', value)}
+                        value={practical2}
+                        onChange={(value) => updateLocalAssessment(student.id, 'practical2', value)}
                         max={30}
                         placeholder="0"
                       />
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'practical3')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical3', value)}
+                        value={practical3}
+                        onChange={(value) => updateLocalAssessment(student.id, 'practical3', value)}
                         max={40}
                         placeholder="0"
                       />
-                      <TableCell className="font-medium">
-                        {getTotalPractical(student.student_main_id)}
-                      </TableCell>
+                      <TableCell className="font-medium">{totalPractical}</TableCell>
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'theory')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'theory', value)}
+                        value={theory}
+                        onChange={(value) => updateLocalAssessment(student.id, 'theory', value)}
                         max={30}
                         placeholder="0"
                       />
-                      <TableCell className="font-medium">
-                        {getTotalMark(student.student_main_id)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {getGrade(student.student_main_id)}
-                      </TableCell>
+                      <TableCell className="font-medium">{totalMark}</TableCell>
+                      <TableCell className="font-medium">{grade}</TableCell>
                     </TableRow>
                   );
                 })}

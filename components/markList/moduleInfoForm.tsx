@@ -1,93 +1,74 @@
+'use client'
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
+import { Button } from '../ui/button';
+import { useTeachingAssignment } from '@/lib/react-query/hooks/useTeachingAssignment';
+import { AssessmentInfoResponse } from '@/utils/assessment';
 
 interface ModuleInfoFormProps {
-  moduleInfo: {
-    academicYear: string;
-    department: string;
-    sector: string;
-    module: string;
-    moduleCode: string;
-    program: string;
-  };
-  onInfoChange: (field: string, value: string) => void;
+  handleGet: (id: number) => void;
 }
 
-export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ moduleInfo, onInfoChange }) => {
+const teacherId = 1; // This should be dynamically set based on the logged-in teacher
+
+
+export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ handleGet }:{handleGet: (id: number) => void}) => {
+  // Fetching the teaching assignment data for the teacher
+ 
+         const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId);
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <CardTitle>Module Information</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="academicYear">Academic Year</Label>
-            <Input
-              id="academicYear"
-              value={moduleInfo.academicYear}
-              onChange={(e) => onInfoChange('academicYear', e.target.value)}
-              placeholder="2023/24"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
-            <Input
-              id="department"
-              value={moduleInfo.department}
-              onChange={(e) => onInfoChange('department', e.target.value)}
-              placeholder="Computer Science"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="sector">Sector</Label>
-            <Select value={moduleInfo.sector} onValueChange={(value) => onInfoChange('sector', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select sector" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="regular">Regular</SelectItem>
-                <SelectItem value="extension">Extension</SelectItem>
-                <SelectItem value="weekend">Weekend</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="module">Module</Label>
-            <Input
-              id="module"
-              value={moduleInfo.module}
-              onChange={(e) => onInfoChange('module', e.target.value)}
-              placeholder="Database Systems"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="moduleCode">Module Code</Label>
-            <Input
-              id="moduleCode"
-              value={moduleInfo.moduleCode}
-              onChange={(e) => onInfoChange('moduleCode', e.target.value)}
-              placeholder="CS301"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="program">Program</Label>
-            <Input
-              id="program"
-              value={moduleInfo.program}
-              onChange={(e) => onInfoChange('program', e.target.value)}
-              placeholder="Bachelor of Science"
-            />
-          </div>
-        </div>
+        {isLoading && (
+          <div className="text-blue-600 py-4">Loading module info...</div>
+        )}
+        {isError && (
+          <div className="text-red-600 py-4">Error loading module info: {error?.message || ''}</div>
+        )}
+        {assessmentData && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell className="w-[150px]">Academic Year</TableCell>
+                <TableCell className="w-[150px]">Department</TableCell>
+                <TableCell className="w-[150px]">Section</TableCell>
+                <TableCell className="w-[150px]">Course</TableCell>
+                <TableCell className="w-[150px]">Semester</TableCell>
+                <TableCell className="w-[150px]">Actions</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+               {assessmentData.map((assessmentData:AssessmentInfoResponse) => (
+                 <TableRow key={assessmentData.id}>
+                   <TableCell>{assessmentData.academicYear.name}</TableCell>
+                   <TableCell>{assessmentData.department.name}</TableCell>
+                   <TableCell>{assessmentData.section.sectionName}</TableCell>
+                   <TableCell>{assessmentData.course.title}</TableCell>
+                   <TableCell>{assessmentData.academicSemester.name}</TableCell>
+                   <TableCell>
+                     <Button
+                       variant="outline"
+                       onClick={() => handleGet(assessmentData.id)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Loading...' : 'Get'}
+                  </Button>
+                </TableCell>
+              </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+        {!isLoading && !isError && assessmentData.length === 0 && (
+          <div className="text-gray-600 py-4">No module information available.</div>
+        )}  
+
       </CardContent>
     </Card>
   );
