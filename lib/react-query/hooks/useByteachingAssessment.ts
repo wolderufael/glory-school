@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { getAssessment } from "../queries/getAssessment";
 
 export const useByteachingAssessment = (id: number) => {
   return useQuery({

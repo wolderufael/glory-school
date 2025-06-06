@@ -3,12 +3,13 @@ import { Input } from '@/components/ui/input';
 import { TableCell } from '@/components/ui/table';
 
 interface AssessmentCellProps {
-  value: number;
-  onChange: (value: number) => void;
+  value: number | string | null | undefined;
+  onChange: (value: number | string | null) => void;
   max?: number;
   placeholder?: string;
   disabled?: boolean;
   label?: string;
+  isStatus?: boolean;
 }
 
 export const AssessmentCell: React.FC<AssessmentCellProps> = ({
@@ -17,11 +18,18 @@ export const AssessmentCell: React.FC<AssessmentCellProps> = ({
   max = 100,
   placeholder = "0",
   disabled = false,
-  label
+  label,
+  isStatus = false
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Math.min(Math.max(0, Number(e.target.value) || 0), max);
-    onChange(newValue);
+    if (isStatus) {
+      const val = e.target.value.trim();
+      // Allow empty string (null), 'N/A', or any custom status
+      onChange(val === '' ? null : val);
+    } else {
+      const newValue = Math.min(Math.max(0, Number(e.target.value) || 0), max);
+      onChange(newValue);
+    }
   };
 
   return (
@@ -29,14 +37,16 @@ export const AssessmentCell: React.FC<AssessmentCellProps> = ({
       <div className="space-y-1">
         {label && <div className="text-xs text-gray-500">{label}</div>}
         <Input
-          type="number"
-          value={value || ''}
+          type={isStatus ? "text" : "number"}
+          value={isStatus 
+            ? (value === null || value === undefined ? '' : String(value))
+            : (value || '')}
           onChange={handleChange}
           placeholder={placeholder}
-          min="0"
-          max={max}
+          min={isStatus ? undefined : "0"}
+          max={isStatus ? undefined : max}
           disabled={disabled}
-          className="w-20 text-center"
+          className={`w-20 text-center ${isStatus ? 'min-w-[100px]' : ''}`}
         />
       </div>
     </TableCell>

@@ -16,8 +16,7 @@ const teacherId = 1; // This should be dynamically set based on the logged-in te
 
 export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ handleGet }:{handleGet: (id: number) => void}) => {
   // Fetching the teaching assignment data for the teacher
- 
-         const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId);
+    const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId);
 
   return (
     <Card className="mb-6">
