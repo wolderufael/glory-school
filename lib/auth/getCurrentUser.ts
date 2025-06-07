@@ -1,12 +1,13 @@
 
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
-import { UserType } from '@/utils/userType';
+import { UserType } from '@/utils/typeUser';
+
 
 
 export async function getCurrentUser(): Promise<{ id: string; role: UserType } | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get('userSession')?.value;
+  const token = cookieStore.get('token')?.value;
 
   if (!token) return null;
 
