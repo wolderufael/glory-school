@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -15,11 +15,10 @@ import { Button } from "@/components/ui/button";
 import { useStudent } from "@/lib/react-query/hooks/useStudent";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { CreateAssessmentRequest } from '@/utils/assessment';
-import { useAssessments } from '@/lib/react-query/hooks/useAssessment';
-import { ModuleInfoForm } from './moduleInfoForm';
-import { AssessmentCell } from './assessmentCell';
-
+import { CreateAssessmentRequest } from "@/utils/assessment";
+import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
+import { ModuleInfoForm } from "./moduleInfoForm";
+import { AssessmentCell } from "./assessmentCell";
 
 interface StudentMark {
   student_main_id: string;
@@ -35,40 +34,63 @@ interface StudentMark {
 }
 
 const ListTable = () => {
-  const { data: students, isLoading, error } = useStudent();
-  const { assessments, updateLocalAssessment, submitAssessments, isSubmitting } = useAssessments();
-  
   const [moduleInfo, setModuleInfo] = useState({
-    academicYear: '',
-    department: '',
-    sector: '',
-    module: '',
-    moduleCode: '',
-    program: '',
-    teachingAssignmentId: 1 
+    teacherId: "",
+    academicYearId: "",
+    semesterId: "",
+    level: "",
+    departmentId: "",
+    sectionId: "",
+    moduleId: "",
+    teachingAssignmentId: 1,
   });
 
+  const {
+    data: students,
+    isLoading,
+    error,
+  } = useStudent({
+    teacherId: moduleInfo.teacherId,
+    academicYearId: moduleInfo.academicYearId,
+    semesterId: moduleInfo.semesterId,
+    level: moduleInfo.level,
+    departmentId: moduleInfo.departmentId,
+    sectionId: moduleInfo.sectionId,
+    moduleId: moduleInfo.moduleId,
+  });
+  const {
+    assessments,
+    updateLocalAssessment,
+    submitAssessments,
+    isSubmitting,
+  } = useAssessments();
+
   const handleModuleInfoChange = (field: string, value: string) => {
-    setModuleInfo(prev => ({ ...prev, [field]: value }));
+    setModuleInfo((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!moduleInfo.academicYear || !moduleInfo.department || !moduleInfo.module) {
-      alert('Please fill in the required module information');
+
+    if (
+      !moduleInfo.academicYearId ||
+      !moduleInfo.departmentId ||
+      !moduleInfo.moduleId
+    ) {
+      alert("Please fill in the required module information");
       return;
     }
-    
 
-    const assessmentData: CreateAssessmentRequest[] = Object.entries(assessments).map(([studentId, assessment]) => ({
+    const assessmentData: CreateAssessmentRequest[] = Object.entries(
+      assessments
+    ).map(([studentId, assessment]) => ({
       teachingAssignmentId: moduleInfo.teachingAssignmentId,
       studentId: parseInt(studentId),
       practical1: assessment.practical1 || 0,
       practical2: assessment.practical2 || 0,
       practical3: assessment.practical3 || 0,
       theory: assessment.theory || 0,
-      comment: assessment.comment || '',
+      comment: assessment.comment || "",
     }));
 
     submitAssessments({
@@ -77,26 +99,33 @@ const ListTable = () => {
     });
   };
 
-  const getAssessmentValue = (studentId: string, field: keyof typeof assessments[number]): number => {
-    const numericStudentId = parseInt(studentId.replace('ST', ''));
-    return assessments[numericStudentId]?.[field] as number || 0;
+  const getAssessmentValue = (
+    studentId: string,
+    field: keyof (typeof assessments)[number]
+  ): number => {
+    const numericStudentId = parseInt(studentId.replace("ST", ""));
+    return (assessments[numericStudentId]?.[field] as number) || 0;
   };
 
   const getTotalPractical = (studentId: string): number => {
-    const numericStudentId = parseInt(studentId.replace('ST', ''));
+    const numericStudentId = parseInt(studentId.replace("ST", ""));
     const assessment = assessments[numericStudentId];
-    return (assessment?.practical1 || 0) + (assessment?.practical2 || 0) + (assessment?.practical3 || 0);
+    return (
+      (assessment?.practical1 || 0) +
+      (assessment?.practical2 || 0) +
+      (assessment?.practical3 || 0)
+    );
   };
 
   const getTotalMark = (studentId: string): number => {
-    const numericStudentId = parseInt(studentId.replace('ST', ''));
+    const numericStudentId = parseInt(studentId.replace("ST", ""));
     const assessment = assessments[numericStudentId];
     return getTotalPractical(studentId) + (assessment?.theory || 0);
   };
 
   const getGrade = (studentId: string): string => {
-    const numericStudentId = parseInt(studentId.replace('ST', ''));
-    return assessments[numericStudentId]?.gradeInLetter || 'F';
+    const numericStudentId = parseInt(studentId.replace("ST", ""));
+    return assessments[numericStudentId]?.gradeInLetter || "F";
   };
 
   if (isLoading) {
@@ -118,15 +147,17 @@ const ListTable = () => {
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
       <form onSubmit={handleSubmit}>
-        <ModuleInfoForm 
-          moduleInfo={moduleInfo} 
-          onInfoChange={handleModuleInfoChange} 
+        <ModuleInfoForm
+          moduleInfo={moduleInfo}
+          onInfoChange={handleModuleInfoChange}
         />
-        
+
         <Card>
           <CardContent className="p-6">
             <Table>
-              <TableCaption>Students Assessment - Edit marks and submit</TableCaption>
+              <TableCaption>
+                Students Assessment - Edit marks and submit
+              </TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Student ID</TableHead>
@@ -144,7 +175,9 @@ const ListTable = () => {
               </TableHeader>
               <TableBody>
                 {students?.map((student: StudentMark) => {
-                  const numericStudentId = parseInt(student.student_main_id.replace('ST', ''));
+                  const numericStudentId = parseInt(
+                    student.student_main_id.replace("ST", "")
+                  );
                   return (
                     <TableRow key={student.student_main_id}>
                       <TableCell>{student.student_main_id}</TableCell>
@@ -154,20 +187,47 @@ const ListTable = () => {
                       <TableCell>{student.sex}</TableCell>
                       <TableCell>{student.id_no}</TableCell>
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'practical1')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical1', value)}
+                        value={getAssessmentValue(
+                          student.student_main_id,
+                          "practical1"
+                        )}
+                        onChange={(value) =>
+                          updateLocalAssessment(
+                            numericStudentId,
+                            "practical1",
+                            value
+                          )
+                        }
                         max={30}
                         placeholder="0"
                       />
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'practical2')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical2', value)}
+                        value={getAssessmentValue(
+                          student.student_main_id,
+                          "practical2"
+                        )}
+                        onChange={(value) =>
+                          updateLocalAssessment(
+                            numericStudentId,
+                            "practical2",
+                            value
+                          )
+                        }
                         max={30}
                         placeholder="0"
                       />
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'practical3')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical3', value)}
+                        value={getAssessmentValue(
+                          student.student_main_id,
+                          "practical3"
+                        )}
+                        onChange={(value) =>
+                          updateLocalAssessment(
+                            numericStudentId,
+                            "practical3",
+                            value
+                          )
+                        }
                         max={40}
                         placeholder="0"
                       />
@@ -175,8 +235,17 @@ const ListTable = () => {
                         {getTotalPractical(student.student_main_id)}
                       </TableCell>
                       <AssessmentCell
-                        value={getAssessmentValue(student.student_main_id, 'theory')}
-                        onChange={(value) => updateLocalAssessment(numericStudentId, 'theory', value)}
+                        value={getAssessmentValue(
+                          student.student_main_id,
+                          "theory"
+                        )}
+                        onChange={(value) =>
+                          updateLocalAssessment(
+                            numericStudentId,
+                            "theory",
+                            value
+                          )
+                        }
                         max={30}
                         placeholder="0"
                       />
@@ -193,12 +262,12 @@ const ListTable = () => {
               <TableFooter>
                 <TableRow>
                   <TableCell colSpan={11} className="text-right">
-                    <Button 
+                    <Button
                       type="submit"
                       disabled={isSubmitting}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
                     >
-                      {isSubmitting ? 'Submitting...' : 'Submit Assessments'}
+                      {isSubmitting ? "Submitting..." : "Submit Assessments"}
                     </Button>
                   </TableCell>
                 </TableRow>

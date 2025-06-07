@@ -1,22 +1,33 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ModuleInfoFormProps {
   moduleInfo: {
-    academicYear: string;
-    department: string;
-    sector: string;
-    module: string;
-    moduleCode: string;
-    program: string;
+    teacherId: string;
+    academicYearId: string;
+    semesterId: string;
+    level: string;
+    departmentId: string;
+    sectionId: string;
+    moduleId: string;
+    teachingAssignmentId: number;
   };
   onInfoChange: (field: string, value: string) => void;
 }
 
-export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ moduleInfo, onInfoChange }) => {
+export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({
+  moduleInfo,
+  onInfoChange,
+}) => {
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -24,67 +35,73 @@ export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ moduleInfo, onIn
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="academicYear">Academic Year</Label>
+{/*           <div className="space-y-2">
+            <Label htmlFor="teacherId">Teacher ID</Label>
             <Input
-              id="academicYear"
-              value={moduleInfo.academicYear}
-              onChange={(e) => onInfoChange('academicYear', e.target.value)}
-              placeholder="2023/24"
+              id="teacherId"
+              value={moduleInfo.teacherId}
+              onChange={(e) => onInfoChange("teacherId", e.target.value)}
+              placeholder="Enter teacher ID"
+            />
+          </div> */}
+
+          <div className="space-y-2">
+            <Label htmlFor="academicYearId">Academic Year</Label>
+            <Input
+              id="academicYearId"
+              value={moduleInfo.academicYearId}
+              onChange={(e) => onInfoChange("academicYearId", e.target.value)}
+              placeholder="Enter academic year ID"
             />
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="department">Department</Label>
+            <Label htmlFor="semesterId">Semester</Label>
             <Input
-              id="department"
-              value={moduleInfo.department}
-              onChange={(e) => onInfoChange('department', e.target.value)}
-              placeholder="Computer Science"
+              id="semesterId"
+              value={moduleInfo.semesterId}
+              onChange={(e) => onInfoChange("semesterId", e.target.value)}
+              placeholder="Select Semester"
             />
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="sector">Sector</Label>
-            <Select value={moduleInfo.sector} onValueChange={(value) => onInfoChange('sector', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select sector" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="regular">Regular</SelectItem>
-                <SelectItem value="extension">Extension</SelectItem>
-                <SelectItem value="weekend">Weekend</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="module">Module</Label>
+            <Label htmlFor="level">Level</Label>
             <Input
-              id="module"
-              value={moduleInfo.module}
-              onChange={(e) => onInfoChange('module', e.target.value)}
-              placeholder="Database Systems"
+              id="level"
+              value={moduleInfo.level}
+              onChange={(e) => onInfoChange("level", e.target.value)}
+              placeholder="Select Level"
             />
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="moduleCode">Module Code</Label>
+            <Label htmlFor="departmentId">Department</Label>
             <Input
-              id="moduleCode"
-              value={moduleInfo.moduleCode}
-              onChange={(e) => onInfoChange('moduleCode', e.target.value)}
-              placeholder="CS301"
+              id="departmentId"
+              value={moduleInfo.departmentId}
+              onChange={(e) => onInfoChange("departmentId", e.target.value)}
+              placeholder="Select Department"
             />
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="program">Program</Label>
+            <Label htmlFor="sectionId">Section</Label>
             <Input
-              id="program"
-              value={moduleInfo.program}
-              onChange={(e) => onInfoChange('program', e.target.value)}
-              placeholder="Bachelor of Science"
+              id="sectionId"
+              value={moduleInfo.sectionId}
+              onChange={(e) => onInfoChange("sectionId", e.target.value)}
+              placeholder="Select Section"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="moduleId">Module Name</Label>
+            <Input
+              id="moduleId"
+              value={moduleInfo.moduleId}
+              onChange={(e) => onInfoChange("moduleId", e.target.value)}
+              placeholder="Select Module "
             />
           </div>
         </div>
