@@ -14,7 +14,7 @@ export const useTeachers = ({
 }: UseTeachersOptions) => {
   return useQuery<Teacher[], Error>({
     queryKey: ["teachers", departmentId, searchQuery],
-    queryFn: () => getTeachers(departmentId),
+    queryFn: () => getTeachers({ departmentId }),
     enabled: Boolean(departmentId && enabled),
     staleTime: 1000 * 60 * 30, // 30 minutes before data is considered stale
     gcTime: 1000 * 60 * 60 * 24, // Keep unused data in cache for 24 hours

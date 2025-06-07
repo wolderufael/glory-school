@@ -13,12 +13,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useStudent } from "@/lib/react-query/hooks/useStudent";
-
 import { Card, CardContent } from "@/components/ui/card";
-import { CreateAssessmentRequest } from "@/utils/assessment";
-import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
-import { ModuleInfoForm } from "./moduleInfoForm";
-import { AssessmentCell } from "./assessmentCell";
+import { CreateAssessmentRequest } from '@/utils/assessment';
+import { useAssessments } from '@/lib/react-query/hooks/useAssessment';
+import { ModuleInfoForm } from './moduleInfoForm';
+import { AssessmentCell } from './assessmentCell';
+import { useByteachingAssessment } from '@/lib/react-query/hooks/useByteachingAssessment';
+
 
 interface StudentMark {
   student_main_id: string;
@@ -31,70 +32,86 @@ interface StudentMark {
   theory: number;
   total: number;
   grade_in_letter: string;
+  
 }
 
 const ListTable = () => {
+  const { assessments, updateLocalAssessment, submitAssessments, isSubmitting } = useAssessments();
   const [moduleInfo, setModuleInfo] = useState({
-    teacherId: "",
-    academicYearId: "",
-    semesterId: "",
-    level: "",
-    departmentId: "",
-    sectionId: "",
-    moduleId: "",
-    teachingAssignmentId: 1,
+    academicYear: '',
+    department: '',
+    sector: '',
+    module: '',
+    moduleCode: '',
+    program: '',
+    teachingAssignmentId: 1
   });
+  const [selectedTeachingAssignmentId, setSelectedTeachingAssignmentId] = useState<number | null>(null);
 
+  // Fetch assessment data for the selected teaching assignment
   const {
-    data: students,
-    isLoading,
-    error,
-  } = useStudent({
-    teacherId: moduleInfo.teacherId,
-    academicYearId: moduleInfo.academicYearId,
-    semesterId: moduleInfo.semesterId,
-    level: moduleInfo.level,
-    departmentId: moduleInfo.departmentId,
-    sectionId: moduleInfo.sectionId,
-    moduleId: moduleInfo.moduleId,
-  });
-  const {
-    assessments,
-    updateLocalAssessment,
-    submitAssessments,
-    isSubmitting,
-  } = useAssessments();
+    data: fetchedAssessments,
+    isLoading: isAssessmentsLoading,
+    isError: isAssessmentsError,
+    error: assessmentsError,
+    refetch: refetchAssessments
+  } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
 
-  const handleModuleInfoChange = (field: string, value: string) => {
-    setModuleInfo((prev) => ({ ...prev, [field]: value }));
+  // Handle Get button from ModuleInfoForm
+  const handleGetAssessment = (id: number) => {
+    setSelectedTeachingAssignmentId(id);
+    refetchAssessments();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (
-      !moduleInfo.academicYearId ||
-      !moduleInfo.departmentId ||
-      !moduleInfo.moduleId
-    ) {
-      alert("Please fill in the required module information");
+    if (!selectedTeachingAssignmentId) {
+      alert('Please select a module and click Get first.');
       return;
     }
+    // Only send students whose marks have been updated locally
+    const updatedStudentIds = Object.keys(assessments);
+    if (updatedStudentIds.length === 0) {
+      alert('No changes to submit.');
+      return;
+    }
+    const assessmentData: CreateAssessmentRequest[] = updatedStudentIds.map((studentId) => {
+      const numericStudentId = Number(studentId);
+      const local = assessments[numericStudentId] || {};
+      // Find the original fetched row for this student
+      const fetched = (fetchedAssessments || []).find((item: any) => (item.student?.id === numericStudentId));
+      const practical1 = local.practical1 ?? fetched?.practical1 ?? 0;
+      const practical2 = local.practical2 ?? fetched?.practical2 ?? 0;
+      const practical3 = local.practical3 ?? fetched?.practical3 ?? 0;
+      const theory = local.theory ?? fetched?.theory ?? 0;
+      const comment = local.comment ?? fetched?.comment ?? '';
+      const practicalStatus = local.practicalStatus ?? fetched?.practicalStatus ?? null;
+      const theoryStatus = local.theoryStatus ?? fetched?.theoryStatus ?? null;
 
-    const assessmentData: CreateAssessmentRequest[] = Object.entries(
-      assessments
-    ).map(([studentId, assessment]) => ({
-      teachingAssignmentId: moduleInfo.teachingAssignmentId,
-      studentId: parseInt(studentId),
-      practical1: assessment.practical1 || 0,
-      practical2: assessment.practical2 || 0,
-      practical3: assessment.practical3 || 0,
-      theory: assessment.theory || 0,
-      comment: assessment.comment || "",
-    }));
+      // Calculate totals
+      const totalPractical = practical1 + practical2 + practical3;
+      const totalMark = totalPractical + theory;
+      return {
+        teachingAssignmentId: selectedTeachingAssignmentId,
+        studentId: numericStudentId,
+        practical1,
+        practical2,
+        practical3,
+        totalPractical,
+        practicalStatus,
+        theoryStatus,
+        totalMark,
+        theory,
+        comment,
+        // Optionally include totalPractical and totalMark if backend expects them
+        // totalPractical,
+        // totalMark,
+      };
+    });
 
+    console.log('Submitting assessments:', assessmentData);
     submitAssessments({
-      teachingAssignmentId: moduleInfo.teachingAssignmentId,
+      teachingAssignmentId: selectedTeachingAssignmentId,
       assessments: assessmentData,
     });
   };
@@ -124,36 +141,22 @@ const ListTable = () => {
   };
 
   const getGrade = (studentId: string): string => {
-    const numericStudentId = parseInt(studentId.replace("ST", ""));
-    return assessments[numericStudentId]?.gradeInLetter || "F";
+    const numericStudentId = parseInt(studentId.replace('ST', ''));
+    return assessments[numericStudentId]?.gradeInLetter || 'F';
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-lg">Loading students...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-red-500 text-lg">Error fetching students</p>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6">
+      <ModuleInfoForm handleGet={handleGetAssessment} />
       <form onSubmit={handleSubmit}>
-        <ModuleInfoForm
-          moduleInfo={moduleInfo}
-          onInfoChange={handleModuleInfoChange}
-        />
-
         <Card>
           <CardContent className="p-6">
+            {isAssessmentsLoading && (
+              <div className="text-blue-600 py-4">Loading assessments...</div>
+            )}
+            {isAssessmentsError && (
+              <div className="text-red-600 py-4">Error loading assessments: {assessmentsError?.message || ''}</div>
+            )}
             <Table>
               <TableCaption>
                 Students Assessment - Edit marks and submit
@@ -163,102 +166,78 @@ const ListTable = () => {
                   <TableHead>Student ID</TableHead>
                   <TableHead>Full Name</TableHead>
                   <TableHead>Sex</TableHead>
-                  <TableHead>ID.No</TableHead>
                   <TableHead>Practical 1</TableHead>
                   <TableHead>Practical 2</TableHead>
                   <TableHead>Practical 3</TableHead>
+                  <TableHead>Practical Status</TableHead>
                   <TableHead>Total Practical</TableHead>
                   <TableHead>Theory</TableHead>
+                  <TableHead>Theory Status</TableHead>
                   <TableHead>Total Mark</TableHead>
                   <TableHead>Grade</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students?.map((student: StudentMark) => {
-                  const numericStudentId = parseInt(
-                    student.student_main_id.replace("ST", "")
-                  );
-                  return (
-                    <TableRow key={student.student_main_id}>
-                      <TableCell>{student.student_main_id}</TableCell>
-                      <TableCell>
-                        {`${student.first_name} ${student.middle_name} ${student.last_name}`}
-                      </TableCell>
-                      <TableCell>{student.sex}</TableCell>
-                      <TableCell>{student.id_no}</TableCell>
+                  {(fetchedAssessments && fetchedAssessments.length > 0 ? fetchedAssessments : []).map((item: any) => {
+                    const student = item.student;
+                    const studentId = student?.id;
+                    const numericStudentId = Number(studentId);
+                    // Use local edits if present, else fallback to fetched values
+                    const local = assessments[numericStudentId] || {};
+                    const practical1 = local.practical1 ?? item.practical1 ?? 0;
+                    const practical2 = local.practical2 ?? item.practical2 ?? 0;
+                    const practical3 = local.practical3 ?? item.practical3 ?? 0;
+                    const practicalStatus = local.practicalStatus || null;
+                    const theoryStatus = local.theoryStatus || null;
+                    const theory = local.theory ?? item.theory ?? 0;
+                    const totalPractical = practical1 + practical2 + practical3;
+                    const totalMark = totalPractical + theory;
+                    const grade = item.gradeInLetter || 'F';
+                    const fullName = student?.user?.firstName
+                      ? `${student.user.firstName} ${student.user.middleName ?? ''} ${student.user.lastName ?? ''}`
+                      : 'Unknown Student';
+                    const sex = student?.user?.gender || 'N/A';
+                    return (
+                     <TableRow key={studentId}>
+                      <TableCell>{student?.user?.userMainId || ''}</TableCell>
+                      <TableCell>{fullName}</TableCell>
+                      <TableCell>{sex}</TableCell>
                       <AssessmentCell
-                        value={getAssessmentValue(
-                          student.student_main_id,
-                          "practical1"
-                        )}
-                        onChange={(value) =>
-                          updateLocalAssessment(
-                            numericStudentId,
-                            "practical1",
-                            value
-                          )
-                        }
+                        value={practical1}
+                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical1', Number(value))}
                         max={30}
-                        placeholder="0"
                       />
                       <AssessmentCell
-                        value={getAssessmentValue(
-                          student.student_main_id,
-                          "practical2"
-                        )}
-                        onChange={(value) =>
-                          updateLocalAssessment(
-                            numericStudentId,
-                            "practical2",
-                            value
-                          )
-                        }
+                        value={practical2}
+                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical2', Number(value))}
                         max={30}
-                        placeholder="0"
                       />
                       <AssessmentCell
-                        value={getAssessmentValue(
-                          student.student_main_id,
-                          "practical3"
-                        )}
-                        onChange={(value) =>
-                          updateLocalAssessment(
-                            numericStudentId,
-                            "practical3",
-                            value
-                          )
-                        }
-                        max={40}
-                        placeholder="0"
-                      />
-                      <TableCell className="font-medium">
-                        {getTotalPractical(student.student_main_id)}
-                      </TableCell>
-                      <AssessmentCell
-                        value={getAssessmentValue(
-                          student.student_main_id,
-                          "theory"
-                        )}
-                        onChange={(value) =>
-                          updateLocalAssessment(
-                            numericStudentId,
-                            "theory",
-                            value
-                          )
-                        }
+                        value={practical3}
+                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practical3', Number(value))}
                         max={30}
-                        placeholder="0"
                       />
-                      <TableCell className="font-medium">
-                        {getTotalMark(student.student_main_id)}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {getGrade(student.student_main_id)}
-                      </TableCell>
+                        <AssessmentCell
+                        value={practicalStatus}
+                        onChange={(value) => updateLocalAssessment(numericStudentId, 'practicalStatus', value ?? '')}
+                        isStatus={true}
+                        placeholder="null"
+                      />
+                      <TableCell>{totalPractical}</TableCell>
+                      <TableCell>{theory}</TableCell>
+                      <AssessmentCell
+                        value={theoryStatus}
+                        onChange={(value) => updateLocalAssessment(numericStudentId, 'theoryStatus', value ?? '')}
+                        isStatus={true}
+                        placeholder="null"
+                      />
+                      <TableCell>{totalMark}</TableCell>
+                      <TableCell>{grade}</TableCell>
                     </TableRow>
-                  );
-                })}
-              </TableBody>
+                    );
+                  })}
+                </TableBody>
+
               <TableFooter>
                 <TableRow>
                   <TableCell colSpan={11} className="text-right">

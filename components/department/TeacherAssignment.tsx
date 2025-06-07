@@ -10,8 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { GraduationCap, Users } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { GraduationCap, Users, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CourseList from "./CourseList";
 
@@ -28,17 +27,16 @@ interface TeacherAssignmentFormProps {
 }
 
 const LEVELS = [
-  { value: "I", label: "I" },
-  { value: "II", label: "II" },
-  { value: "III", label: "III" },
-  { value: "IV", label: "IV" },
+  { value: "I", label: "Level I" },
+  { value: "II", label: "Level II" },
+  { value: "III", label: "Level III" },
+  { value: "IV", label: "Level IV" },
 ] as const;
 
 const SECTIONS = [
-  { value: "1", label: "A" },
-  /*   { value: "2", label: "B" },
-  { value: "3", label: "C" },
-  { value: "4", label: "D" }, */
+  { value: "1", label: "Section A" },
+  { value: "2", label: "Section B" },
+  { value: "3", label: "Section C" },
 ] as const;
 
 const TeacherAssignmentForm = ({
@@ -47,118 +45,150 @@ const TeacherAssignmentForm = ({
   const [formData, setFormData] = useState<TeacherAssignmentFormData>({
     courseId: "",
     departmentId,
-    sectionId: "",
-    level: "",
+    sectionId: "1", // Default to first section
+    level: "I", // Default to first level
     academicSemesterId: "1",
   });
 
+  const handleLevelChange = (value: string) => {
+    setFormData({ ...formData, level: value, courseId: "" });
+  };
+
+  const handleSectionChange = (value: string) => {
+    setFormData({ ...formData, sectionId: value, courseId: "" });
+  };
+
+  const resetForm = () => {
+    setFormData({
+      departmentId,
+      courseId: "",
+      sectionId: "1",
+      level: "I",
+      academicSemesterId: "1",
+    });
+  };
+
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-8">
+    <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100 min-h-screen py-8">
       <div className="container mx-auto px-4">
-        <Card className="shadow-md max-w-6xl mx-auto">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+        <Card className="shadow-xl max-w-6xl mx-auto border border-indigo-100 rounded-2xl overflow-hidden">
+          <CardHeader className="space-y-1 text-center bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-8">
+            <div className="flex justify-center mb-3">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
+                <Users className="w-7 h-7 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold">
-              Assign Teacher to Section
+            <CardTitle className="text-3xl font-bold tracking-tight">
+              Teacher Assignment Portal
             </CardTitle>
-            <CardDescription>
-              Manage course assignments for teachers in different sections
+            <CardDescription className="text-blue-100 max-w-2xl mx-auto">
+              Manage course assignments and teaching responsibilities across departments
             </CardDescription>
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2 justify-center">
-              <GraduationCap className="w-5 h-5" />
-              Assignment Details
-            </h3>
+            <div className="flex justify-center pt-4">
+              <div className="w-24 h-1 bg-blue-300 rounded-full"></div>
+            </div>
           </CardHeader>
 
-          <div>
-            <CardContent className="w-[90%] mx-auto gap-4 rounded-lg">
-              <div className="space-y-4">
-                <div className="flex justify-center p-6 rounded-xl">
-                  {/* Level and Section Selection */}
-                  <div className="w-full max-w-4xl border border-gray-200 rounded-xl bg-white p-6">
-                    <div className="grid grid-cols-2 gap-8">
-                      {/* Level Selection */}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium block mb-2">
-                          Level <span className="text-red-500">*</span>
+          <CardContent className="py-8 px-6">
+            <div className="space-y-8">
+              {/* Form Header */}
+              <div className="text-center mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2 justify-center">
+                  <GraduationCap className="w-5 h-5 text-indigo-600" />
+                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Assignment Details
+                  </span>
+                </h2>
+                <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+                  Select the level and section to view available courses for assignment
+                </p>
+              </div>
+              
+              {/* Level and Section Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Level Selection Card */}
+                <Card className="border border-blue-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-blue-800 font-bold">L</span>
+                        </div>
+                        <Label className="text-sm font-medium text-gray-700">
+                          Academic Level
                         </Label>
-                        <RadioGroup
-                          className="flex justify-start items-center gap-6"
-                          value={formData.level}
-                          onValueChange={(value) =>
-                            setFormData({ ...formData, level: value })
-                          }
-                        >
-                          {LEVELS.map(({ value, label }) => (
-                            <div
-                              key={value}
-                              className="flex flex-col items-center"
-                            >
-                              <RadioGroupItem
-                                value={value}
-                                id={`level-${value}`}
-                                className="h-6 w-6 border-2 border-gray-300 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
-                              />
-                              <Label
-                                htmlFor={`level-${value}`}
-                                className={cn(
-                                  "text-sm font-medium mt-1 cursor-pointer select-none",
-                                  formData.level === value
-                                    ? "text-blue-600"
-                                    : "text-gray-600"
-                                )}
-                              >
-                                {label}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
                       </div>
-
-                      {/* Section Selection */}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium block mb-2">
-                          Section <span className="text-red-500">*</span>
-                        </Label>
-                        <RadioGroup
-                          className="flex justify-start items-center gap-6"
-                          value={formData.sectionId}
-                          onValueChange={(value) =>
-                            setFormData({ ...formData, sectionId: value })
-                          }
-                        >
-                          {SECTIONS.map(({ value, label }) => (
-                            <div
-                              key={value}
-                              className="flex flex-col items-center"
-                            >
-                              <RadioGroupItem
-                                value={value}
-                                id={`section-${value}`}
-                                className="h-6 w-6 border-2 border-gray-300 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600"
-                              />
-                              <Label
-                                htmlFor={`section-${value}`}
-                                className={cn(
-                                  "text-sm font-medium mt-1 cursor-pointer select-none",
-                                  formData.sectionId === value
-                                    ? "text-blue-600"
-                                    : "text-gray-600"
-                                )}
-                              >
-                                {label}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        {LEVELS.map(({ value, label }) => (
+                          <Button
+                            key={value}
+                            variant={formData.level === value ? "default" : "outline"}
+                            className={cn(
+                              "h-12 transition-all duration-300",
+                              formData.level === value 
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                                : "bg-white hover:bg-blue-50 border-blue-100"
+                            )}
+                            onClick={() => handleLevelChange(value)}
+                          >
+                            {label}
+                          </Button>
+                        ))}
                       </div>
                     </div>
-
-                    {/* Course List */}
+                  </CardContent>
+                </Card>
+                
+                {/* Section Selection Card */}
+                <Card className="border border-purple-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <span className="text-purple-800 font-bold">S</span>
+                        </div>
+                        <Label className="text-sm font-medium text-gray-700">
+                          Class Section
+                        </Label>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-3">
+                        {SECTIONS.map(({ value, label }) => (
+                          <Button
+                            key={value}
+                            variant={formData.sectionId === value ? "default" : "outline"}
+                            className={cn(
+                              "h-12 transition-all duration-300",
+                              formData.sectionId === value 
+                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg"
+                                : "bg-white hover:bg-purple-50 border-purple-100"
+                            )}
+                            onClick={() => handleSectionChange(value)}
+                          >
+                            {label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Course List */}
+              <div className="mt-8">
+                <Card className="border border-gray-200 rounded-xl shadow-sm">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-gray-800">
+                      <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        Available Courses
+                      </span>
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Select a course to assign teachers
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
                     <CourseList
                       departmentId={departmentId}
                       levelId={formData.level}
@@ -169,29 +199,32 @@ const TeacherAssignmentForm = ({
                         setFormData({ ...formData, courseId })
                       }
                     />
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
-
-              <div className="flex justify-end gap-4 pt-6">
+              
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-4 pt-6 border-t border-gray-100 mt-8">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() =>
-                    setFormData({
-                      departmentId,
-                      courseId: "",
-                      sectionId: "",
-                      level: "",
-                      academicSemesterId: "1",
-                    })
-                  }
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  onClick={resetForm}
                 >
-                  Reset
+                  <RefreshCw className="w-4 h-4" />
+                  Reset Selection
+                </Button>
+                
+                <Button
+                  type="button"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg transition-all"
+                  disabled={!formData.courseId}
+                >
+                  Assign Teacher
                 </Button>
               </div>
-            </CardContent>
-          </div>
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>

@@ -90,8 +90,20 @@ export const useAssessments = () => {
     mutationFn: async (data: AssessmentSubmission): Promise<Assessment[]> => {
       console.log('Submitting assessments:', data);
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/assessments/bulk-update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to submit assessments');
+      }
+
+
       return data.assessments.map((assessment, index) => ({
         id: Math.floor(Math.random() * 10000) + index,
         ...assessment,

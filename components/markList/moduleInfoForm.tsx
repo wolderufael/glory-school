@@ -1,110 +1,73 @@
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+'use client'
+
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
+import { Button } from '../ui/button';
+import { useTeachingAssignment } from '@/lib/react-query/hooks/useTeachingAssignment';
+import { AssessmentInfoResponse } from '@/utils/assessment';
 
 interface ModuleInfoFormProps {
-  moduleInfo: {
-    teacherId: string;
-    academicYearId: string;
-    semesterId: string;
-    level: string;
-    departmentId: string;
-    sectionId: string;
-    moduleId: string;
-    teachingAssignmentId: number;
-  };
-  onInfoChange: (field: string, value: string) => void;
+  handleGet: (id: number) => void;
 }
 
-export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({
-  moduleInfo,
-  onInfoChange,
-}) => {
+const teacherId = 1; // This should be dynamically set based on the logged-in teacher
+
+
+export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ handleGet }:{handleGet: (id: number) => void}) => {
+  // Fetching the teaching assignment data for the teacher
+    const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId);
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <CardTitle>Module Information</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-{/*           <div className="space-y-2">
-            <Label htmlFor="teacherId">Teacher ID</Label>
-            <Input
-              id="teacherId"
-              value={moduleInfo.teacherId}
-              onChange={(e) => onInfoChange("teacherId", e.target.value)}
-              placeholder="Enter teacher ID"
-            />
-          </div> */}
+        {isLoading && (
+          <div className="text-blue-600 py-4">Loading module info...</div>
+        )}
+        {isError && (
+          <div className="text-red-600 py-4">Error loading module info: {error?.message || ''}</div>
+        )}
+        {assessmentData && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell className="w-[150px]">Academic Year</TableCell>
+                <TableCell className="w-[150px]">Department</TableCell>
+                <TableCell className="w-[150px]">Section</TableCell>
+                <TableCell className="w-[150px]">Course</TableCell>
+                <TableCell className="w-[150px]">Semester</TableCell>
+                <TableCell className="w-[150px]">Actions</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+               {assessmentData.map((assessmentData:AssessmentInfoResponse) => (
+                 <TableRow key={assessmentData.id}>
+                   <TableCell>{assessmentData.academicYear.name}</TableCell>
+                   <TableCell>{assessmentData.department.name}</TableCell>
+                   <TableCell>{assessmentData.section.sectionName}</TableCell>
+                   <TableCell>{assessmentData.course.title}</TableCell>
+                   <TableCell>{assessmentData.academicSemester.name}</TableCell>
+                   <TableCell>
+                     <Button
+                       variant="outline"
+                       onClick={() => handleGet(assessmentData.id)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Loading...' : 'Get'}
+                  </Button>
+                </TableCell>
+              </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+        {!isLoading && !isError && assessmentData.length === 0 && (
+          <div className="text-gray-600 py-4">No module information available.</div>
+        )}  
 
-          <div className="space-y-2">
-            <Label htmlFor="academicYearId">Academic Year</Label>
-            <Input
-              id="academicYearId"
-              value={moduleInfo.academicYearId}
-              onChange={(e) => onInfoChange("academicYearId", e.target.value)}
-              placeholder="Enter academic year ID"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="semesterId">Semester</Label>
-            <Input
-              id="semesterId"
-              value={moduleInfo.semesterId}
-              onChange={(e) => onInfoChange("semesterId", e.target.value)}
-              placeholder="Select Semester"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="level">Level</Label>
-            <Input
-              id="level"
-              value={moduleInfo.level}
-              onChange={(e) => onInfoChange("level", e.target.value)}
-              placeholder="Select Level"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="departmentId">Department</Label>
-            <Input
-              id="departmentId"
-              value={moduleInfo.departmentId}
-              onChange={(e) => onInfoChange("departmentId", e.target.value)}
-              placeholder="Select Department"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="sectionId">Section</Label>
-            <Input
-              id="sectionId"
-              value={moduleInfo.sectionId}
-              onChange={(e) => onInfoChange("sectionId", e.target.value)}
-              placeholder="Select Section"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="moduleId">Module Name</Label>
-            <Input
-              id="moduleId"
-              value={moduleInfo.moduleId}
-              onChange={(e) => onInfoChange("moduleId", e.target.value)}
-              placeholder="Select Module "
-            />
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
