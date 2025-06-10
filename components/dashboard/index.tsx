@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   BookOpen,
   Calendar,
@@ -24,16 +24,22 @@ import {
   UserCheck,
   ClipboardList,
   BarChart3,
-} from "lucide-react"
-import { DashboardHeader } from "./dashboard-header"
-import { DashboardContent } from "./dashboard-content"
+} from "lucide-react";
+import { DashboardHeader } from "./dashboard-header";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/dashboard/sidebar";
+import { DashboardContent } from "./dashboard-content";
 
 const navigationItems = [
   {
     title: "Academic",
     items: [
-      { title: "Dashboard", icon: Home, url: "#", isActive: true },
-      { title: "Course Registration", icon: BookOpen, url: "#" },
+      { title: "Dashboard", icon: Home, url: "/dashboard" },
+      {
+        title: "Course Registration",
+        icon: BookOpen,
+        url: "/dashboard/course-registration",
+      },
       { title: "Academic Records", icon: FileText, url: "#" },
       { title: "Grades & Transcripts", icon: Award, url: "#" },
       { title: "Class Schedule", icon: Calendar, url: "#" },
@@ -77,7 +83,7 @@ const navigationItems = [
       { title: "Readmissions", icon: GraduationCap, url: "#" },
     ],
   },
-]
+];
 
 const recentActivities = [
   {
@@ -116,7 +122,7 @@ const recentActivities = [
     icon: Calendar,
     color: "text-blue-600",
   },
-]
+];
 
 const upcomingEvents = [
   {
@@ -140,7 +146,7 @@ const upcomingEvents = [
     type: "Social",
     color: "bg-green-100 text-green-800",
   },
-]
+];
 
 const quickStats = [
   {
@@ -171,10 +177,10 @@ const quickStats = [
     icon: DollarSign,
     color: "text-red-600",
   },
-]
+];
 
 export default function StudentPortal() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50">
@@ -186,5 +192,5 @@ export default function StudentPortal() {
         </div>
       </SidebarProvider>
     </div>
-  )
+  );
 }

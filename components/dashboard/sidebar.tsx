@@ -1,8 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { GraduationCap, Search, User, Settings, MoreHorizontal } from "lucide-react"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { useState } from "react";
+import {
+  GraduationCap,
+  Search,
+  User,
+  Settings,
+  MoreHorizontal,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+} from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,15 +22,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { SidebarMenuButton, SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar"
-import { NavigationGroups } from "./navigation-group"
-
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  SidebarMenuButton,
+  SidebarMenu,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { NavigationGroups } from "./navigation-group";
 
 export function AppSidebar() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <Sidebar className="border-r border-red-200">
@@ -58,7 +73,9 @@ export function AppSidebar() {
                 <SidebarMenuButton className="hover:bg-red-100">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                    <AvatarFallback className="bg-red-600 text-white">JD</AvatarFallback>
+                    <AvatarFallback className="bg-red-600 text-white">
+                      JD
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-medium">John Doe</span>
@@ -79,7 +96,9 @@ export function AppSidebar() {
                   Preferences
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600">
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
@@ -87,5 +106,5 @@ export function AppSidebar() {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

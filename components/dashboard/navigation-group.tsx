@@ -1,8 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ChevronDown } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -10,31 +16,34 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { navigationItems } from "@/lib/navigation-data"
+} from "@/components/ui/sidebar";
+import { navigationItems } from "@/lib/navigation-data";
 
 interface NavigationGroupsProps {
-  searchQuery: string
+  searchQuery: string;
 }
 
 export function NavigationGroups({ searchQuery }: NavigationGroupsProps) {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Academic: true,
-  })
+  });
+  const pathname = usePathname();
 
   const toggleGroup = (groupTitle: string) => {
     setOpenGroups((prev) => ({
       ...prev,
       [groupTitle]: !prev[groupTitle],
-    }))
-  }
+    }));
+  };
 
   const filteredItems = navigationItems
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase())),
+      items: group.items.filter((item) =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
     }))
-    .filter((group) => group.items.length > 0)
+    .filter((group) => group.items.length > 0);
 
   return (
     <>
@@ -47,7 +56,7 @@ export function NavigationGroups({ searchQuery }: NavigationGroupsProps) {
         >
           <SidebarGroup>
             <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center justify-between text-red-700   font-bold hover:bg-red-50 rounded-md px-2 py-1 transition-colors">
+              <CollapsibleTrigger className="flex w-full items-center justify-between text-red-700 font-bold hover:bg-red-50 rounded-md px-2 py-1 transition-colors">
                 {group.title}
                 <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
@@ -59,13 +68,16 @@ export function NavigationGroups({ searchQuery }: NavigationGroupsProps) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         asChild
-                        isActive={item.isActive}
+                        isActive={pathname === item.url}
                         className="data-[active=true]:bg-red-100 data-[active=true]:text-red-700 hover:bg-red-50 hover:text-red-700"
                       >
-                        <a href={item.url} className="flex items-center gap-3">
+                        <Link
+                          href={item.url}
+                          className="flex items-center gap-3"
+                        >
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -76,5 +88,5 @@ export function NavigationGroups({ searchQuery }: NavigationGroupsProps) {
         </Collapsible>
       ))}
     </>
-  )
+  );
 }

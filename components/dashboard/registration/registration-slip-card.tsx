@@ -1,0 +1,243 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { StudentRegistration } from "./course-registration";
+
+interface RegistrationSlipCardProps {
+  slip: StudentRegistration;
+}
+
+export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
+  const totalNominalHours = slip.modules.reduce(
+    (sum, module) => sum + module.nominalHour,
+    0
+  );
+
+  // Determine if the slip is active based on current date
+  const isActive = (() => {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1; 
+    const currentYear = currentDate.getFullYear();
+
+    // Parse academic year (format: "2023/24")
+    const [startYear] = slip.academicYear.split("/");
+    const academicStartYear = parseInt(startYear);
+    const semester = parseInt(slip.semester);
+
+    // Assuming:
+    // Semester 1: September (9) to January (1)
+    // Semester 2: February (2) to June (6)
+    // Summer: July (7) to August (8)
+
+    if (currentYear < academicStartYear) return false;
+    if (currentYear > academicStartYear + 1) return false;
+
+    if (semester === 1) {
+      // First semester is active from September to January
+      return (
+        (currentMonth >= 9 && currentYear === academicStartYear) ||
+        (currentMonth <= 1 && currentYear === academicStartYear + 1)
+      );
+    } else if (semester === 2) {
+      // Second semester is active from February to June
+      return (
+        currentMonth >= 2 &&
+        currentMonth <= 6 &&
+        currentYear === academicStartYear + 1
+      );
+    }
+
+    return false;
+  })();
+
+  return (
+    <Card className={`w-full mb-6 ${!isActive ? "opacity-80" : ""}`}>
+      <CardContent className="pt-6 space-y-6">
+        <div className="flex justify-between items-start">
+          <div className="text-sm space-y-1 flex-1">
+            <div className="grid grid-cols-4">
+              <div className="text-center font-bold py-1">
+                REGISTRATION SLIP
+              </div>
+              <div className="text-center font-bold py-1">
+                Year {slip.year} ({slip.entryYear} Entry)
+              </div>
+              <div className="text-center font-bold py-1">
+                Academic Year: {slip.academicYear}
+              </div>
+              <div className="text-center font-bold py-1">
+                Term {slip.semester}
+              </div>
+            </div>
+            <div className="grid grid-cols-2">
+              <div className="text-center font-bold py-1">
+                OS: {slip.department} Level {slip.level}
+              </div>
+              <div className="text-center font-bold py-1">
+                Department: {slip.department}
+              </div>
+            </div>
+          </div>
+          <Badge
+            variant={isActive ? "default" : "secondary"}
+            className={`ml-4 ${isActive ? "bg-green-600" : "bg-gray-500"}`}
+          >
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center border-b border-black pb-1">
+            <div className="flex items-center gap-2">
+              <Label className="font-bold">NAME IN BLOCK LETTERS:</Label>
+              <span className="font-semibold">{slip.name.toUpperCase()}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="font-bold">ID NO:</Label>
+              <span className="font-semibold">{slip.idNo}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-8 text-sm border-b border-black pb-1">
+            <div className="flex items-center gap-2">
+              <Label>Program: Regular</Label>
+              <input
+                type="checkbox"
+                checked={slip.program.isRegular}
+                readOnly
+                className="rounded border-black"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Label>CEP - Weekend/Night/Summer</Label>
+              <input
+                type="checkbox"
+                checked={slip.program.isCEP}
+                readOnly
+                className="rounded border-black"
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <Label>SEX: M</Label>
+              <input
+                type="checkbox"
+                checked={slip.sex === "M"}
+                readOnly
+                className="rounded border-black"
+              />
+              <Label>F</Label>
+              <input
+                type="checkbox"
+                checked={slip.sex === "F"}
+                readOnly
+                className="rounded border-black"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Label>Mobile phone:</Label>
+              <span>{slip.mobilePhone}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-black">
+          <Table className="w-full text-sm border border-black">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="border border-black p-1 text-center font-bold">
+                  No
+                </TableHead>
+                <TableHead className="border border-black p-1 text-center font-bold">
+                  MODULE TITLE
+                </TableHead>
+                <TableHead className="border border-black p-1 text-center font-bold">
+                  MODULE CODE
+                </TableHead>
+                <TableHead className="border border-black p-1 text-center font-bold">
+                  Level
+                </TableHead>
+                <TableHead className="border border-black p-1 text-center font-bold">
+                  Nominal Hour
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {slip.modules.map((module) => (
+                <TableRow key={module.no} className="hover:bg-transparent">
+                  <TableCell className="border border-black p-1 text-center">
+                    {module.no}
+                  </TableCell>
+                  <TableCell className="border border-black p-1">
+                    {module.title}
+                  </TableCell>
+                  <TableCell className="border border-black p-1 text-center">
+                    {module.code}
+                  </TableCell>
+                  <TableCell className="border border-black p-1 text-center">
+                    {module.level}
+                  </TableCell>
+                  <TableCell className="border border-black p-1 text-center">
+                    {module.nominalHour}
+                  </TableCell>
+                </TableRow>
+              ))}
+              <TableRow className="hover:bg-transparent">
+                <TableCell
+                  colSpan={4}
+                  className="border border-black p-1 text-right font-bold"
+                >
+                  Total Nominal Hour
+                </TableCell>
+                <TableCell className="border border-black p-1 text-center font-bold">
+                  {totalNominalHours}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="space-y-1">
+              <Label className="font-bold">DATE</Label>
+              <p className="mt-1 border-b border-black">
+                {new Date().toLocaleDateString()}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <Label className="font-bold">Advisor&apos;s Name and Sign.</Label>
+              <div className="h-[1px] w-[300px] bg-black mt-4"></div>
+            </div>
+            <div className="space-y-1">
+              <Label className="font-bold">REGISTRAR</Label>
+              <div className="h-[1px] w-[300px] bg-black mt-4"></div>
+            </div>
+          </div>
+
+          <p className="text-sm italic text-gray-600 mt-4">
+            Notice: After registration return one copy to the registrar office,
+            take one copy for you and give one to your advisor.
+          </p>
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            onClick={() => window.print()}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Print
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
