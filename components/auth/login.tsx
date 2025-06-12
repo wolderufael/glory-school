@@ -69,12 +69,24 @@ const Login = () => {
         }
         const data = await response.json();
 
-
+        const {token} = data;
+        if(token){
+          const response = await fetch('api/auth/login',{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json'
+            },
+            body:JSON.stringify({token})
+          })       
+     
+        if(response.ok){
       toast("Login Successful", {
         description: "Welcome back to the Student Portal!",
       });
 
       router.push('/registration');
+    }
+    }
     } catch (error) {
       toast("Login Failed", {
         description: "Invalid mainId or password. Please try again.",
