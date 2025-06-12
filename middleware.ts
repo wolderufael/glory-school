@@ -61,7 +61,7 @@ export default function middleware(req: NextRequest) {
 
     if (rawTokens) {
       try {
-        // Decode the JWT token to get user information
+       
         const user = jwtDecode(rawTokens) as UserTypePayload;
         const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1; // Check if token is expired
 
@@ -72,7 +72,7 @@ export default function middleware(req: NextRequest) {
           isAuthenticated = true;
           userRole = user.accountType; // Get user role
         } else {
-          // Token expired, delete it
+         
           console.log("Token expired, deleting cookie.");
           deleteCookie("session");
         }
