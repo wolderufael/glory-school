@@ -69,7 +69,7 @@ export default function middleware(req: NextRequest) {
         console.log("Token Expiration Check:", isExpired);
 
         if (!isExpired) {
-          isAuthenticated = true; // User is authenticated
+          isAuthenticated = true;
           userRole = user.accountType; // Get user role
         } else {
           // Token expired, delete it
