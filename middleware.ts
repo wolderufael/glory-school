@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import dayjs from "dayjs";
 import { decrypt } from "./utils/generateToken";
 
-export type UserEnumTypes = "STUDENT" | "TEACHER" | "REGISTRAR" | "DEPARTMENT" | "PRESIDENT";
+export type UserEnumTypes = "Student" | "Teacher" | "Registrar" | "Department" | "President";
 
 export type UserTypePayload = {
   accountType: UserEnumTypes;
@@ -17,20 +17,20 @@ export type UserTypePayload = {
 
 // Dashboard redirect map
 const DASHBOARDS: Record<UserEnumTypes, string> = {
-  STUDENT: "/student",
-  TEACHER: "/teacher",
-  REGISTRAR: "/registrars",
-  DEPARTMENT: "/department",
-  PRESIDENT: "/president",
+  Student: "/student",
+  Teacher: "/teacher",
+  Registrar: "/registrars",
+  Department: "/department",
+  President: "/president",
 };
 
 // Protected routes per role
 const roleRoutes: Record<UserEnumTypes, string[]> = {
-  STUDENT: ["/student"],
-  TEACHER: ["/teacher"],
-  REGISTRAR: ["/registrars"],
-  DEPARTMENT: ["/department"],
-  PRESIDENT: ["/president"],
+  Student: ["/student"],
+  Teacher: ["/teacher"],
+  Registrar: ["/registrars"],
+  Department: ["/department"],
+  President: ["/president"],
 };
 
 const loginUrls = ["/auth/login", "/auth/register"];
@@ -42,7 +42,7 @@ export async function middleware(req: NextRequest) {
   const PATH = req.nextUrl.pathname;
 
   let isAuthenticated = false;
-  let userRole: UserEnumTypes = "STUDENT";
+  let userRole: UserEnumTypes = "Student"; // Default role
 
   const buildUrl = (route: string) => new URL(route, BASE_URL).toString();
 
@@ -68,7 +68,7 @@ export async function middleware(req: NextRequest) {
 
         if (!isExpired) {
           isAuthenticated = true;
-          userRole = user.accountType;
+          userRole = user.userType ;
         } else {
           console.warn("Session expired.");
         }

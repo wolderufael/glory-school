@@ -70,7 +70,21 @@ const Login = () => {
     }
 
     const data = await response.json();
-    const { token, user } = data;
+    const { token, user, academicYear, academicSemester } = data;
+
+    // Store relevant info in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('academicYearId', academicYear?.id?.toString() || '');
+      localStorage.setItem('academicYearName', academicYear?.name || '');
+      localStorage.setItem('academicSemesterId', academicSemester?.id?.toString() || '');
+      localStorage.setItem('academicSemesterName', academicSemester?.name || '');
+      localStorage.setItem('currentUserId', user?.id?.toString() || '');
+      localStorage.setItem('userType', user?.userType || '');
+      localStorage.setItem('userMainId', user?.userMainId || '');
+      if (user?.student?.id) localStorage.setItem('studentId', user.student.id.toString());
+      if (user?.registrar?.id) localStorage.setItem('registrarId', user.registrar.id.toString());
+      if (user?.teacher?.id) localStorage.setItem('teacherId', user.teacher.id.toString());
+    }
 
     const student = user?.student || null; // Assuming user object contains student data
 
@@ -81,7 +95,7 @@ const Login = () => {
       throw new Error('No token received');
     }
 
-    // Step 2: Store token in cookies
+    
     const cookieRes = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -94,13 +108,12 @@ const Login = () => {
       throw new Error('Failed to set session cookie');
     }
 
-    console.log("Token stored successfully in cookies", token);
-
+   
     // Step 3: Decode token to get accountType
     const decoded = JSON.parse(atob(token.split('.')[1])); 
 
     console.log("Decoded token:", decoded);
-    
+
     const accountType = decoded.userType as any;
 
     // Step 4: Conditional redirect logic
@@ -114,7 +127,7 @@ const Login = () => {
       if (!student) {
         router.push('/student/registration'); // student has not registered
       } else {
-        router.push('/');   
+        router.push('/student');   
       }
     } else {
       // Redirect other roles to their dashboard based on middleware
@@ -122,8 +135,9 @@ const Login = () => {
     }
 
   } catch (error) {
+    console.error("Login error:", error);
     toast("Login Failed", {
-      // description: "Invalid mainId or password. Please try again.",
+      description: "Invalid mainId or password. Please try again.",
       style: {
         backgroundColor: '#f8d7da',
         color: '#721c24',

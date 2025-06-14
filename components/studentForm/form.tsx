@@ -21,8 +21,14 @@ interface Department {
 
 export function StudentForm() {
   const [students, setStudents] = useState<any[]>([]);
+
+  const registrarId = typeof window !== "undefined" ? localStorage.getItem("registrarId") : null;
+  const academicYearId = typeof window !== "undefined" ? localStorage.getItem("academicYearId") : null;
+
+
   const [formData, setFormData] = useState({
-    id: "",
+    registerId: Number(registrarId) ,
+    academicYearId: Number(academicYearId) ,
     firstName: "",
     middleName: "",
     lastName: "",
@@ -36,26 +42,18 @@ export function StudentForm() {
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const [isGeneratingIds, setIsGeneratingIds] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+     
+  
+  console.log("Registrar ID:", registrarId);
 
   // Fetch departments from API on mount
   useEffect(() => {
     async function fetchDepartments() {
       try {
-        //const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/departments`);
-        //if (!res.ok) throw new Error('Failed to fetch departments');
-        //const data = await res.json();
-        const data = [
-          { id: 1, name: "Animal Health", code: "AH" },
-          { id: 2, name: "Animal Production", code: "ANP" },
-          { id: 3, name: "Cooperative Accounting and Auditing", code: "CAA" },
-          { id: 4, name: "Crop Production", code: "CRP" },
-          { id: 5, name: "Drainage and Irrigation", code: "IRD" },
-          {
-            id: 6,
-            name: "Natural Resource Conservation and Development",
-            code: "NRDC",
-          },
-        ];
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/departments`);
+        if (!res.ok) throw new Error('Failed to fetch departments');
+        const data = await res.json();
+
         setDepartmentList(data);
       } catch (e) {
         console.error("Error fetching departments:", e);
@@ -68,39 +66,10 @@ export function StudentForm() {
   useEffect(() => {
     async function fetchStudents() {
       try {
-        //const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents`);
-        //if (!res.ok) throw new Error('Failed to fetch students');
-        //const data = await res.json();
-        const data = [
-          {
-            id: 1,
-            firstName: "John",
-            middleName: "Doe",
-            lastName: "Smith",
-            departmentId: 1,
-          },
-          {
-            id: 2,
-            firstName: "Jane",
-            middleName: "Doe",
-            lastName: "Smith",
-            departmentId: 2,
-          },
-          {
-            id: 3,
-            firstName: "John",
-            middleName: "Doe",
-            lastName: "Smith",
-            departmentId: 3,
-          },
-          {
-            id: 4,
-            firstName: "Jane",
-            middleName: "Doe",
-            lastName: "Smith",
-            departmentId: 4,
-          },
-        ];
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents`);
+        if (!res.ok) throw new Error('Failed to fetch students');
+        const data = await res.json();
+        // 
         setStudents(data);
       } catch (e) {
         console.error("Error fetching students:", e);
@@ -150,12 +119,13 @@ export function StudentForm() {
     e.preventDefault();
     try {
       // Validate only required fields
-      if (!formData.firstName || !formData.lastName || !formData.departmentId) {
+      if (!formData.firstName || !formData.lastName || !formData.departmentId || !formData.registerId || !formData.academicYearId) {
         const newErrors: Record<string, string> = {};
         if (!formData.firstName) newErrors.firstName = "First name is required";
         if (!formData.lastName) newErrors.lastName = "Last name is required";
-        if (!formData.departmentId)
-          newErrors.department = "Department is required";
+        if (!formData.departmentId) newErrors.department = "Department is required";
+        if (!formData.registerId) newErrors.registerId = "Registrar ID is required";
+        if (!formData.academicYearId) newErrors.academicYearId = "Academic Year ID is required";
         setErrors(newErrors);
         return;
       }
