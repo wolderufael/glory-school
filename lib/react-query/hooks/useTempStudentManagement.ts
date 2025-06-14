@@ -1,27 +1,39 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { post, get } from "@/lib/utils/api";
 
 interface TempStudent {
   id: number;
   firstName: string;
   middleName: string;
   lastName: string;
-  department: string;
+  departmentId: number;
   tempId?: string;
+}
+
+interface Department {
+  id: number;
+  name: string;
+  code: string;
+}
+
+interface GenerateIdsPayload {
+  students: (TempStudent & { generatedId: string })[];
+  academicYear: string;
 }
 
 // Fetch all temporary students
 export const useTempStudents = () => {
   return useQuery({
     queryKey: ["tempStudents"],
-    queryFn: async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/temp-students`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch temporary students");
-      }
-      return response.json() as Promise<TempStudent[]>;
-    },
+    queryFn: () => get("/api/tempstudents"),
+  });
+};
+
+// Fetch departments
+export const useDepartments = () => {
+  return useQuery({
+    queryKey: ["departments"],
+    queryFn: () => get("/api/departments"),
   });
 };
 
@@ -30,22 +42,11 @@ export const useGenerateIds = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/temp-students/generate-ids`,
-        {
-          method: "POST",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to generate IDs");
-      }
-
-      return response.json() as Promise<TempStudent[]>;
+    mutationFn: async (payload: GenerateIdsPayload) => {
+      const response = await post("/api/tempstudents/generate-ids", payload);
+      return response;
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(["tempStudents"], data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tempStudents"] });
     },
   });

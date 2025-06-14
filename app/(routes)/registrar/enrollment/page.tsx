@@ -14,11 +14,11 @@ export default function RegistrarEnrollmentPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">
+{/*             <p className="text-gray-600 mb-4">
               Add temporary students and generate their IDs based on
               alphabetical order and academic year. The generated IDs will
               follow the format: DEPT_CODE/YEAR/SEQUENCE
-            </p>
+            </p> */}
           </CardContent>
         </Card>
 

@@ -1,59 +1,65 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Clock, Building2, Plus } from "lucide-react"
-
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar, Clock, Building2, Plus } from "lucide-react";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useNotice } from "@/lib/react-query/hooks/useNotice";
 
 export function NoticeBoard() {
-//   const [notices, setNotices] = useState<Notice[]>([])
-//   const [colleges, setColleges] = useState<College[]>([])
-  const [selectedCollege, setSelectedCollege] = useState<string>("all")
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [showForm, setShowForm] = useState(true)
-  
-  const notices = [
-     {
-    notice_id: 1,
-    college_id: 1,
-    college_name: "Engineering College",
-    message: "Notice about the upcoming engineering seminar.",
-    deadline: "2023-11-30T23:59:59Z",
-    published_at: "2023-11-01T10:00:00Z",
-    is_active: true,
-     },
-     {
-    notice_id: 2,
-    college_id: 2,
-    college_name: "Medical College",
-    message: "Medical college notice regarding health camp.",
-    deadline: "2023-12-05T23:59:59Z",
-    published_at: "2023-11-02T10:00:00Z",
-    is_active: true,
-     }
+  const { data: notices, isLoading, error } = useNotice({});
+  const [selectedCollege, setSelectedCollege] = useState<string>("all");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [showForm, setShowForm] = useState(true);
 
-  ]
+  /*  const notices = [
+    {
+      notice_id: 1,
+      college_id: 1,
+      college_name: "Engineering College",
+      message: "Notice about the upcoming engineering seminar.",
+      deadline: "2023-11-30T23:59:59Z",
+      published_at: "2023-11-01T10:00:00Z",
+      is_active: true,
+    },
+    {
+      notice_id: 2,
+      college_id: 2,
+      college_name: "Medical College",
+      message: "Medical college notice regarding health camp.",
+      deadline: "2023-12-05T23:59:59Z",
+      published_at: "2023-11-02T10:00:00Z",
+      is_active: true,
+    },
+  ]; */
 
-
-const colleges = [
+  const colleges = [
     { id: 1, name: "Engineering College" },
     { id: 2, name: "Medical College" },
     { id: 3, name: "Arts College" },
-]
+  ];
 
-
-
+  /*   useEffect(() => {
+    console.log(notices);
+  }, [notices]); */
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleString("en-US", {
@@ -62,25 +68,31 @@ const colleges = [
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   const isDeadlineSoon = (deadline: string) => {
-    const deadlineDate = new Date(deadline)
-    const today = new Date()
-    const diffTime = deadlineDate.getTime() - today.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays <= 7 && diffDays >= 0
-  }
+    const deadlineDate = new Date(deadline);
+    const today = new Date();
+    const diffTime = deadlineDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= 7 && diffDays >= 0;
+  };
 
   const isOverdue = (deadline: string) => {
-    const deadlineDate = new Date(deadline)
-    const today = new Date()
-    return deadlineDate < today
-  }
+    const deadlineDate = new Date(deadline);
+    const today = new Date();
+    return deadlineDate < today;
+  };
 
-  if (loading) {
-    return <div className="text-center py-8">Loading notices...</div>
+  const router = useRouter();
+
+  const handleAddNotice = () => {
+    router.push("./board/addNotice");
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading notices...</div>;
   }
 
   return (
@@ -101,9 +113,18 @@ const colleges = [
             </SelectContent>
           </Select>
         </div>
+        <div className="flex justify-end mb-4">
+          <Button
+            onClick={handleAddNotice}
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add Notice
+          </Button>
+        </div>
       </div>
 
-      {notices.length === 0 ? (
+      {notices?.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
             <p className="text-gray-500">No notices available at the moment.</p>
@@ -111,19 +132,26 @@ const colleges = [
         </Card>
       ) : (
         <div className="grid gap-6">
-          {notices.map((notice) => (
-            <Card key={notice.notice_id} className="relative">
+          {notices?.map((notice) => (
+            <Card key={notice.college_id} className="relative">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm font-medium text-gray-600">{notice.college_name}</span>
+                      <span className="text-sm font-medium text-gray-600">
+                        {notice.college_id}
+                      </span>
                     </div>
-                    <CardTitle className="text-lg leading-relaxed">Notice #{notice.notice_id}</CardTitle>
+                    <CardTitle className="text-lg leading-relaxed">
+                      Notice #{notice.college_id}
+                    </CardTitle>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <Badge variant={notice.is_active ? "default" : "secondary"} className="text-xs">
+                    <Badge
+                      variant={notice.is_active ? "default" : "secondary"}
+                      className="text-xs"
+                    >
                       {notice.is_active ? "Active" : "Inactive"}
                     </Badge>
                     {isOverdue(notice.deadline) && notice.is_active && (
@@ -131,18 +159,25 @@ const colleges = [
                         Overdue
                       </Badge>
                     )}
-                    {isDeadlineSoon(notice.deadline) && !isOverdue(notice.deadline) && notice.is_active && (
-                      <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
-                        Due Soon
-                      </Badge>
-                    )}
+                    {isDeadlineSoon(notice.deadline) &&
+                      !isOverdue(notice.deadline) &&
+                      notice.is_active && (
+                        <Badge
+                          variant="outline"
+                          className="text-xs border-orange-500 text-orange-600"
+                        >
+                          Due Soon
+                        </Badge>
+                      )}
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 <div className="prose prose-sm max-w-none">
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{notice.message}</p>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {notice.message}
+                  </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100">
@@ -150,7 +185,13 @@ const colleges = [
                     <Calendar className="h-4 w-4" />
                     <span className="font-medium">Deadline:</span>
                     <span
-                      className={`${isOverdue(notice.deadline) ? "text-red-600 font-medium" : isDeadlineSoon(notice.deadline) ? "text-orange-600 font-medium" : ""}`}
+                      className={`${
+                        isOverdue(notice.deadline)
+                          ? "text-red-600 font-medium"
+                          : isDeadlineSoon(notice.deadline)
+                          ? "text-orange-600 font-medium"
+                          : ""
+                      }`}
                     >
                       {formatDate(notice.deadline)}
                     </span>
@@ -159,7 +200,7 @@ const colleges = [
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
                     <span className="font-medium">Published:</span>
-                    <span>{formatDateTime(notice.published_at)}</span>
+                    <span>{formatDateTime(notice.deadline)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -168,5 +209,5 @@ const colleges = [
         </div>
       )}
     </div>
-  )
+  );
 }

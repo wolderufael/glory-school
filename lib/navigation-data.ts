@@ -35,6 +35,7 @@ import {
   HelpCircle,
   Phone,
   Book,
+  Bell,
 } from "lucide-react";
 
 export const navigationItems = [
@@ -134,6 +135,7 @@ export const registrarNavigationItems = [
   {
     title: "Communication",
     items: [
+      { title: "Notice Board", icon: Bell, url: "/registrar/board" },
       { title: "Messaging", icon: Mail, url: "#" },
       { title: "Parent/Student Portal", icon: Users, url: "#" },
       { title: "Event Calendar", icon: Calendar, url: "#" },

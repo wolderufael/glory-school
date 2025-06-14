@@ -8,6 +8,8 @@ interface ApiError extends Error {
   status?: number;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 export async function fetchApi(
   endpoint: string,
   options: FetchOptions = {}
@@ -19,10 +21,9 @@ export async function fetchApi(
     const token = useAuthToken();
 
     // Construct the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = endpoint.startsWith("http")
       ? endpoint
-      : `${baseUrl}${endpoint}`;
+      : `${API_BASE_URL}${endpoint}`;
 
     // Prepare headers
     const headers = new Headers(fetchOptions.headers);
@@ -66,29 +67,71 @@ export async function fetchApi(
 }
 
 // Helper function for GET requests
-export function get(endpoint: string, options: FetchOptions = {}) {
-  return fetchApi(endpoint, { ...options, method: "GET" });
+export async function get(endpoint: string) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 // Helper function for POST requests
-export function post(endpoint: string, data: any, options: FetchOptions = {}) {
-  return fetchApi(endpoint, {
-    ...options,
+export async function post(endpoint: string, data: any) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
     body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 // Helper function for PUT requests
-export function put(endpoint: string, data: any, options: FetchOptions = {}) {
-  return fetchApi(endpoint, {
-    ...options,
+export async function put(endpoint: string, data: any) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
     body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 // Helper function for DELETE requests
-export function del(endpoint: string, options: FetchOptions = {}) {
-  return fetchApi(endpoint, { ...options, method: "DELETE" });
+export async function del(endpoint: string) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
 }

@@ -1,11 +1,10 @@
-import { StudentForm } from "@/components/studentForm/form";
-import Image from "next/image";
+import LandingPage from "@/components/landingPage/LandingPage";
 
 export default function Home() {
   return (
         <div>
           <div  className="flex py-2 mt-12 justify-center items-center ">
-               <StudentForm   />
+               <LandingPage   />
           </div>
          
         </div>

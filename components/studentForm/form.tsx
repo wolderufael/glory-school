@@ -60,6 +60,7 @@ export function StudentForm() {
     []
   );
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
+  const [academicYear, setAcademicYear] = useState<string>("");
   const dropdownRef = useRef<HTMLDivElement>(null);
      
   
@@ -234,7 +235,7 @@ export function StudentForm() {
       <div className="flex-1 bg-white rounded-lg shadow-md p-6 overflow-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            Temporary Students Registration 123
+            Temporary Students Registration
           </h2>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -243,9 +244,8 @@ export function StudentForm() {
               </label>
               <input
                 type="text"
-                name="academicYear"
-                value={formData.academicYear}
-                onChange={handleChange}
+                value={academicYear}
+                readOnly
                 className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="YYYY"
               />
@@ -279,9 +279,9 @@ export function StudentForm() {
               <TableHead className="p-3 text-sm font-semibold text-gray-600">
                 Department
               </TableHead>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
+{/*               <TableHead className="p-3 text-sm font-semibold text-gray-600">
                 Generated ID
-              </TableHead>
+              </TableHead> */}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -306,9 +306,9 @@ export function StudentForm() {
                         ?.name ||
                       "N/A"}
                   </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
+{/*                   <TableCell className="p-3 text-sm text-gray-600">
                     {student.generatedId || "Not generated"}
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))
             ):

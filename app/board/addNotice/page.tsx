@@ -28,7 +28,11 @@ const AddNotice = () => {
             { id: 2, name: "Medical College" },
             { id: 3, name: "Arts College" },
         ]
-
+        const departments = [
+            { id: 1, name: "Engineering", college_id: 1 },
+            { id: 2, name: "Medical", college_id: 2 },
+            { id: 3, name: "Arts", college_id: 3 },
+        ]
 
 
 
@@ -59,6 +63,7 @@ const AddNotice = () => {
         <div  className="flex w-full items-center justify-center min-h-screen bg-gray-100 p-4">
          <AddNoticeCard   
             colleges={colleges}
+            departments={departments}
             onNoticeAdded={() => setShowForm(false)}
             onCancel={() => setShowForm(true)}
         />
