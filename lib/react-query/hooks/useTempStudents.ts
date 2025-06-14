@@ -1,0 +1,113 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface TempStudent {
+  id: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  departmentId: number;
+  generatedId?: string;
+}
+
+interface GenerateIdsRequest {
+  students: TempStudent[];
+  academicYear: string;
+}
+
+// Fetch all temporary students
+export const useTempStudents = () => {
+  return useQuery({
+    queryKey: ["tempStudents"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch temporary students");
+      }
+      return response.json();
+    },
+  });
+};
+
+// Add a new temporary student
+export const useAddTempStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (student: Omit<TempStudent, "id">) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(student),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add temporary student");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tempStudents"] });
+    },
+  });
+};
+
+// Generate IDs for all temporary students
+export const useGenerateIds = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: GenerateIdsRequest) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/generate-all-ids`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate IDs");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tempStudents"] });
+    },
+  });
+};
+
+// Verify temporary student ID
+export const useVerifyTempStudent = () => {
+  return useMutation({
+    mutationFn: async (studentMainId: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ studentMainId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Student ID not found");
+      }
+
+      return response.json();
+    },
+  });
+};

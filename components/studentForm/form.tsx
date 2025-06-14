@@ -12,11 +12,30 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
+import {
+  useTempStudents,
+  useAddTempStudent,
+  useGenerateIds,
+} from "@/lib/react-query/hooks/useTempStudents";
+import { toast } from "sonner";
 
 interface Department {
   id: number;
   name: string;
   code: string;
+}
+
+interface TempStudent {
+  id: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  departmentId: number;
+  generatedId?: string;
+  department?: {
+    name: string;
+  };
 }
 
 export function StudentForm() {
@@ -33,6 +52,7 @@ export function StudentForm() {
     middleName: "",
     lastName: "",
     departmentId: 0,
+    academicYear: new Date().getFullYear().toString(),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [inputValue, setInputValue] = useState("");
@@ -40,7 +60,6 @@ export function StudentForm() {
     []
   );
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
-  const [isGeneratingIds, setIsGeneratingIds] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
      
   
@@ -171,6 +190,7 @@ export function StudentForm() {
     }
   };
 
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -183,7 +203,6 @@ export function StudentForm() {
 
   const handleGenerateAllIds = async () => {
     try {
-      setIsGeneratingIds(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/generate-ids`,
         {
@@ -192,7 +211,7 @@ export function StudentForm() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-          academicYear:academicYearName
+            academicYear: academicYearName,
           }),
         }
       );
@@ -200,13 +219,12 @@ export function StudentForm() {
       if (!response.ok) {
         throw new Error("Failed to generate IDs");
       }
-
+      
       const updatedStudents = await response.json();
       setStudents(updatedStudents);
     } catch (error) {
+      toast.error("Failed to generate student IDs");
       console.error("Error generating IDs:", error);
-    } finally {
-      setIsGeneratingIds(false);
     }
   };
 
@@ -216,17 +234,32 @@ export function StudentForm() {
       <div className="flex-1 bg-white rounded-lg shadow-md p-6 overflow-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            Registered Students
+            Temporary Students Registration 123
           </h2>
-          {students.length > 0 && (
-            <Button
-              onClick={handleGenerateAllIds}
-              disabled={isGeneratingIds}
-              className="bg-blue-600 text-white hover:bg-blue-700"
-            >
-              {isGeneratingIds ? "Generating IDs..." : "Generate IDs"}
-            </Button>
-          )}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                Academic Year:
+              </label>
+              <input
+                type="text"
+                name="academicYear"
+                value={formData.academicYear}
+                onChange={handleChange}
+                className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="YYYY"
+              />
+            </div>
+            {students.length > 0 && (
+              <Button
+                onClick={handleGenerateAllIds}
+                
+                className="bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Generate All IDs
+              </Button>
+            )}
+          </div>
         </div>
         <Table className="min-w-full">
           <TableHeader className="bg-gray-50">
@@ -252,31 +285,39 @@ export function StudentForm() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students.map((student, index) => (
-              <TableRow key={index} className="hover:bg-gray-50">
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.id}
-                </TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.firstName}
-                </TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.middleName}
-                </TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.lastName}
-                </TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.department?.name ||
-                    departmentList.find((d) => d.id === student.departmentId)
-                      ?.name ||
-                    "N/A"}
-                </TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.generatedId || "Not generated"}
+            {students.length === 0 ? (
+              students.map((student: TempStudent, index: number) => (
+                <TableRow key={student.id} className="hover:bg-gray-50">
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.id}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.firstName}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.middleName}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.lastName}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.department?.name ||
+                      departmentList.find((d) => d.id === student.departmentId)
+                        ?.name ||
+                      "N/A"}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.generatedId || "Not generated"}
+                  </TableCell>
+                </TableRow>
+              ))
+            ):
+              <TableRow className="hover:bg-gray-50">
+                <TableCell colSpan={6} className="p-3 text-sm text-gray-600 text-center">
+                  No students registered yet.
                 </TableCell>
               </TableRow>
-            ))}
+            }
           </TableBody>
         </Table>
       </div>
