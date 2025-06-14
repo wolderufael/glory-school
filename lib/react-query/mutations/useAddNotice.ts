@@ -1,35 +1,32 @@
 import { NoticeBoardSchema } from "@/utils/NoticeSchema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { toast } from "sonner";
+
+const axiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+  withCredentials: true,
+});
 
 export const useAddNotice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: NoticeBoardSchema) => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/noticeboard`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            collegeId: data.collegeId,
-            departmentId: data.departmentId,
-            message: data.message,
-            deadline: data.deadline,
-            authorId: data.authorId,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-          /* credentials: "include", */
-        }
-      );
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to create notice");
+      try {
+        const response = await axiosInstance.post("/noticeboard", {
+          collegeId: data.collegeId,
+          departmentId: data.departmentId,
+          message: data.message,
+          deadline: data.deadline,
+          authorId: data.authorId,
+        });
+        return response.data;
+      } catch (error: any) {
+        throw new Error(
+          error.response?.data?.message || "Failed to create notice"
+        );
       }
-      return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notices"] });
