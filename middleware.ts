@@ -5,7 +5,12 @@ import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 
-export type UserEnumTypes = "STUDENT" | "TEACHER" | "REGISTRAR" | "DEPARTMENT" | "PRESIDENT";
+export type UserEnumTypes =
+  | "STUDENT"
+  | "TEACHER"
+  | "REGISTRAR"
+  | "DEPARTMENT"
+  | "PRESIDENT";
 
 export type Tokens = {
   access: string;
@@ -61,7 +66,6 @@ export default function middleware(req: NextRequest) {
 
     if (rawTokens) {
       try {
-       
         const user = jwtDecode(rawTokens) as UserTypePayload;
         const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1; // Check if token is expired
 
@@ -72,7 +76,6 @@ export default function middleware(req: NextRequest) {
           isAuthenticated = true;
           userRole = user.accountType; // Get user role
         } else {
-         
           console.log("Token expired, deleting cookie.");
           deleteCookie("session");
         }
@@ -111,11 +114,9 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|api|public).*)"], // Match all routes except public/assets/api
+  // Match all routes except public/assets/api
+  matcher: ["/((?!_next|favicon.ico|api|public).*)"],
 };
-
-
-
 
 // import { deleteCookie, hasCookie } from "cookies-next";
 // import { NextResponse } from "next/server";
@@ -124,13 +125,12 @@ export const config = {
 // import dayjs from "dayjs";
 // import { jwtDecode } from "jwt-decode";
 
-
 // export type UserEnumTypes = "STUDENT" | "TEACHER" | "REGISTRAR" | "DEPARTMENT" | "PRESIDENT";
 
 // export type Tokens = {
 //   access: string;
 //   refresh?: string;
-  
+
 // };
 
 // export type UserTypePayload = {
@@ -163,7 +163,6 @@ export const config = {
 
 // const loginUrls = ["/auth/login", "/auth/register"];
 
-
 // const protectedRoutes = Object.values(roleRoutes).flat();
 
 // export default function middleware(req: NextRequest) {
@@ -171,19 +170,15 @@ export const config = {
 //   const BASE_URL = req.nextUrl.origin;
 //   const PATH = req.nextUrl.pathname;
 
-
 //   console.log("Cookies in middleware:", req.cookies.getAll());
 
 //   console.log('cookies ', req.cookies.get('session')?.value )
-  
+
 //   let isAuthenticated = false;
 //   let userRole: UserEnumTypes = "STUDENT";
 
 //   const buildUrl = (route: string) => new URL(route, BASE_URL).toString();
 
-
-
- 
 //   if (hasCookie("token", { cookies })) {
 //     const rawTokens = req.cookies.get("token")?.value;
 

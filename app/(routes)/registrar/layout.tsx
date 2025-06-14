@@ -1,14 +1,22 @@
-// import { getCurrentUser } from '@/lib/auth/getCurrentUser';
-// import { UserType } from '@/utils/typeUser';
-// import { redirect } from 'next/navigation';
+import { RegistrarSidebar } from "@/components/registrar";
+import "../../globals.css";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
-
-// export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-//   const user = await getCurrentUser();
-
-//   if (!user || user.role !== UserType.Registrar) {
-//     return redirect('/unauthorized');
-//   }
-
-//   return (<div>{children}</div>);
-// }
+export default function RegistrarLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen min-w-full md:flex bg-slate-50">
+        <RegistrarSidebar />
+        <div className="flex-1 flex flex-col md:ml-8">
+          <main className="flex-1 no-scrollbar overflow-y-auto">
+            {children}
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
