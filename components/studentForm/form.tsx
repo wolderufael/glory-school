@@ -24,7 +24,7 @@ export function StudentForm() {
 
   const registrarId = typeof window !== "undefined" ? localStorage.getItem("registrarId") : null;
   const academicYearId = typeof window !== "undefined" ? localStorage.getItem("academicYearId") : null;
-
+  const academicYearName = typeof window !== "undefined" ? localStorage.getItem("academicYearName") : null;
 
   const [formData, setFormData] = useState({
     registerId: Number(registrarId) ,
@@ -185,14 +185,14 @@ export function StudentForm() {
     try {
       setIsGeneratingIds(true);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/generate-all-ids`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/generate-ids`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            studentIds: students.map((student) => student.id),
+          academicYear:academicYearName
           }),
         }
       );
