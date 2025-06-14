@@ -13,9 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAddNotice } from "@/lib/react-query/mutations/useAddNotice";
-import { form } from "framer-motion/client";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +36,7 @@ interface AddNoticeProps {
   isOpen?: boolean;
   onClose?: () => void;
   colleges: College[];
-  departments: Department[];
+  departments: Department[]; // Not used since we fetch departments dynamically
   onNoticeAdded: () => void;
   onCancel?: () => void;
   isDialog?: boolean;
@@ -53,7 +52,7 @@ interface NoticeFormData {
 
 export function AddNoticeForm({
   colleges,
-  departments,
+  departments: initialDepartments, // Ignored since we fetch dynamically
   onNoticeAdded,
   onCancel,
   onClose,
@@ -66,28 +65,62 @@ export function AddNoticeForm({
     deadline: "",
     is_active: true,
   });
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [isDeptLoading, setIsDeptLoading] = useState(false);
+
+  // Fetch departments when college_id changes
+  useEffect(() => {
+    if (!formData.college_id) {
+      setDepartments([]);
+      setFormData((prev) => ({ ...prev, department_id: "" }));
+      return;
+    }
+    setIsDeptLoading(true);
+    fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/departments?collegeId=${formData.college_id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      }
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch departments');
+        return res.json();
+      })
+      .then((data) => {
+        setDepartments(data);
+        setFormData((prev) => ({ ...prev, department_id: "" }));
+      })
+      .catch((e) => {
+        console.error("Error fetching departments:", e);
+        toast.error("Failed to load departments.");
+        setDepartments([]);
+      })
+      .finally(() => setIsDeptLoading(false));
+  }, [formData.college_id]);
 
   const { mutate, isPending } = useAddNotice();
 
-  const filteredDepartments = formData.college_id
-    ? departments.filter(
-        (dept) => dept.college_id.toString() === formData.college_id
-      )
-    : [];
+  const filteredDepartments = departments; // Already filtered by college_id in API
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    const authorId =
+      typeof window !== "undefined"
+        ? Number(localStorage.getItem("currentUserId")) || 1
+        : 1;
     const payload = {
       collegeId: Number(formData.college_id),
       departmentId: Number(formData.department_id),
       message: formData.message,
       deadline: new Date(formData.deadline).toISOString(),
-      authorId: 1, // Will be replaced with actual user ID when auth is implemented
+      is_active: formData.is_active,
+      authorId,
     };
-
     mutate(payload, {
       onSuccess: () => {
+        toast.success("Notice added successfully!");
         setFormData({
           college_id: "",
           department_id: "",
@@ -99,6 +132,9 @@ export function AddNoticeForm({
         if (isDialog && onClose) {
           onClose();
         }
+      },
+      onError: () => {
+        toast.error("Failed to add notice. Please try again.");
       },
     });
   };
@@ -125,6 +161,11 @@ export function AddNoticeForm({
                 {college.name}
               </SelectItem>
             ))}
+            {colleges.length === 0 && (
+              <SelectItem disabled value="no-colleges">
+                No colleges available
+              </SelectItem>
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -139,9 +180,10 @@ export function AddNoticeForm({
             setFormData((prev) => ({ ...prev, department_id: value }))
           }
           required
+          disabled={isDeptLoading || !formData.college_id}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a department" />
+            <SelectValue placeholder={isDeptLoading ? "Loading departments..." : "Select a department"} />
           </SelectTrigger>
           <SelectContent>
             {filteredDepartments.map((department) => (
@@ -149,7 +191,7 @@ export function AddNoticeForm({
                 {department.name}
               </SelectItem>
             ))}
-            {filteredDepartments.length === 0 && (
+            {filteredDepartments.length === 0 && !isDeptLoading && (
               <SelectItem disabled value="no-departments">
                 No departments available for selected college
               </SelectItem>
@@ -234,7 +276,7 @@ export function AddNoticeForm({
 
   if (isDialog) {
     return (
-      <Dialog open={!!isOpen} onOpenChange={onClose}>
+      <Dialog open={!!onClose} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Add New Notice</DialogTitle>

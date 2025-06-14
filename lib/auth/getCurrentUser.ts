@@ -48,6 +48,16 @@ export const getUserFromClientCookie = () => {
   return decodeJWT(token);
 };
 
+export const getToken = () => {
+  const cookie = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('session='));
+  if (!cookie) return null;
+
+  const token = cookie.split('=')[1];
+  return token;
+};
+
 
 export const decodeJWT = (token: string) => {
   try {

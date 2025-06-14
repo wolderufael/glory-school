@@ -12,12 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
-import {
-  useTempStudents,
-  useAddTempStudent,
-  useGenerateIds,
-} from "@/lib/react-query/hooks/useTempStudents";
 import { toast } from "sonner";
 
 interface Department {
@@ -33,6 +27,7 @@ interface TempStudent {
   lastName: string;
   departmentId: number;
   generatedId?: string;
+  studentMainId?: string;
   department?: {
     name: string;
   };
@@ -40,6 +35,7 @@ interface TempStudent {
 
 export function StudentForm() {
   const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const registrarId = typeof window !== "undefined" ? localStorage.getItem("registrarId") : null;
   const academicYearId = typeof window !== "undefined" ? localStorage.getItem("academicYearId") : null;
@@ -56,11 +52,8 @@ export function StudentForm() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [inputValue, setInputValue] = useState("");
-  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
-    []
-  );
+  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
-  const [academicYear, setAcademicYear] = useState<string>("");
   const dropdownRef = useRef<HTMLDivElement>(null);
      
   
@@ -84,9 +77,10 @@ export function StudentForm() {
 
   // Fetch students from DB on mount
   useEffect(() => {
+     setLoading(true);
     async function fetchStudents() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents?academicYearId=${academicYearId}`);
         if (!res.ok) throw new Error('Failed to fetch students');
         const data = await res.json();
         // 
@@ -94,6 +88,9 @@ export function StudentForm() {
       } catch (e) {
         console.error("Error fetching students:", e);
       }
+      finally {
+      setLoading(false);
+    }
     }
     fetchStudents();
   }, []);
@@ -213,6 +210,7 @@ export function StudentForm() {
           },
           body: JSON.stringify({
             academicYear: academicYearName,
+            academicYearId: Number(academicYearId),
           }),
         }
       );
@@ -221,13 +219,22 @@ export function StudentForm() {
         throw new Error("Failed to generate IDs");
       }
       
+      toast.success("Student IDs generated successfully");
       const updatedStudents = await response.json();
-      setStudents(updatedStudents);
+
+        const {students} = updatedStudents;
+
+      
+
+      setStudents(students);
     } catch (error) {
       toast.error("Failed to generate student IDs");
       console.error("Error generating IDs:", error);
     }
   };
+
+
+console.log("Students:", students);
 
   return (
     <div className="flex w-full h-auto p-8 gap-8">
@@ -244,7 +251,8 @@ export function StudentForm() {
               </label>
               <input
                 type="text"
-                value={academicYear}
+                value={academicYearName || ""}
+                
                 readOnly
                 className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="YYYY"
@@ -279,45 +287,42 @@ export function StudentForm() {
               <TableHead className="p-3 text-sm font-semibold text-gray-600">
                 Department
               </TableHead>
-{/*               <TableHead className="p-3 text-sm font-semibold text-gray-600">
+              <TableHead className="p-3 text-sm font-semibold text-gray-600">
                 Generated ID
-              </TableHead> */}
+              </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {students.length === 0 ? (
-              students.map((student: TempStudent, index: number) => (
-                <TableRow key={student.id} className="hover:bg-gray-50">
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.id}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.firstName}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.middleName}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.lastName}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.department?.name ||
-                      departmentList.find((d) => d.id === student.departmentId)
-                        ?.name ||
-                      "N/A"}
-                  </TableCell>
-{/*                   <TableCell className="p-3 text-sm text-gray-600">
-                    {student.generatedId || "Not generated"}
-                  </TableCell> */}
-                </TableRow>
-              ))
-            ):
-              <TableRow className="hover:bg-gray-50">
-                <TableCell colSpan={6} className="p-3 text-sm text-gray-600 text-center">
-                  No students registered yet.
+            <TableBody>
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-sm text-gray-500 py-4">
+                Loading students...
+              </TableCell>
+            </TableRow>
+          ) : students.length > 0 ? (
+            students.map((student: TempStudent) => (
+              <TableRow key={student.id} className="hover:bg-gray-50">
+                <TableCell className="p-3 text-sm text-gray-600">{student.id}</TableCell>
+                <TableCell className="p-3 text-sm text-gray-600">{student.firstName}</TableCell>
+                <TableCell className="p-3 text-sm text-gray-600">{student.middleName}</TableCell>
+                <TableCell className="p-3 text-sm text-gray-600">{student.lastName}</TableCell>
+                <TableCell className="p-3 text-sm text-gray-600">
+                  {student.department?.name ||
+                    departmentList.find((d) => d.id === student.departmentId)?.name ||
+                    "N/A"}
+                </TableCell>
+                <TableCell className="p-3 text-sm text-gray-600">
+                  {student.studentMainId || "Not generated"}
                 </TableCell>
               </TableRow>
-            }
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-sm text-gray-500 py-4">
+                No students registered yet.
+              </TableCell>
+            </TableRow>
+          )}
           </TableBody>
         </Table>
       </div>

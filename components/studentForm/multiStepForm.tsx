@@ -1,6 +1,8 @@
 
 'use client';
-import { useState } from 'react';
+
+
+import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useStudentFormStore } from '@/lib/store/studentFormStore';
 import PersonalInfoForm from './personalInfoForm';
@@ -21,12 +23,12 @@ const steps = [
 export default function MultiStepForm() {
   const [step, setStep] = useState(1);
   const { personalInfo, contactInfo, academicInfo, familyInfo, employmentHistory } = useStudentFormStore();
-  
-
+  const userMainId = localStorage.getItem('userMainId');
 
   const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
+  
   const handleSubmit = async () => {
     try{
 

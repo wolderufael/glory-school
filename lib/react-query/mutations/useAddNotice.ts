@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
-  withCredentials: true,
+  // withCredentials: true,
 });
 
 export const useAddNotice = () => {

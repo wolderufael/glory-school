@@ -1,17 +1,17 @@
-// import { getCurrentUser } from "@/lib/auth/getCurrentUser";
-// import { UserType } from "@/utils/typeUser";
-// import { redirect } from "next/navigation";
 
-// export default async function StudentLayout({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   const user = await getCurrentUser();
+import { UserType } from "@/utils/typeUser";
+import { redirect } from "next/navigation";
 
-// /*   if (!user || user.role !== UserType.Teacher) {
-//     return redirect("/unauthorized");
-//   } */
+export default async function StudentLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
 
-//   return <div>{children}</div>;
-// }
+
+/*   if (!user || user.role !== UserType.Teacher) {
+    return redirect("/unauthorized");
+  } */
+
+  return <div>{children}</div>;
+}

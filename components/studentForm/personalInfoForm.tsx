@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useStudentFormStore } from '@/lib/store/studentFormStore';
@@ -48,24 +47,45 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
 
   useEffect(() => {
     async function fetchStudentData() {
-      const mockData: Partial<StudentFullInfo> = {
-        student_id: `STD-${Math.floor(1000 + Math.random() * 9000)}`,
-        department_id: 'animal_health',
-        firstName: 'John',
-        fatherName: 'Doe',
-        currentLevel: '1',
-        currentYear: '2023',
-        currentSemester: 'Fall',
-        program_id: 'Animal Health',
-        grandFather_Name: 'Smith',
-        admission_type_id: 'Regular',
-        registration_date: new Date().toISOString().split('T')[0],
-      };
-    
-      // Simulate fetching data from an API
-  
-
-      setPersonalInfo({ ...initialPersonalInfo, ...mockData });
+      const userMainId = typeof window !== 'undefined' ? localStorage.getItem('userMainId') : null;
+      if (!userMainId) return;
+      try {
+        // Get JWT token from cookies if available
+        const token = typeof document !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/main-id`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ mainId: userMainId }),
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data) {
+          setPersonalInfo({
+            ...personalInfo,
+            firstName: data.firstName || personalInfo.firstName || '',
+            fatherName: data.middleName || personalInfo.fatherName || '',
+            grandFather_Name: data.lastName || personalInfo.grandFather_Name || '',
+            student_id: data.userMainId || personalInfo.student_id || '',
+            student_temp_id: data.student_temp_id || personalInfo.student_temp_id || '',
+            department_id: data.department_id || personalInfo.department_id || '',
+            program_id: data.program_id || personalInfo.program_id || '',
+            admission_type_id: data.admission_type_id || personalInfo.admission_type_id || '',
+            registration_date: data.registration_date || personalInfo.registration_date || '',
+            currentLevel: data.currentLevel || personalInfo.currentLevel || '',
+            currentYear: data.currentYear || personalInfo.currentYear || '',
+            currentSemester: data.currentSemester || personalInfo.currentSemester || '',
+            email: data.email || personalInfo.email || '',
+            phone_mobile: data.phoneNumber || personalInfo.phone_mobile || '',
+            nationality: data.nationality || personalInfo.nationality || '',
+            sex: data.gender || personalInfo.sex || '', 
+            date_of_birth: data.date_of_birth || personalInfo.date_of_birth || '',
+          });
+        }
+      } catch (err) {
+        // Optionally handle error
+      }
     }
     fetchStudentData();
   }, [setPersonalInfo]);
@@ -126,7 +146,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 className="bg-gray-50"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-ygetValue-2">
               <Label htmlFor="registration_date">Registration Date</Label>
               <Input
                 id="registration_date"
