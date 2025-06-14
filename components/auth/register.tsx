@@ -15,17 +15,21 @@ import {useDebounce} from 'use-debounce';
 import { de } from 'zod/v4/locales';
 import { error } from 'console';
 import { set } from 'zod';
+import { getSession } from '@/lib/auth/getCurrentUser';
 
 
 const Register = () => {
   const router = useRouter();
- 
+   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [userMainId, setUserMainId] = useState<string>('');
   const [debouncedserMainId] = useDebounce(userMainId, 500);
+
+  const session =  getSession()
+   
 
  const [formData, setFormData] = useState({
     firstName: '',
@@ -47,7 +51,7 @@ const Register = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
-
+userMainId
   // Update the fetchStudent function to handle errors properly
 const fetchStudent = async (debouncedserMainId: string) => {
   if (!debouncedserMainId) return;

@@ -1,12 +1,11 @@
 import { jwtVerify, SignJWT } from "jose"
 
 export type SessionPayload = {
-  id: string
-  name: string
-  email: string
+  mainId: string
+  type: string
 }
 
-const secretKey = process.env.SESSION_SECRET || "supersecret"
+const secretKey = process.env.JWT_SECRET || "supersecret"
 
 const encodedKey = new TextEncoder().encode(secretKey)
 

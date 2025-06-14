@@ -8,7 +8,6 @@ export async function POST(request:NextRequest) {
         if( !token) {
             return new Response(JSON.stringify({ error: "Missing required fields" }), 
             { status: 400 });
-
         }
         
         const cookieStore = await cookies()

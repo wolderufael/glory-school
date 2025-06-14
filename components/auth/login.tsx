@@ -56,37 +56,39 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-  
-     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`, {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-       },
-       body: JSON.stringify(formData),
-     });
-        if (!response.ok) {
-            throw new Error('Login failed');
-        }
-        const data = await response.json();
-
-        const {token} = data;
-        if(token){
-          const response = await fetch('api/auth/login',{
-            method:'POST',
-            headers:{
-              'Content-Type':'application/json'
-            },
-            body:JSON.stringify({token})
-          })       
-     
-        if(response.ok){
-      toast("Login Successful", {
-        description: "Welcome back to the Student Portal!",
+      // 1. Authenticate with backend and get token
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
-
-      router.push('/registration');
-    }
-    }
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+      const data = await response.json();
+      const { token } = data;
+      if (token) {
+        // 2. Store token in cookies via Next.js API route (calls your Node.js backend)
+        const cookieRes = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
+        if (cookieRes.ok) {
+          toast("Login Successful", {
+            description: "Welcome back to the Student Portal!",
+          });
+          router.push('/registration');
+        } else {
+          throw new Error('Failed to set session cookie');
+        }
+      } else {
+        throw new Error('No token received');
+      }
     } catch (error) {
       toast("Login Failed", {
         description: "Invalid mainId or password. Please try again.",
