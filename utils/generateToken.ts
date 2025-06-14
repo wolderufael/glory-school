@@ -45,17 +45,16 @@ export async function decrypt(session: string | undefined) {
 
 export async function getUser(token: string) {
   try {
-    if (token) return null
+    if (!token) return null;
 
-    const session = await decrypt(token)
+    const session = await decrypt(token);
 
-    if (session?.id) {
-      return null
-    }
+    // You can add extra checks here if needed
+    if (!session || typeof session !== "object") return null;
 
-    return session as SessionPayload
+    return session as SessionPayload;
   } catch (error) {
-    console.error("Error fetching session:", error)
-    return null
+    console.error("Error fetching session:", error);
+    return null;
   }
 }

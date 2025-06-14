@@ -45,63 +45,96 @@ const Login = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validateForm();
-    
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+  e.preventDefault();
+  const validationErrors = validateForm();
+
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    // Step 1: Authenticate with backend
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Login failed');
     }
 
-    setIsLoading(true);
-    
-    try {
-      // 1. Authenticate with backend and get token
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-      const data = await response.json();
-      const { token } = data;
-      if (token) {
-        // 2. Store token in cookies via Next.js API route (calls your Node.js backend)
-        const cookieRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token }),
-        });
-        if (cookieRes.ok) {
-          toast("Login Successful", {
-            description: "Welcome back to the Student Portal!",
-          });
-          router.push('/registration');
-        } else {
-          throw new Error('Failed to set session cookie');
-        }
-      } else {
-        throw new Error('No token received');
-      }
-    } catch (error) {
-      toast("Login Failed", {
-        description: "Invalid mainId or password. Please try again.",
-        style: {
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          borderColor: '#f5c6cb',
-        },
-      });
-    } finally {
-      setIsLoading(false);
+    const data = await response.json();
+    const { token, user } = data;
+
+    const student = user?.student || null; // Assuming user object contains student data
+
+    console.log("Login response data:", data);
+    console.log("Student data:", student);
+
+    if (!token) {
+      throw new Error('No token received');
     }
-  };
+
+    // Step 2: Store token in cookies
+    const cookieRes = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    if (!cookieRes.ok) {
+      throw new Error('Failed to set session cookie');
+    }
+
+    console.log("Token stored successfully in cookies", token);
+
+    // Step 3: Decode token to get accountType
+    const decoded = JSON.parse(atob(token.split('.')[1])); 
+
+    console.log("Decoded token:", decoded);
+    
+    const accountType = decoded.userType as any;
+
+    // Step 4: Conditional redirect logic
+    toast("Login Successful", {
+      description: `Welcome back, ${accountType}!`,
+    });
+
+    console.log('type', accountType);
+
+    if (accountType === 'Student') {
+      if (!student) {
+        router.push('/student/registration'); // student has not registered
+      } else {
+        router.push('/');   
+      }
+    } else {
+      // Redirect other roles to their dashboard based on middleware
+      router.push(`/${accountType.toLowerCase()}`);
+    }
+
+  } catch (error) {
+    toast("Login Failed", {
+      // description: "Invalid mainId or password. Please try again.",
+      style: {
+        backgroundColor: '#f8d7da',
+        color: '#721c24',
+        borderColor: '#f5c6cb',
+      },
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
