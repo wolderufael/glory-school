@@ -1,7 +1,7 @@
 "use client";
 
-import { ProfileManagement } from "@/components/dashboard/profile/profile-management";
+import { Profile } from "@/components/dashboard/profile/profile";
 
 export default function ProfilePage() {
-  return <ProfileManagement />;
+  return <Profile />;
 }

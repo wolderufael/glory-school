@@ -36,15 +36,15 @@ export function AppSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <Sidebar className="border-r border-red-200">
-      <SidebarHeader className="border-b border-red-200 bg-gradient-to-r from-red-900 to-rose-900">
+    <Sidebar className="border-r border-blue-200">
+      <SidebarHeader className="border-b border-blue-200 bg-gradient-to-r from-blue-600 to-blue-700">
         <div className="flex items-center gap-3 px-4 py-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
             <GraduationCap className="h-6 w-6 text-white" />
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold text-white">SMIS</span>
-            <span className="text-xs text-red-100">Student Portal</span>
+            <span className="text-xs text-blue-100">Student Portal</span>
           </div>
         </div>
       </SidebarHeader>
@@ -57,7 +57,7 @@ export function AppSidebar() {
               placeholder="Search portal..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-red-200 focus:border-red-400 focus:ring-red-400"
+              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
             />
           </div>
         </div>
@@ -65,15 +65,15 @@ export function AppSidebar() {
         <NavigationGroups searchQuery={searchQuery} />
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-red-200 bg-red-50">
+      <SidebarFooter className="border-t border-blue-200 bg-blue-50">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="hover:bg-red-100">
+                <SidebarMenuButton className="hover:bg-blue-100">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                    <AvatarFallback className="bg-red-600 text-white">
+                    <AvatarFallback className="bg-blue-600 text-white">
                       JD
                     </AvatarFallback>
                   </Avatar>
@@ -96,7 +96,7 @@ export function AppSidebar() {
                   Preferences
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem className="text-blue-600">
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

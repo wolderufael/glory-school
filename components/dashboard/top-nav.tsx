@@ -19,7 +19,7 @@ interface TopNavProps {
   studentId?: string;
 }
 
-export function TopNav({ title = "Fill Full Information", studentId = "NSR/2551/12" }: TopNavProps) {
+export function TopNav({ title = "Full Information", studentId = "NSR/2551/12" }: TopNavProps) {
   return (
     <header className="h-16  bg-white border-b border-slate-200 flex  justify-between px-4">
       <div className="flex items-center gap-4">

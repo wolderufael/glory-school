@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { basicInfo } from "../../../app/dashboard/grades-trascripts/mock-data";
+import { basicInfo } from "../../../app/dashboard/grades-transcripts/mock-data";
 
 export function BasicInfo() {
   const infoItems = [

@@ -1,0 +1,100 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+interface StudentInfo {
+  department: string;
+  year: string;
+  section: string;
+  academicYear: string;
+  semester: string;
+  program: string;
+}
+
+export function StudentInfoCard() {
+  const { data: studentInfo, isLoading } = useQuery<StudentInfo>({
+    queryKey: ["studentInfo"],
+    queryFn: async () => {
+      const response = await axios.get("/api/student/info");
+      return response.data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="mb-6 bg-blue-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-blue-200 rounded w-1/4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-4 bg-blue-200 rounded"></div>
+                ))}
+              </div>
+              <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-4 bg-blue-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mb-6 bg-blue-50 border-blue-200">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold text-blue-800">
+          Student Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Department:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {studentInfo?.department}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Year:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {studentInfo?.year}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Section:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {studentInfo?.section}
+              </span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Academic Year:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {studentInfo?.academicYear}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Semester:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {studentInfo?.semester}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Program:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                {studentInfo?.program}
+              </span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

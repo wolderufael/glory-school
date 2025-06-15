@@ -40,12 +40,30 @@ import {
 
 export const navigationItems = [
   {
+    title: "Dashboard",
+    items: [
+      { title: "Dashboard", icon: Home, url: "/dashboard", isActive: true },
+      { title: "Profile", icon: User, url: "/dashboard/profile" },
+    ],
+  },
+  {
     title: "Academic",
     items: [
-      { title: "Dashboard", icon: Home, url: "#", isActive: true },
-      { title: "Course Registration", icon: BookOpen, url: "#" },
-      { title: "Academic Records", icon: FileText, url: "#" },
-      { title: "Grades & Transcripts", icon: Award, url: "#" },
+      {
+        title: "Course Registration/Slip",
+        icon: BookOpen,
+        url: "/dashboard/course-registration",
+      },
+      {
+        title: "Academic Records",
+        icon: FileText,
+        url: "/dashboard/academic-records",
+      },
+      {
+        title: "Grades & Transcripts",
+        icon: Award,
+        url: "/dashboard/grades-transcripts",
+      },
       { title: "Class Schedule", icon: Calendar, url: "#" },
       { title: "Assignments", icon: ClipboardList, url: "#" },
     ],
@@ -53,7 +71,6 @@ export const navigationItems = [
   {
     title: "Student Services",
     items: [
-      { title: "Profile Management", icon: User, url: "#" },
       { title: "Dormitory", icon: Building, url: "#" },
       { title: "Library Services", icon: BookOpen, url: "#" },
       { title: "Health Services", icon: UserCheck, url: "#" },
@@ -92,7 +109,9 @@ export const navigationItems = [
 export const registrarNavigationItems = [
   {
     title: "Dashboard",
-    items: [{ title: "Dashboard", icon: Home, url: "/registrar", isActive: true }],
+    items: [
+      { title: "Dashboard", icon: Home, url: "/registrar", isActive: true },
+    ],
   },
   {
     title: "Academic Management",

@@ -56,7 +56,7 @@ export function NavigationGroups({ searchQuery }: NavigationGroupsProps) {
         >
           <SidebarGroup>
             <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center justify-between text-red-700 font-bold hover:bg-red-50 rounded-md px-2 py-1 transition-colors">
+              <CollapsibleTrigger className="flex w-full items-center justify-between text-blue-700 font-bold hover:bg-blue-50 rounded-md px-2 py-1 transition-colors">
                 {group.title}
                 <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
@@ -69,7 +69,7 @@ export function NavigationGroups({ searchQuery }: NavigationGroupsProps) {
                       <SidebarMenuButton
                         asChild
                         isActive={pathname === item.url}
-                        className="data-[active=true]:bg-red-100 data-[active=true]:text-red-700 hover:bg-red-50 hover:text-red-700"
+                        className="data-[active=true]:bg-blue-100 data-[active=true]:text-blue-700 hover:bg-blue-50 hover:text-blue-700"
                       >
                         <Link
                           href={item.url}

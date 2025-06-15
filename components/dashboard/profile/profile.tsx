@@ -1,3 +1,5 @@
+"use client";
+
 import * as Tabs from "@radix-ui/react-tabs";
 import {
   Card,
@@ -6,13 +8,39 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { User, MapPin, GraduationCap } from "lucide-react";
+import { User, MapPin, GraduationCap, Loader2 } from "lucide-react";
 import { BasicInformation } from "./basic-information";
 import { AddressContact } from "./address-contact";
 import { EducationalBackground } from "./educational-background";
 import { mockStudentData } from "./mock-data";
+import { useStudentInfo } from "@/hooks/use-student-info";
+import { transformStudentInfo } from "@/lib/transforms/student-data";
 
-export function ProfileManagement() {
+export function Profile() {
+  const { data: studentInfo, isLoading, isError } = useStudentInfo();
+
+  // Transform API data if available, otherwise fall back to mock data
+  const studentData = studentInfo
+    ? transformStudentInfo(studentInfo)
+    : mockStudentData;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100">
+        <div className="flex items-center gap-2 text-blue-600">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="font-medium">Loading profile...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If there's an error, we'll still show the UI with mock data
+  if (isError) {
+    console.error("Failed to load student info, using mock data");
+  }
+
   return (
     <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100 min-h-screen py-8">
       <div className="container mx-auto px-4">
@@ -27,8 +55,8 @@ export function ProfileManagement() {
               Student Profile
             </CardTitle>
             <CardDescription className="text-blue-100 max-w-2xl mx-auto">
-              View your personal, contact, and educational
-              information
+              View your personal, contact, and educational information
+              {isError && " (Using cached data)"}
             </CardDescription>
             <div className="flex justify-center pt-4">
               <div className="w-24 h-1 bg-blue-300 rounded-full"></div>
@@ -66,15 +94,15 @@ export function ProfileManagement() {
 
               <div className="space-y-6">
                 <Tabs.Content value="basic" className="focus:outline-none">
-                  <BasicInformation studentData={mockStudentData} />
+                  <BasicInformation studentData={studentData} />
                 </Tabs.Content>
 
                 <Tabs.Content value="address" className="focus:outline-none">
-                  <AddressContact studentData={mockStudentData} />
+                  <AddressContact studentData={studentData} />
                 </Tabs.Content>
 
                 <Tabs.Content value="education" className="focus:outline-none">
-                  <EducationalBackground studentData={mockStudentData} />
+                  <EducationalBackground studentData={studentData} />
                 </Tabs.Content>
               </div>
             </Tabs.Root>
