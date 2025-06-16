@@ -14,13 +14,15 @@ interface GenerateIdsRequest {
   academicYear: string;
 }
 
+const currentYear =  localStorage.getItem("academicYearId") || "2023-2024";
+
 // Fetch all temporary students
 export const useTempStudents = () => {
   return useQuery({
     queryKey: ["tempStudents"],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${currentYear}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch temporary students");
