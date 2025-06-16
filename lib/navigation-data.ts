@@ -116,8 +116,9 @@ export const registrarNavigationItems = [
   {
     title: "Academic Management",
     items: [
+      { title: "Academic Year", icon: Calendar, url: "/registrar/acadamicYear" },
       { title: "Course Catalog", icon: BookOpen, url: "#" },
-      { title: "Class Scheduling", icon: Calendar, url: "#" },
+      /* {  title: "Class Scheduling", icon: Calendar, url: "#" }, */
       { title: "Grades & Transcripts", icon: Award, url: "#" },
       {
         title: "Grade Approval",

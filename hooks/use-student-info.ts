@@ -29,13 +29,13 @@ export interface StudentInfo {
   section_id: number;
 }
 
-export function useStudentInfo(studentID: number) {
+export function useStudentInfo(studentID: string) {
   return useQuery<StudentInfo>({
     queryKey: ["studentInfo"],
     queryFn: async () => {
       try {
         const response = await axios.get(
-          `/api/student?studentID=${studentID}`
+          `/api/students?id=${studentID}`
         );
         return response.data;
       } catch (error) {

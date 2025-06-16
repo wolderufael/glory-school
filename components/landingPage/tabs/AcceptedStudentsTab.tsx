@@ -28,9 +28,10 @@ interface TempStudent {
 
 export default function AcceptedStudents() {
   const [searchQuery, setSearchQuery] = useState("");
+  const academicYearID= "1"
 
   // Fetch temporary students
-  const { data: students = [], isLoading, error } = useTempStudents();
+  const { data: students = [], isLoading, error } = useTempStudents(academicYearID);
 
   // Filter students based on search query
   const filteredStudents = students.filter((student: TempStudent) => {

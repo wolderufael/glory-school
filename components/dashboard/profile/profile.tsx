@@ -15,9 +15,11 @@ import { EducationalBackground } from "./educational-background";
 import { mockStudentData } from "./mock-data";
 import { useStudentInfo } from "@/hooks/use-student-info";
 import { transformStudentInfo } from "@/lib/transforms/student-data";
+//import { useAuth } from "@/context/AuthContext";
 
 export function Profile() {
-  const { data: studentInfo, isLoading, isError } = useStudentInfo(1);
+  //const { user } = useAuth();
+  const { data: studentInfo, isLoading, isError } = useStudentInfo(user?.id.toString() || "");
 
   // Transform API data if available, otherwise fall back to mock data
   const studentData = studentInfo

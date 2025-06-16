@@ -15,12 +15,12 @@ interface GenerateIdsRequest {
 }
 
 // Fetch all temporary students
-export const useTempStudents = () => {
+export const useTempStudents = (academicYearID: string) => {
   return useQuery({
     queryKey: ["tempStudents"],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${academicYearID}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch temporary students");

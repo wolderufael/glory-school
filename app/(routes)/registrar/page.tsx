@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { SidebarInset } from "@/components/ui/sidebar";
 import {
@@ -22,11 +24,11 @@ const RegistrarDashboard = () => {
           </section>
 
           {/* Main Content Grid */}
-  
-            {/* Right Column - Quick Actions */}
-            <div className="space-y-6">
-              <RegistrarQuickActions />
-            </div>
+
+          {/* Right Column - Quick Actions */}
+          <div className="space-y-6">
+            <RegistrarQuickActions />
+          </div>
 
           {/* Recent Activities */}
           <section>
