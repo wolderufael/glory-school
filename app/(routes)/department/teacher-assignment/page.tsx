@@ -1,10 +1,10 @@
 "use client";
 
 /* import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; */
-import TeacherAssignmentForm from "@/components/department/TeacherAssignment";
+import TeacherAssignmentForm from "@/components/department/teacher-assignment/TeacherAssignmentForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, BookOpen } from "lucide-react";
-import TeacherSelect from "@/components/department/TeacherSelect";
+import TeacherSelect from "@/components/department/teacher-assignment/TeacherSelect";
 
 // This would come from your auth context in a real app
 const MOCK_DEPARTMENT_ID = "1"; // Replace with actual department ID from auth
