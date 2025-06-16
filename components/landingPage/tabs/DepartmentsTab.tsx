@@ -9,6 +9,7 @@ import {
   TreePine,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
 
 interface Department {
   id: number;
@@ -29,18 +30,30 @@ const departmentConfig = {
 } as const;
 
 export function DepartmentsTab() {
-  const { data, isLoading, error } = useDepartment();
+  const [departments, setDepartments] = useState<Department[]>([]);
+  //const { data, isLoading, error } = useDepartment();
+  // Fetch departments from API on mount
+  useEffect(() => {
+    async function fetchDepartments() {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
+        );
+        if (!res.ok) throw new Error("Failed to fetch departments");
+        const data = await res.json();
+
+        setDepartments(data);
+      } catch (e) {
+        console.error("Error fetching departments:", e);
+      }
+    }
+    fetchDepartments();
+  }, []);
 
   // Ensure departments is an array
-  const departments = Array.isArray(data?.departments) ? data.departments : [];
+  //const departments = Array.isArray(data?.departments) ? data.departments : [];
 
-  if (error) {
-    return (
-      <div className="text-center text-red-500 p-4">
-        Failed to load departments. Please try again later.
-      </div>
-    );
-  }
+  
 
   return (
     <div className="space-y-8">
@@ -59,7 +72,7 @@ export function DepartmentsTab() {
       </Card>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {isLoading ? (
+        {departments.length === 0 ? (
           // Loading skeletons
           [...Array(6)].map((_, i) => (
             <Card key={i} className="border-0">

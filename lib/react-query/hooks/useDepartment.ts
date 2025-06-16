@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDepartment } from "../queries/getDepartment";
 
-/* export const useDepartment = (departmentId: number) => {
+export const useDepartment = (departmentId: number) => {
     return useQuery({
         queryKey: ['studentCount', departmentId],
         queryFn: () => getDepartment(departmentId),
@@ -9,8 +9,8 @@ import { getDepartment } from "../queries/getDepartment";
         retry: 1,
         staleTime: 1000 * 60 * 5,
     }); }
-*/
-export const useDepartment = () => {
+
+/* export const useDepartment = () => {
   return useQuery({
     queryKey: ["studentCount"],
     queryFn: () => getDepartment(),
@@ -18,4 +18,4 @@ export const useDepartment = () => {
     retry: 1,
     staleTime: 1000 * 60 * 5,
   });
-};
+}; */

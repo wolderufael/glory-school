@@ -1,4 +1,4 @@
-/* export const getDepartment = async (departmentId: number) => {
+export const getDepartment = async (departmentId: number) => {
     try {
         const res = await fetch(
             `${process.env.NEXT_PUBLIC_BASE_URL}/students/count/by-department-section?departmentId=${departmentId}`
@@ -10,12 +10,12 @@
         console.error("Error fetching student count:", error);
             return 0; 
         }
-    }; */
+    };
 
-export const getDepartment = async () => {
+/* export const getDepartment = async () => {
   try {
     const res = await fetch(
-      /* `${process.env.NEXT_PUBLIC_BASE_URL}/students/count/by-department-section?departmentId=${departmentId}` */
+     
       `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
     );
     if (!res.ok) throw new Error("Failed to fetch student count");
@@ -23,6 +23,6 @@ export const getDepartment = async () => {
     return data.count || 0;
   } catch (error) {
     console.error("Error fetching student count:", error);
-    return 0; // Fallback to 0 if there's an error
+    return 0; 
   }
-};
+}; */

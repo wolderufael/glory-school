@@ -58,9 +58,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       {/* Hero Section */}
-      <div className="relative bg-[#0a2b5e] overflow-hidden">
+      <div className="relative bg-[#0a2b5e] overflow-hidden mt-0 pt-8">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px] -top-24 sm:-top-32 md:-top-48 -left-12 sm:-left-16 md:-left-24 bg-gradient-to-r from-blue-700 to-blue-400 rounded-full mix-blend-multiply opacity-60 animate-blob1" />
@@ -79,8 +79,8 @@ export default function LandingPage() {
         </div>
 
         {/* Content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
+        <div className="relative pt-0 pb-8 sm:pb-12 md:pb-16">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center px-4 sm:px-6 lg:px-8">
             <div className="space-y-4 sm:space-y-6 text-center lg:text-left">
               <div className="flex items-center gap-3 justify-center lg:justify-start">
                 <School className="h-8 w-8 sm:h-10 sm:w-10 text-blue-400" />
@@ -211,7 +211,7 @@ export default function LandingPage() {
       </div> */}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="px-4 py-12">
         <Tabs defaultValue="notice-board" className="space-y-8">
           <TabsList className="bg-white border rounded-xl p-1 shadow-sm">
             <TabsTrigger
@@ -235,7 +235,7 @@ export default function LandingPage() {
               <Calendar className="h-4 w-4 mr-2" />
               Academic Calendar
             </TabsTrigger>
-{/*             <TabsTrigger
+            {/*             <TabsTrigger
               value="courses"
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-lg px-6 py-2.5"
             >
@@ -292,7 +292,7 @@ export default function LandingPage() {
       </div>
 
       {/* Footer Section */}
-      <div className="relative bg-[#0a2b5e] overflow-hidden">
+      <div className="relative bg-[#0a2b5e] overflow-hidden px-4">
         {/* Animated background elements - same as hero but adjusted sizes */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px] -top-24 sm:-top-32 md:-top-48 -left-12 sm:-left-16 md:-left-24 bg-gradient-to-r from-blue-700 to-blue-400 rounded-full mix-blend-multiply opacity-60 animate-blob1" />
@@ -311,7 +311,7 @@ export default function LandingPage() {
         </div>
 
         {/* Footer Content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
+        <div className="relative px-0 py-8 sm:py-10 md:py-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <h3 className="text-lg sm:text-xl font-semibold text-white">

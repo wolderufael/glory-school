@@ -17,7 +17,7 @@ import { useStudentInfo } from "@/hooks/use-student-info";
 import { transformStudentInfo } from "@/lib/transforms/student-data";
 
 export function Profile() {
-  const { data: studentInfo, isLoading, isError } = useStudentInfo();
+  const { data: studentInfo, isLoading, isError } = useStudentInfo(1);
 
   // Transform API data if available, otherwise fall back to mock data
   const studentData = studentInfo

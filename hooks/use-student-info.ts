@@ -29,12 +29,14 @@ export interface StudentInfo {
   section_id: number;
 }
 
-export function useStudentInfo() {
+export function useStudentInfo(studentID: number) {
   return useQuery<StudentInfo>({
     queryKey: ["studentInfo"],
     queryFn: async () => {
       try {
-        const response = await axios.get("/api/student/info");
+        const response = await axios.get(
+          `/api/student?studentID=${studentID}`
+        );
         return response.data;
       } catch (error) {
         console.error("Error fetching student info:", error);
