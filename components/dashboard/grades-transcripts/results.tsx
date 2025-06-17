@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { results } from "../../../app/dashboard/grades-transcripts/mock-data";
+import { results } from "@/app/(routes)/student/dashboard/grades-transcripts/mock-data";
 
 export function Results() {
   const getGradeColor = (grade: string) => {

@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { curriculum } from "../../../app/dashboard/grades-transcripts/mock-data";
+import { curriculum } from "@/app/(routes)/student/dashboard/grades-transcripts/mock-data";
 
 export function Curriculum() {
   return (

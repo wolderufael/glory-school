@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { registrations } from "../../../app/dashboard/grades-transcripts/mock-data";
+import { registrations } from "@/app/(routes)/student/dashboard/grades-transcripts/mock-data";
 
 export function Registrations() {
   return (
