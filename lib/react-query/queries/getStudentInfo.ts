@@ -1,4 +1,4 @@
-export const getStudentInfo = async (studentID: string) => {
+export const getStudentInfo = async (studentID: string | null) => {
   try {
     // Fetch student info
     const studentRes = await fetch(

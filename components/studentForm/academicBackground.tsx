@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import { useStudentFormStore } from '@/lib/store/studentFormStore';
-import { TranscriptSchema, PastSecondarySchoolSchema } from '@/utils/typeSchema';
-import { useState } from 'react';
-import { z } from 'zod';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Upload, FileText, X } from 'lucide-react';
+import { useStudentFormStore } from "@/lib/store/studentFormStore";
+import {
+  TranscriptSchema,
+  PastSecondarySchoolSchema,
+} from "@/utils/typeSchema";
+import { useState } from "react";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Upload, FileText, X } from "lucide-react";
 
 interface PostSecondaryEntry {
   id: string;
@@ -16,51 +19,55 @@ interface PostSecondaryEntry {
   filePaths: string[];
 }
 
-export default function AcademicBackgroundForm({ nextStep, prevStep }: { 
-  nextStep: () => void; 
-  prevStep: () => void 
+export default function AcademicBackgroundForm({
+  nextStep,
+  prevStep,
+}: {
+  nextStep: () => void;
+  prevStep: () => void;
 }) {
   const { academicInfo, setAcademicInfo } = useStudentFormStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [postSecondaryEntries, setPostSecondaryEntries] = useState<PostSecondaryEntry[]>([
-    { id: '1', files: [], filePaths: [] }
-  ]);
+  const [postSecondaryEntries, setPostSecondaryEntries] = useState<
+    PostSecondaryEntry[]
+  >([{ id: "1", files: [], filePaths: [] }]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       // Initialize transcript if not exists
       const transcript = academicInfo.transcript || {
-        student_id: '',
-        grade_9_file_path: '',
-        grade_10_file_path: '',
-        grade_11_file_path: '',
-        grade_12_file_path: '',
-        exam_file_path: '',
+        student_id: "",
+        grade_9_file_path: "",
+        grade_10_file_path: "",
+        grade_11_file_path: "",
+        grade_12_file_path: "",
+        exam_file_path: "",
         english_grade: 0,
-        maths_grade: 0
+        maths_grade: 0,
       };
 
       // Validate transcripts
       const validatedTranscripts = TranscriptSchema.parse(transcript);
-      
+
       // Validate past schools
-      const pastSchools = postSecondaryEntries.map(entry => ({
-        student_id: '',
-        file_paths: entry.filePaths.join(',')
+      const pastSchools = postSecondaryEntries.map((entry) => ({
+        student_id: "",
+        file_paths: entry.filePaths.join(","),
       }));
-      const validatedPastSchools = PastSecondarySchoolSchema.array().parse(pastSchools);
+      const validatedPastSchools =
+        PastSecondarySchoolSchema.array().parse(pastSchools);
 
       setAcademicInfo({
         transcript: validatedTranscripts,
-        pastSchools: validatedPastSchools
+        pastSchools: validatedPastSchools,
       });
       nextStep();
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
-          const path = err.path.join('.');
+        error.errors.forEach((err) => {
+          const path = err.path.join(".");
           newErrors[path] = err.message;
         });
         setErrors(newErrors);
@@ -72,14 +79,14 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
     const paths = await uploadFiles(files);
     setAcademicInfo({
       ...academicInfo,
-      transcript: { 
-        ...academicInfo.transcript, 
-        [field]: paths.join(',') 
-      }
+      transcript: {
+        ...academicInfo.transcript,
+        [field]: paths.join(","),
+      },
     });
     // Clear error for this field
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -89,12 +96,12 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
       ...academicInfo,
       transcript: {
         ...academicInfo.transcript,
-        [field]: numValue
-      }
+        [field]: numValue,
+      },
     });
     // Clear error for this field
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -102,36 +109,47 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
     const newEntry: PostSecondaryEntry = {
       id: Date.now().toString(),
       files: [],
-      filePaths: []
+      filePaths: [],
     };
     setPostSecondaryEntries([...postSecondaryEntries, newEntry]);
   };
 
   const removePostSecondaryEntry = (id: string) => {
     if (postSecondaryEntries.length > 1) {
-      setPostSecondaryEntries(postSecondaryEntries.filter(entry => entry.id !== id));
+      setPostSecondaryEntries(
+        postSecondaryEntries.filter((entry) => entry.id !== id)
+      );
     }
   };
 
-  const handlePostSecondaryFileUpload = async (entryId: string, files: FileList) => {
+  const handlePostSecondaryFileUpload = async (
+    entryId: string,
+    files: FileList
+  ) => {
     const paths = await uploadFiles(files);
-    setPostSecondaryEntries(entries =>
-      entries.map(entry =>
+    setPostSecondaryEntries((entries) =>
+      entries.map((entry) =>
         entry.id === entryId
-          ? { ...entry, files: Array.from(files), filePaths: [...entry.filePaths, ...paths] }
+          ? {
+              ...entry,
+              files: Array.from(files),
+              filePaths: [...entry.filePaths, ...paths],
+            }
           : entry
       )
     );
   };
 
   const removeFile = (entryId: string, fileIndex: number) => {
-    setPostSecondaryEntries(entries =>
-      entries.map(entry =>
+    setPostSecondaryEntries((entries) =>
+      entries.map((entry) =>
         entry.id === entryId
           ? {
               ...entry,
               files: entry.files.filter((_, index) => index !== fileIndex),
-              filePaths: entry.filePaths.filter((_, index) => index !== fileIndex)
+              filePaths: entry.filePaths.filter(
+                (_, index) => index !== fileIndex
+              ),
             }
           : entry
       )
@@ -142,8 +160,12 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
     <div className="w-full max-w-6xl mx-auto">
       <Card className="shadow-sm border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-gray-900 mb-2">Academic Background</CardTitle>
-          <p className="text-gray-600">Please provide your academic history and transcripts.</p>
+          <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+            Academic Background
+          </CardTitle>
+          <p className="text-gray-600">
+            Please provide your academic history and transcripts.
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -158,17 +180,24 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
               <CardContent className="space-y-6">
                 {/* Grade File Uploads */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[9, 10, 11, 12].map(grade => (
+                  {[9, 10, 11, 12].map((grade) => (
                     <div key={grade} className="space-y-3">
                       <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                         <Upload className="h-4 w-4 text-gray-500" />
-                        Grade {grade} Transcript <span className="text-red-500">*</span>
+                        Grade {grade} Transcript{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
                           type="file"
                           accept=".pdf,.doc,.docx"
-                          onChange={(e) => e.target.files && handleFileUpload(`grade_${grade}_file_path`, e.target.files)}
+                          onChange={(e) =>
+                            e.target.files &&
+                            handleFileUpload(
+                              `grade_${grade}_file_path`,
+                              e.target.files
+                            )
+                          }
                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                         />
                       </div>
@@ -186,12 +215,16 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
                 <div className="space-y-3">
                   <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                     <Upload className="h-4 w-4 text-gray-500" />
-                    National Exam Results <span className="text-red-500">*</span>
+                    National Exam Results{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     type="file"
                     accept=".pdf,.doc,.docx"
-                    onChange={(e) => e.target.files && handleFileUpload('exam_file_path', e.target.files)}
+                    onChange={(e) =>
+                      e.target.files &&
+                      handleFileUpload("exam_file_path", e.target.files)
+                    }
                     className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
                   {errors.exam_file_path && (
@@ -210,8 +243,10 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
                     </Label>
                     <Input
                       type="number"
-                      value={academicInfo.transcript?.english_grade || ''}
-                      onChange={(e) => handleGradeChange('english_grade', e.target.value)}
+                      value={academicInfo.transcript?.english_grade || ""}
+                      onChange={(e) =>
+                        handleGradeChange("english_grade", e.target.value)
+                      }
                       className="focus:ring-2 focus:ring-blue-500"
                       min="0"
                       max="100"
@@ -231,8 +266,10 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
                     </Label>
                     <Input
                       type="number"
-                      value={academicInfo.transcript?.maths_grade || ''}
-                      onChange={(e) => handleGradeChange('maths_grade', e.target.value)}
+                      value={academicInfo.transcript?.maths_grade || ""}
+                      onChange={(e) =>
+                        handleGradeChange("maths_grade", e.target.value)
+                      }
                       className="focus:ring-2 focus:ring-blue-500"
                       min="0"
                       max="100"
@@ -269,10 +306,15 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
               </CardHeader>
               <CardContent className="space-y-6">
                 {postSecondaryEntries.map((entry, index) => (
-                  <Card key={entry.id} className="bg-white border border-green-200">
+                  <Card
+                    key={entry.id}
+                    className="bg-white border border-green-200"
+                  >
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-gray-800">Entry {index + 1}</h4>
+                        <h4 className="font-medium text-gray-800">
+                          Entry {index + 1}
+                        </h4>
                         {postSecondaryEntries.length > 1 && (
                           <Button
                             type="button"
@@ -296,7 +338,13 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
                           type="file"
                           multiple
                           accept=".pdf,.doc,.docx"
-                          onChange={(e) => e.target.files && handlePostSecondaryFileUpload(entry.id, e.target.files)}
+                          onChange={(e) =>
+                            e.target.files &&
+                            handlePostSecondaryFileUpload(
+                              entry.id,
+                              e.target.files
+                            )
+                          }
                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                         />
                       </div>
@@ -304,14 +352,19 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
                       {/* Uploaded Files Display */}
                       {entry.filePaths.length > 0 && (
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium text-gray-700">Uploaded Files:</Label>
+                          <Label className="text-sm font-medium text-gray-700">
+                            Uploaded Files:
+                          </Label>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {entry.filePaths.map((path, fileIdx) => (
-                              <div key={fileIdx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                              <div
+                                key={fileIdx}
+                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                              >
                                 <div className="flex items-center gap-2">
                                   <FileText className="h-4 w-4 text-gray-500" />
                                   <span className="text-sm text-gray-700 truncate">
-                                    {path.split('/').pop()}
+                                    {path.split("/").pop()}
                                   </span>
                                 </div>
                                 <Button
@@ -347,10 +400,7 @@ export default function AcademicBackgroundForm({ nextStep, prevStep }: {
               <div className="text-sm text-gray-600">
                 Step 3 of 5: Academic Background
               </div>
-              <Button
-                type="submit"
-                className="px-8 py-3"
-              >
+              <Button type="submit" className="px-8 py-3">
                 Next Step →
               </Button>
             </div>

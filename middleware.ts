@@ -17,7 +17,7 @@ export type UserTypePayload = {
 
 // Dashboard redirect map
 const DASHBOARDS: Record<UserEnumTypes, string> = {
-  Student: "/student",
+  Student: "/student/dashboard",
   Teacher: "/teacher",
   Registrar: "/registrars",
   Department: "/department",
@@ -26,7 +26,7 @@ const DASHBOARDS: Record<UserEnumTypes, string> = {
 
 // Protected routes per role
 const roleRoutes: Record<UserEnumTypes, string[]> = {
-  Student: ["/student"],
+  Student: ["/student/dashboard"],
   Teacher: ["/teacher"],
   Registrar: ["/registrars"],
   Department: ["/department"],
@@ -104,6 +104,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  /* matcher: ["/((?!_next|favicon.ico|api|public).*)"], */
-  matcher:[]
+  matcher: ["/((?!_next|favicon.ico|api|public).*)"],
+  /* matcher:[] */
 };

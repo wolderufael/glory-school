@@ -1,6 +1,14 @@
 // stores/student-form-store.ts
-import { EmergencyContactType, EmploymentHistoryType, ParentInfoType, PastSecondarySchool, SecondarySchoolInfoType, StudentFullInfo, Transcript } from '@/utils/typeSchema';
-import { create } from 'zustand';
+import {
+  EmergencyContactType,
+  EmploymentHistoryType,
+  ParentInfoType,
+  PastSecondarySchool,
+  SecondarySchoolInfoType,
+  StudentFullInfo,
+  Transcript,
+} from "@/utils/typeSchema";
+import { create } from "zustand";
 
 type FormState = {
   personalInfo: StudentFullInfo;
@@ -14,11 +22,11 @@ type FormState = {
   setPersonalInfo: (data: StudentFullInfo) => void;
   setContactInfo: (data: EmergencyContactType) => void;
   setAcademicInfo: (data: {
-        transcript: Transcript;
-        pastSchools: PastSecondarySchool[];
-    }) => void;
-    setFamilyInfo: (data: ParentInfoType[]) => void;
-    setEmploymentHistory: (data: EmploymentHistoryType[]) => void; 
+    transcript: Transcript;
+    pastSchools: PastSecondarySchool[];
+  }) => void;
+  setFamilyInfo: (data: ParentInfoType[]) => void;
+  setEmploymentHistory: (data: EmploymentHistoryType[]) => void;
 };
 
 export const useStudentFormStore = create<FormState>((set) => ({

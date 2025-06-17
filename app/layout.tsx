@@ -5,7 +5,8 @@ import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Wolaita Sodo Agricultural College Student Portal",
-  description: "Student Information System for Wolaita Sodo Agricultural College",
+  description:
+    "Student Information System for Wolaita Sodo Agricultural College",
 };
 
 export default function RootLayout({

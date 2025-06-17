@@ -71,6 +71,7 @@ const Login = () => {
 
     const data = await response.json();
     const { token, user, academicYear, academicSemester } = data;
+    console.log('user', user)
 
     // Store relevant info in localStorage
     if (typeof window !== 'undefined') {

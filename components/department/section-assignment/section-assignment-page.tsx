@@ -30,44 +30,49 @@ export function SectionAssignmentPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Fetch students based on criteria
-  const handleFetchStudents = useCallback(async (criteria: AssignmentCriteria) => {
-    // Prevent duplicate calls for the same criteria
-    if (currentCriteria && 
-        currentCriteria.department === criteria.department &&
+  const handleFetchStudents = useCallback(
+    async (criteria: AssignmentCriteria) => {
+      // Prevent duplicate calls for the same criteria
+      if (
+        currentCriteria &&
+        //currentCriteria.department === criteria.department &&
         currentCriteria.level === criteria.level &&
-        currentCriteria.year === criteria.year &&
-        currentCriteria.semester === criteria.semester) {
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setAssignmentResult(null);
-
-    try {
-      const response: ApiResponse<StudentFetchResponse> =
-        await sectionAssignmentApiService.fetchStudents(criteria);
-
-      if (response.success && response.data) {
-        setStudents(response.data.students);
-        setCurrentCriteria(criteria);
-        console.log(`Found ${response.data.students.length} students`);
-
-        // Automatically generate section assignments
-        generateSectionAssignments(response.data.students);
-      } else {
-        throw new Error(response.error || "Failed to fetch students");
+        //currentCriteria.year === criteria.year &&
+        currentCriteria.semester === criteria.semester
+      ) {
+        return;
       }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch students";
-      setError(errorMessage);
-      console.error(errorMessage);
-      setStudents([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentCriteria]);
+
+      setLoading(true);
+      setError(null);
+      setAssignmentResult(null);
+
+      try {
+        const response: ApiResponse<StudentFetchResponse> =
+          await sectionAssignmentApiService.fetchStudents(criteria);
+
+        if (response.success && response.data) {
+          setStudents(response.data.students);
+          setCurrentCriteria(criteria);
+          console.log(`Found ${response.data.students.length} students`);
+
+          // Automatically generate section assignments
+          generateSectionAssignments(response.data.students);
+        } else {
+          throw new Error(response.error || "Failed to fetch students");
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to fetch students";
+        setError(errorMessage);
+        console.error(errorMessage);
+        setStudents([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentCriteria]
+  );
 
   // Generate section assignments
   const generateSectionAssignments = (studentList: Student[]) => {
@@ -219,13 +224,10 @@ export function SectionAssignmentPage() {
           </CardHeader>
           <CardContent>
             <ol className="list-decimal list-inside space-y-2 text-blue-800">
+              <li>Select the academic level, and semester criteria</li>
               <li>
-                Select the department, academic level, year, and semester
-                criteria
-              </li>
-              <li>
-                The system will automatically fetch students, sort them alphabetically and
-                divide them into sections
+                The system will automatically fetch students, sort them
+                alphabetically and divide them into sections
               </li>
               <li>Each section will contain 40-60 students (when possible)</li>
               <li>Review the generated sections and student assignments</li>

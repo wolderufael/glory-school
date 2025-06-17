@@ -1,26 +1,32 @@
-'use client';
+"use client";
 
-import { useStudentFormStore } from '@/lib/store/studentFormStore';
-import { ParentInfoType } from '@/utils/typeSchema';
-import { useState, useEffect } from 'react';
-import { z } from 'zod';
-import { parentInfo } from '@/utils/typeSchema';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { User, Phone, MapPin, GraduationCap, Briefcase } from 'lucide-react';
+import { useStudentFormStore } from "@/lib/store/studentFormStore";
+import { ParentInfoType } from "@/utils/typeSchema";
+import { useState, useEffect } from "react";
+import { z } from "zod";
+import { parentInfo } from "@/utils/typeSchema";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { User, Phone, MapPin, GraduationCap, Briefcase } from "lucide-react";
 
 interface FamilyInfoFormProps {
   nextStep: () => void;
   prevStep: () => void;
 }
 
-export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormProps) {
+export default function FamilyInfoForm({
+  nextStep,
+  prevStep,
+}: FamilyInfoFormProps) {
   const { familyInfo, setFamilyInfo } = useStudentFormStore();
-  const [errors, setErrors] = useState<{ father: { [key: string]: string }; mother: { [key: string]: string } }>({
+  const [errors, setErrors] = useState<{
+    father: { [key: string]: string };
+    mother: { [key: string]: string };
+  }>({
     father: {},
-    mother: {}
+    mother: {},
   });
 
   // Initialize with father and mother if not already present
@@ -29,75 +35,88 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
       const initialFamilyInfo: ParentInfoType[] = [
         {
           id: crypto.randomUUID(),
-          student_id: '',
-          parent_type: 'FATHER',
-          full_name: '',
-          occupation: '',
-          education_level: '',
-          address_house_no: '',
-          address_kebele: '',
-          address_woreda: '',
-          address_zone: '',
-          address_region: '',
-          phone: '',
-          po_box: ''
+          student_id: "",
+          parent_type: "FATHER",
+          full_name: "",
+          occupation: "",
+          education_level: "",
+          address_house_no: "",
+          address_kebele: "",
+          address_woreda: "",
+          address_zone: "",
+          address_region: "",
+          phone: "",
+          po_box: "",
         },
         {
           id: crypto.randomUUID(),
-          student_id: '',
-          parent_type: 'MOTHER',
-          full_name: '',
-          occupation: '',
-          education_level: '',
-          address_house_no: '',
-          address_kebele: '',
-          address_woreda: '',
-          address_zone: '',
-          address_region: '',
-          phone: '',
-          po_box: ''
-        }
+          student_id: "",
+          parent_type: "MOTHER",
+          full_name: "",
+          occupation: "",
+          education_level: "",
+          address_house_no: "",
+          address_kebele: "",
+          address_woreda: "",
+          address_zone: "",
+          address_region: "",
+          phone: "",
+          po_box: "",
+        },
       ];
       setFamilyInfo(initialFamilyInfo);
     }
   }, [familyInfo, setFamilyInfo]);
 
-  const handleChange = (parentType: 'FATHER' | 'MOTHER', field: string, value: string) => {
+  const handleChange = (
+    parentType: "FATHER" | "MOTHER",
+    field: string,
+    value: string
+  ) => {
     const updated = [...(Array.isArray(familyInfo) ? familyInfo : [])];
-    const index = updated.findIndex(parent => parent.parent_type === parentType);
-    
+    const index = updated.findIndex(
+      (parent) => parent.parent_type === parentType
+    );
+
     if (index !== -1) {
       updated[index] = { ...updated[index], [field]: value };
       setFamilyInfo(updated);
     }
 
     // Clear error for this field
-    if (errors[parentType.toLowerCase() as 'father' | 'mother'][field]) {
-      setErrors(prev => ({
+    if (errors[parentType.toLowerCase() as "father" | "mother"][field]) {
+      setErrors((prev) => ({
         ...prev,
         [parentType.toLowerCase()]: {
-          ...prev[parentType.toLowerCase() as 'father' | 'mother'],
-          [field]: ''
-        }
+          ...prev[parentType.toLowerCase() as "father" | "mother"],
+          [field]: "",
+        },
       }));
     }
   };
 
   const validateAndProceed = () => {
     try {
-      const validated = (Array.isArray(familyInfo) ? familyInfo : []).map(info => parentInfo.parse(info));
+      const validated = (Array.isArray(familyInfo) ? familyInfo : []).map(
+        (info) => parentInfo.parse(info)
+      );
       setFamilyInfo(validated);
       nextStep();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const newErrors: { father: Record<string, string>; mother: Record<string, string> } = { father: {}, mother: {} };
-        error.errors.forEach(err => {
+        const newErrors: {
+          father: Record<string, string>;
+          mother: Record<string, string>;
+        } = { father: {}, mother: {} };
+        error.errors.forEach((err) => {
           const index = Number(err.path[0]);
           const field = err.path[1] as string;
-          const parentType = (Array.isArray(familyInfo) ? familyInfo : [])[index]?.parent_type;
-          if (parentType === 'FATHER') {
+          const parentType = (Array.isArray(familyInfo) ? familyInfo : [])[
+            index
+          ]?.parent_type;
+          if (parentType === "FATHER") {
             newErrors.father[field] = err.message;
-          } else if (parentType === 'MOTHER') {
+          } else if (parentType === "MOTHER") {
             newErrors.mother[field] = err.message;
           }
         });
@@ -106,27 +125,36 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
     }
   };
 
-  const getFamilyMember = (type: 'FATHER' | 'MOTHER') => {
-    return (Array.isArray(familyInfo) ? familyInfo : []).find(parent => parent.parent_type === type) || {
-      id: '',
-      student_id: '',
-      parent_type: type,
-      full_name: '',
-      occupation: '',
-      education_level: '',
-      address_house_no: '',
-      address_kebele: '',
-      address_woreda: '',
-      address_zone: '',
-      address_region: '',
-      phone: '',
-      po_box: ''
-    };
+  const getFamilyMember = (type: "FATHER" | "MOTHER") => {
+    return (
+      (Array.isArray(familyInfo) ? familyInfo : []).find(
+        (parent) => parent.parent_type === type
+      ) || {
+        id: "",
+        student_id: "",
+        parent_type: type,
+        full_name: "",
+        occupation: "",
+        education_level: "",
+        address_house_no: "",
+        address_kebele: "",
+        address_woreda: "",
+        address_zone: "",
+        address_region: "",
+        phone: "",
+        po_box: "",
+      }
+    );
   };
 
-  const renderParentSection = (parentType: 'FATHER' | 'MOTHER', icon: React.ReactNode, title: string, bgColor: string) => {
+  const renderParentSection = (
+    parentType: "FATHER" | "MOTHER",
+    icon: React.ReactNode,
+    title: string,
+    bgColor: string
+  ) => {
     const parent = getFamilyMember(parentType);
-    const errorObj = errors[parentType.toLowerCase() as 'father' | 'mother'];
+    const errorObj = errors[parentType.toLowerCase() as "father" | "mother"];
 
     return (
       <Card className="overflow-hidden">
@@ -150,9 +178,11 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 </Label>
                 <Input
                   value={parent.full_name}
-                  onChange={(e) => handleChange(parentType, 'full_name', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "full_name", e.target.value)
+                  }
                   placeholder={`Enter ${title.toLowerCase()}'s full name`}
-                  className={errorObj.full_name ? 'border-red-500' : ''}
+                  className={errorObj.full_name ? "border-red-500" : ""}
                 />
                 {errorObj.full_name && (
                   <p className="text-red-500 text-sm">{errorObj.full_name}</p>
@@ -172,7 +202,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>Occupation</Label>
                 <Input
                   value={parent.occupation}
-                  onChange={(e) => handleChange(parentType, 'occupation', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "occupation", e.target.value)
+                  }
                   placeholder="Enter occupation"
                 />
               </div>
@@ -180,7 +212,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>Education Level</Label>
                 <select
                   value={parent.education_level}
-                  onChange={(e) => handleChange(parentType, 'education_level', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "education_level", e.target.value)
+                  }
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Select education level</option>
@@ -204,12 +238,15 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
               <div className="space-y-2">
-                <Label>Phone Number <span className="text-red-500">*</span>
-                   </Label>
+                <Label>
+                  Phone Number <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   type="tel"
                   value={parent.phone}
-                  onChange={(e) => handleChange(parentType, 'phone', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "phone", e.target.value)
+                  }
                   placeholder="Enter phone number"
                 />
               </div>
@@ -217,7 +254,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>P.O. Box</Label>
                 <Input
                   value={parent.po_box}
-                  onChange={(e) => handleChange(parentType, 'po_box', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "po_box", e.target.value)
+                  }
                   placeholder="Enter P.O. Box"
                 />
               </div>
@@ -235,7 +274,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>House Number</Label>
                 <Input
                   value={parent.address_house_no}
-                  onChange={(e) => handleChange(parentType, 'address_house_no', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "address_house_no", e.target.value)
+                  }
                   placeholder="House No."
                 />
               </div>
@@ -243,7 +284,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>Kebele</Label>
                 <Input
                   value={parent.address_kebele}
-                  onChange={(e) => handleChange(parentType, 'address_kebele', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "address_kebele", e.target.value)
+                  }
                   placeholder="Kebele"
                 />
               </div>
@@ -251,7 +294,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>Woreda</Label>
                 <Input
                   value={parent.address_woreda}
-                  onChange={(e) => handleChange(parentType, 'address_woreda', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "address_woreda", e.target.value)
+                  }
                   placeholder="Woreda"
                 />
               </div>
@@ -259,7 +304,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>Zone</Label>
                 <Input
                   value={parent.address_zone}
-                  onChange={(e) => handleChange(parentType, 'address_zone', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "address_zone", e.target.value)
+                  }
                   placeholder="Zone"
                 />
               </div>
@@ -267,7 +314,9 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
                 <Label>Region</Label>
                 <Input
                   value={parent.address_region}
-                  onChange={(e) => handleChange(parentType, 'address_region', e.target.value)}
+                  onChange={(e) =>
+                    handleChange(parentType, "address_region", e.target.value)
+                  }
                   placeholder="Region"
                 />
               </div>
@@ -281,25 +330,29 @@ export default function FamilyInfoForm({ nextStep, prevStep }: FamilyInfoFormPro
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Family Information</h2>
-        <p className="text-gray-600">Please provide information about your parents.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Family Information
+        </h2>
+        <p className="text-gray-600">
+          Please provide information about your parents.
+        </p>
       </div>
 
       <div className="space-y-8">
         {/* Father Section */}
         {renderParentSection(
-          'FATHER',
+          "FATHER",
           <User className="w-5 h-5" />,
-          'Father',
-          'bg-blue-600'
+          "Father",
+          "bg-blue-600"
         )}
 
         {/* Mother Section */}
         {renderParentSection(
-          'MOTHER',
+          "MOTHER",
           <User className="w-5 h-5" />,
-          'Mother',
-          'bg-pink-600'
+          "Mother",
+          "bg-pink-600"
         )}
       </div>
 

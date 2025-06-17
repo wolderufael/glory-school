@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Search, Users, Filter } from "lucide-react";
 
 export interface AssignmentCriteria {
-  department: string;
+  //department: string;
   level: string;
-  year: string;
+  //year: string;
   semester: string;
 }
 
@@ -31,7 +31,7 @@ const departments = [
   { id: "ANP", name: "Animal Production" },
   { id: "CAA", name: "Cooperative Accounting and Auditing" },
   { id: "CRP", name: "Crop Production" },
-  { id: "IRD",name: "Drainage and Irrigation" },
+  { id: "IRD", name: "Drainage and Irrigation" },
   { id: "NRDC", name: "Natural Resource Conservation and Development" },
 ];
 
@@ -58,14 +58,13 @@ export function AssignmentForm({
   loading = false,
 }: AssignmentFormProps) {
   const [criteria, setCriteria] = useState<AssignmentCriteria>({
-    department: "",
+    //department: "",
     level: "",
-    year: "",
+    //year: "",
     semester: "",
   });
 
-  const isFormValid =
-    criteria.department && criteria.level && criteria.year && criteria.semester;
+  const isFormValid = criteria.level && criteria.semester;
 
   // Auto-fetch students when all fields are filled (with debounce)
   useEffect(() => {
@@ -77,9 +76,9 @@ export function AssignmentForm({
       return () => clearTimeout(timeoutId);
     }
   }, [
-    criteria.department,
+    //criteria.department,
     criteria.level,
-    criteria.year,
+    //criteria.year,
     criteria.semester,
     isFormValid,
     loading,
@@ -100,7 +99,7 @@ export function AssignmentForm({
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Department Selection */}
-            <div className="space-y-2">
+            {/*             <div className="space-y-2">
               <Label htmlFor="department" className="text-blue-900 font-medium">
                 Department
               </Label>
@@ -121,7 +120,7 @@ export function AssignmentForm({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
             {/* Level Selection */}
             <div className="space-y-2">
@@ -148,7 +147,7 @@ export function AssignmentForm({
             </div>
 
             {/* Year Selection */}
-            <div className="space-y-2">
+            {/*             <div className="space-y-2">
               <Label htmlFor="year" className="text-blue-900 font-medium">
                 Academic Year
               </Label>
@@ -169,7 +168,7 @@ export function AssignmentForm({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
             {/* Semester Selection */}
             <div className="space-y-2">
@@ -214,7 +213,7 @@ export function AssignmentForm({
                 Selected Criteria:
               </h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                <div>
+                {/*               <div>
                   <span className="text-blue-600">Department:</span>
                   <p className="font-medium text-blue-900">
                     {
@@ -222,19 +221,19 @@ export function AssignmentForm({
                         ?.name
                     }
                   </p>
-                </div>
+                </div> */}
                 <div>
                   <span className="text-blue-600">Level:</span>
                   <p className="font-medium text-blue-900">
                     {levels.find((l) => l.id === criteria.level)?.name}
                   </p>
                 </div>
-                <div>
+                {/*               <div>
                   <span className="text-blue-600">Year:</span>
                   <p className="font-medium text-blue-900">
                     {years.find((y) => y.id === criteria.year)?.name}
                   </p>
-                </div>
+                </div> */}
                 <div>
                   <span className="text-blue-600">Semester:</span>
                   <p className="font-medium text-blue-900">

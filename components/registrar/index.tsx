@@ -7,4 +7,4 @@ export { RegistrarQuickActions } from "./quick-actions";
 export { RegistrarRecentActivities } from "./recent-activities";
 
 // Section Assignment Components
-export { SectionAssignmentPage } from "./section-assignment";
+export { SectionAssignmentPage } from "../department/section-assignment";
