@@ -43,7 +43,7 @@ export const FullInfo = z.object({
   phone_mobile: z.string().min(1, "Mobile phone is required"),
   phone_office: z.string().optional(),
   department_id: z.number().min(1, "Department is required"),
-  program_id: z.number().min(1, "Program ID is required"),
+  // program_id: z.number().min(1, "Program ID is required"),
   admission_type_id: z.number().min(1, "Admission type is required"),
   // registration_date: z.string().min(1, "Registration date is required"),
   MaritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'])
