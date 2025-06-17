@@ -2,10 +2,10 @@
 
 import * as Tabs from "@radix-ui/react-tabs";
 import { Card } from "@/components/ui/card";
-import { BasicInfo } from "../../../components/dashboard/grades-transcripts/basic-info";
-import { Registrations } from "../../../components/dashboard/grades-transcripts/registrations";
-import { Results } from "../../../components/dashboard/grades-transcripts/results";
-import { Curriculum } from "../../../components/dashboard/grades-transcripts/curriculum";
+import { BasicInfo } from "@/components/dashboard/grades-transcripts/basic-info";
+import { Registrations } from "@/components/dashboard/grades-transcripts/registrations";
+import { Results } from "@/components/dashboard/grades-transcripts/results";
+import { Curriculum } from "@/components/dashboard/grades-transcripts/curriculum";
 
 export default function GradesTranscriptsPage() {
   return (
