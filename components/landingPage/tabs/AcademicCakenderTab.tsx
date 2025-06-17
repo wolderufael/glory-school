@@ -147,10 +147,10 @@ export default function AcademicCalenderTab() {
                           </p>
                           <p className="text-lg font-medium text-gray-900">
                             {formatDate(
-                              calendar.semester1RegistrationStartDate
+                              calendar.semeester1RegistrationStartDate
                             )}{" "}
                             -{" "}
-                            {formatDate(calendar.semester1RegistrationEndDate)}
+                            {formatDate(calendar.semeester1RegistrationEndDate)}
                           </p>
                         </div>
                       </div>
@@ -184,10 +184,10 @@ export default function AcademicCalenderTab() {
                           </p>
                           <p className="text-lg font-medium text-gray-900">
                             {formatDate(
-                              calendar.semester2RegistrationStartDate
+                              calendar.semeester2RegistrationStartDate
                             )}{" "}
                             -{" "}
-                            {formatDate(calendar.semester2RegistrationEndDate)}
+                            {formatDate(calendar.semeester2RegistrationEndDate)}
                           </p>
                         </div>
                       </div>
@@ -210,7 +210,7 @@ export default function AcademicCalenderTab() {
                     <div className="relative pl-8 before:absolute before:left-3 before:top-2 before:w-px before:h-full before:bg-orange-200">
                       {[
                         {
-                          date: calendar.semester1RegistrationStartDate,
+                          date: calendar.semeester1RegistrationStartDate,
                           event: "First Semester Registration Begins",
                         },
                         {
@@ -222,7 +222,7 @@ export default function AcademicCalenderTab() {
                           event: "First Semester Ends",
                         },
                         {
-                          date: calendar.semester2RegistrationStartDate,
+                          date: calendar.semeester2RegistrationStartDate,
                           event: "Second Semester Registration Begins",
                         },
                         {

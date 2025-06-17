@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getStudentInfo } from "../queries/getStudentInfo";
 
-export const useStudentInfo = () => {
+export const useStudentInfo = (studentID: string) => {
   return useQuery({
     queryKey: ["studentInfo"],
-    queryFn: () => getStudentInfo(),
+    queryFn: () => getStudentInfo(studentID),
     refetchOnWindowFocus: false,
     retry: 1,
     staleTime: 1000 * 60 * 5,

@@ -35,7 +35,7 @@ export function useStudentInfo(studentID: string) {
     queryFn: async () => {
       try {
         const response = await axios.get(
-          `/api/students?id=${studentID}`
+          `/api/students/${studentID}`
         );
         return response.data;
       } catch (error) {

@@ -7,6 +7,7 @@ import {
   Leaf,
   Droplets,
   TreePine,
+  Dog
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ interface Department {
 // Map of department codes to their respective icons and colors
 const departmentConfig = {
   ANH: { icon: Stethoscope, color: "blue" },
-  ANP: { icon: Users, color: "green" },
+  ANP: { icon: Dog, color: "green" },
   CAA: { icon: BookOpen, color: "purple" },
   CRP: { icon: Leaf, color: "yellow" },
   IRD: { icon: Droplets, color: "cyan" },
@@ -116,7 +117,7 @@ export function DepartmentsTab() {
                   <div
                     className={`flex items-center text-sm text-${color}-600`}
                   >
-                    <span className="font-semibold">Code: {dept.code}</span>
+                    {/* <span className="font-semibold">Code: {dept.code}</span> */}
                   </div>
                 </div>
               </div>

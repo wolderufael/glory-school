@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Department } from "./useDepartments";
 
 interface TempStudent {
   id: number;
@@ -6,6 +7,7 @@ interface TempStudent {
   middleName: string;
   lastName: string;
   departmentId: number;
+  department?: Department;
   generatedId?: string;
 }
 
@@ -19,13 +21,30 @@ export const useTempStudents = (academicYearID: string) => {
   return useQuery({
     queryKey: ["tempStudents"],
     queryFn: async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${academicYearID}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch temporary students");
+      const [studentsResponse, departmentsResponse] = await Promise.all([
+        fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${academicYearID}`
+        ),
+        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/departments`),
+      ]);
+
+      if (!studentsResponse.ok || !departmentsResponse.ok) {
+        throw new Error("Failed to fetch data");
       }
-      return response.json();
+
+      const [students, departments]: [TempStudent[], Department[]] =
+        await Promise.all([
+          studentsResponse.json(),
+          departmentsResponse.json(),
+        ]);
+
+      // Merge department information with students
+      return students.map((student) => ({
+        ...student,
+        department: departments.find(
+          (dept) => dept.id === student.departmentId
+        ),
+      }));
     },
   });
 };

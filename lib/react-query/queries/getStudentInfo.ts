@@ -1,13 +1,34 @@
-export const getStudentInfo = async () => {
+export const getStudentInfo = async (studentID: string) => {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/students/info`
+    // Fetch student info
+    const studentRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/students/${studentID}`
     );
-    if (!res.ok) throw new Error("Failed to fetch student info");
-    const data = await res.json();
-    return data.studentInfo || 0;
+    if (!studentRes.ok) throw new Error("Failed to fetch student info");
+    const studentData = await studentRes.json();
+
+    // Fetch section info if sectionId exists
+    let sectionName = "Not assigned";
+    if (studentData.sectionId) {
+      const sectionRes = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/sections/${studentData.sectionId}`
+      );
+      if (sectionRes.ok) {
+        const sectionData = await sectionRes.json();
+        sectionName = sectionData.sectionName;
+      }
+    }
+
+    // Add section name to the response
+    return {
+      ...studentData,
+      section: {
+        id: studentData.sectionId,
+        name: sectionName,
+      },
+    };
   } catch (error) {
     console.error("Error fetching student info:", error);
-    return 0; // Fallback to 0 if there's an error
+    throw error;
   }
 };

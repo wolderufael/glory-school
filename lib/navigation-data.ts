@@ -42,8 +42,8 @@ export const navigationItems = [
   {
     title: "Dashboard",
     items: [
-      { title: "Dashboard", icon: Home, url: "/dashboard", isActive: true },
-      { title: "Profile", icon: User, url: "/dashboard/profile" },
+      { title: "Dashboard", icon: Home, url: "/student/dashboard", isActive: true },
+      { title: "Profile", icon: User, url: "/student/dashboard/profile" },
     ],
   },
   {
@@ -52,17 +52,17 @@ export const navigationItems = [
       {
         title: "Course Registration/Slip",
         icon: BookOpen,
-        url: "/dashboard/course-registration",
+        url: "/student/dashboard/course-registration",
       },
       {
         title: "Academic Records",
         icon: FileText,
-        url: "/dashboard/academic-records",
+        url: "/student/dashboard/academic-records",
       },
       {
         title: "Grades & Transcripts",
         icon: Award,
-        url: "/dashboard/grades-transcripts",
+        url: "/student/dashboard/grades-transcripts",
       },
       { title: "Class Schedule", icon: Calendar, url: "#" },
       { title: "Assignments", icon: ClipboardList, url: "#" },

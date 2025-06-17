@@ -10,10 +10,10 @@ export interface AcademicCalender {
   semester1EndDate: string;
   semester2StartDate: string;
   semester2EndDate: string;
-  semester1RegistrationStartDate: string;
-  semester1RegistrationEndDate: string;
-  semester2RegistrationStartDate: string;
-  semester2RegistrationEndDate: string;
+  semeester1RegistrationStartDate: string;
+  semeester1RegistrationEndDate: string;
+  semeester2RegistrationStartDate: string;
+  semeester2RegistrationEndDate: string;
   createdAt: string;
 }
 

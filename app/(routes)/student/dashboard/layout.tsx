@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/dashboard/sidebar";
-import "../globals.css";
+import "@/app/globals.css";
 import { TopNav } from "@/components/dashboard/top-nav";
 import { SidebarProvider } from "@/components/ui/sidebar";
 

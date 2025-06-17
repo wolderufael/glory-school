@@ -1,6 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
 interface StudentInfo {
   department: string;
@@ -11,15 +9,15 @@ interface StudentInfo {
   program: string;
 }
 
-export function StudentInfoCard() {
-  const { data: studentInfo, isLoading } = useQuery<StudentInfo>({
-    queryKey: ["studentInfo"],
-    queryFn: async () => {
-      const response = await axios.get("/api/student/info");
-      return response.data;
-    },
-  });
+interface StudentInfoCardProps {
+  data: StudentInfo;
+  isLoading?: boolean;
+}
 
+export function StudentInfoCard({
+  data,
+  isLoading = false,
+}: StudentInfoCardProps) {
   if (isLoading) {
     return (
       <Card className="mb-6 bg-blue-50 border-blue-200">
@@ -57,19 +55,19 @@ export function StudentInfoCard() {
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Department:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {studentInfo?.department}
+                {data.department}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Year:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {studentInfo?.year}
+                {data.year}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Section:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {studentInfo?.section}
+                {data.section}
               </span>
             </div>
           </div>
@@ -77,19 +75,19 @@ export function StudentInfoCard() {
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Academic Year:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {studentInfo?.academicYear}
+                {data.academicYear}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Semester:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {studentInfo?.semester}
+                {data.semester}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Program:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {studentInfo?.program}
+                {data.program}
               </span>
             </div>
           </div>
