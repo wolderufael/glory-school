@@ -36,7 +36,7 @@ const initialPersonalInfo: StudentFullInfo = {
   phone_mobile: '',
   phone_office: '',
   department_id: 1,
-  program_id: 1,
+  // program_id: 1,
   admission_type_id: 1,
   // registration_date: '',
   MaritalStatus: 'SINGLE'
@@ -104,7 +104,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
           fatherName: userData?.middleName || '',
           grandFather_Name: userData?.lastName || '',
           student_id: userData?.userMainId || '',
-          program_id: userData?.program_id || '',
+          // program_id: userData?.program_id || '',
           // registration_date: userData?.registration_date || new Date().toISOString(),
           currentLevel: userData?.currentLevel || '1', // Default value
           currentYear: userData?.currentYear || new Date().getFullYear().toString(),
@@ -132,7 +132,11 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
     console.log('Submitting personal info:', personalInfo);
     try {
       FullInfo.parse(personalInfo);
+
+      console.log('info after', personalInfo)
       setErrors({});
+
+      console.log(errors)
       nextStep();
     } catch (error) {
       if (error instanceof z.ZodError) {
