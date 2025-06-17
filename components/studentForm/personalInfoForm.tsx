@@ -35,18 +35,18 @@ const initialPersonalInfo: StudentFullInfo = {
   phone_home: '',
   phone_mobile: '',
   phone_office: '',
-  department_id: '',
-  program_id: '',
-  admission_type_id: '',
-  registration_date: '',
+  department_id: 1,
+  program_id: 1,
+  admission_type_id: 1,
+  // registration_date: '',
   MaritalStatus: 'SINGLE'
 };
 
 export default function PersonalInfoForm({ nextStep }: { nextStep: () => void }) {
   const { personalInfo, setPersonalInfo } = useStudentFormStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [departmentName, setDepartmentName] = useState('');
-  const [admissionTypeName, setAdmissionTypeName] = useState('');
+  const [departmentName, setDepartmentName] = useState<any>({})
+  const [admissionTypeName, setAdmissionTypeName] = useState('regular');
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -66,7 +66,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
         if (!admissionTypeRes.ok) throw new Error('Failed to fetch admission types');
         const admissionTypes = await admissionTypeRes.json();
         const admissionType = admissionTypes.find((type: any) => type.admission_type_id === 'REGULAR');
-        let admissionTypeId = '';
+        let admissionTypeId = 1;
         if (admissionType) {
           setAdmissionTypeName(admissionType.name || '');
           admissionTypeId = admissionType.admission_type_id;
@@ -79,13 +79,14 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
           body: JSON.stringify({ studentMainId: userMainId }),
         });
         if (!departmentRes.ok) throw new Error('Failed to fetch department information');
+
         const departmentData = await departmentRes.json();
-        let departmentId = '';
-        if (departmentData && departmentData.department_id && departmentData.name) {
-          setDepartmentName(departmentData.name);
-          departmentId = departmentData.department_id;
+        
+        if (departmentData) {
+          setDepartmentName(departmentData.department);
         }
 
+         console.log('dn', departmentName)
         // 3. Fetch user info (main personal info)
         const userRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/main-id`, {
           method: 'POST',
@@ -97,17 +98,17 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
         setPersonalInfo({
           ...initialPersonalInfo,
           admission_type_id: admissionTypeId,
-          student_temp_id: userMainId,
-          department_id: departmentId,
+          student_temp_id: userData.userMainId || '',
+          department_id: departmentName.id || 1,
           firstName: userData?.firstName || '',
           fatherName: userData?.middleName || '',
           grandFather_Name: userData?.lastName || '',
           student_id: userData?.userMainId || '',
           program_id: userData?.program_id || '',
-          registration_date: userData?.registration_date || '',
-          currentLevel: userData?.currentLevel || '',
-          currentYear: userData?.currentYear || '',
-          currentSemester: userData?.currentSemester || '',
+          // registration_date: userData?.registration_date || new Date().toISOString(),
+          currentLevel: userData?.currentLevel || '1', // Default value
+          currentYear: userData?.currentYear || new Date().getFullYear().toString(),
+          currentSemester: userData?.currentSemester || '1',
           email: userData?.email || '',
           phone_mobile: userData?.phoneNumber || '',
           nationality: userData?.nationality || '',
@@ -123,8 +124,12 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
     fetchAndFillStudentInfo();
   }, [setPersonalInfo]);
 
+ console.log('dn', departmentName)
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('Submitting personal info:', personalInfo);
     try {
       FullInfo.parse(personalInfo);
       setErrors({});
@@ -180,7 +185,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 className="bg-gray-50"
               />
             </div>
-            <div className="space-ygetValue-2">
+            {/* <div className="space-ygetValue-2">
               <Label htmlFor="registration_date">Registration Date</Label>
               <Input
                 id="registration_date"
@@ -190,7 +195,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 readOnly
                 className="bg-gray-50"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Personal Information Section */}
@@ -437,7 +442,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 <Input
                   id="department_id"
                   name="department_id"
-                  value={departmentName || getValue('department_id')}
+                  value={departmentName.name}
                   readOnly
                   className='bg-gray-50'
                 />
