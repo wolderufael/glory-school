@@ -46,7 +46,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
   const { personalInfo, setPersonalInfo } = useStudentFormStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [departmentName, setDepartmentName] = useState<any>({})
-  const [admissionTypeName, setAdmissionTypeName] = useState('regular');
+  const [admissionTypeName, setAdmissionTypeName] = useState('Regular');
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -65,7 +65,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
         const admissionTypeRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/admission-types`);
         if (!admissionTypeRes.ok) throw new Error('Failed to fetch admission types');
         const admissionTypes = await admissionTypeRes.json();
-        const admissionType = admissionTypes.find((type: any) => type.admission_type_id === 'REGULAR');
+        const admissionType = admissionTypes.find((type: any) => type.admission_type_id === 'Regular');
         let admissionTypeId = 1;
         if (admissionType) {
           setAdmissionTypeName(admissionType.name || '');

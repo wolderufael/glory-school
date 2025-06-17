@@ -69,39 +69,20 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               <div className="grid grid-cols-3 gap-6">
                 <DataItem
                   label="First Name"
-                  value={studentData.englishName.firstName}
+                  value={studentData.user.firstName}
                   icon={<PersonIcon className="text-indigo-600" />}
                 />
                 <DataItem
                   label="Middle Name"
-                  value={studentData.englishName.middleName}
+                  value={studentData.user.middleName}
                 />
                 <DataItem
                   label="Last Name"
-                  value={studentData.englishName.lastName}
+                  value={studentData.user.lastName}
                 />
               </div>
             </div>
 
-            {/* Amharic Name */}
-            <div>
-              <SectionHeader title="Amharic Name" />
-              <div className="grid grid-cols-3 gap-6">
-                <DataItem
-                  label="First Name"
-                  value={studentData.amharicName.firstName}
-                  icon={<PersonIcon className="text-indigo-600" />}
-                />
-                <DataItem
-                  label="Middle Name"
-                  value={studentData.amharicName.middleName}
-                />
-                <DataItem
-                  label="Last Name"
-                  value={studentData.amharicName.lastName}
-                />
-              </div>
-            </div>
 
             {/* Personal Information */}
             <div>
@@ -114,23 +95,18 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
                 />
                 <DataItem
                   label="Gender"
-                  value={studentData.gender}
+                  value={studentData.user.gender}
                   icon={<PersonIcon className="text-indigo-600" />}
                 />
                 <DataItem
                   label="Nationality"
-                  value={studentData.nationality}
+                  value={studentData.user.nationality}
                   icon={<GlobeIcon className="text-indigo-600" />}
                 />
                 <DataItem
                   label="Marital Status"
                   value={studentData.maritalStatus}
                   icon={<HeartIcon className="text-indigo-600" />}
-                />
-                <DataItem
-                  label="Primary Language"
-                  value={studentData.primaryLanguage}
-                  icon={<ChatBubbleIcon className="text-indigo-600" />}
                 />
               </div>
             </div>
@@ -141,17 +117,17 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               <div className="grid grid-cols-2 gap-6">
                 <DataItem
                   label="Email"
-                  value={studentData.email}
+                  value={studentData.user.email}
                   icon={<EnvelopeClosedIcon className="text-indigo-600" />}
                 />
                 <DataItem
                   label="Alternative Email"
-                  value={studentData.alternativeEmail}
+                  value={studentData.user.email}
                   icon={<EnvelopeClosedIcon className="text-indigo-600" />}
                 />
                 <DataItem
                   label="Mobile Phone"
-                  value={studentData.phoneMobile}
+                  value={studentData.user.phoneNumber}
                   icon={<MobileIcon className="text-indigo-600" />}
                 />
                 <DataItem
@@ -162,25 +138,10 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               </div>
             </div>
 
-            {/* Fayda Numbers */}
-            <div>
-              <SectionHeader title="Fayda Numbers" />
-              <div className="grid grid-cols-2 gap-6">
-                <DataItem
-                  label="FAN"
-                  value={studentData.faydaFAN}
-                  icon={<IdCardIcon className="text-indigo-600" />}
-                />
-                <DataItem
-                  label="FIN"
-                  value={studentData.faydaFIN}
-                  icon={<IdCardIcon className="text-indigo-600" />}
-                />
-              </div>
-            </div>
+    
 
             {/* Graduation Information */}
-            <div>
+  {/*           <div>
               <SectionHeader title="Expected Graduation" />
               <div className="grid grid-cols-3 gap-6">
                 <DataItem
@@ -194,7 +155,7 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
                   value={studentData.graduationDate.year}
                 />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -235,29 +196,29 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
           <div className="space-y-4">
             <DataItem
               label="Username"
-              value={studentData.username}
+              value={studentData.user.userMainId}
               icon={<PersonIcon className="text-indigo-600" />}
             />
-            <DataItem
+{/*             <DataItem
               label="Last Login"
-              value={studentData.lastLogin}
+              value={studentData.user.lastLogin}
               icon={<CalendarIcon className="text-indigo-600" />}
-            />
-            <DataItem
+            /> */}
+ {/*            <DataItem
               label="Last Password Change"
-              value={studentData.lastPasswordChange}
+              value={studentData.user.lastPasswordChange}
               icon={<CalendarIcon className="text-indigo-600" />}
-            />
-            <DataItem
+            /> */}
+ {/*            <DataItem
               label="Failed Logins"
               value={studentData.failedLogins}
               icon={<IdCardIcon className="text-indigo-600" />}
-            />
-            <DataItem
+            /> */}
+ {/*            <DataItem
               label="E-Card Number"
               value={studentData.ecardNumber}
               icon={<IdCardIcon className="text-indigo-600" />}
-            />
+            /> */}
           </div>
         </div>
 
@@ -274,32 +235,32 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
           <div className="space-y-4">
             <DataItem
               label="Program"
-              value={studentData.program}
+              value={studentData.program.name}
               icon={<GlobeIcon className="text-indigo-600" />}
             />
             <DataItem
               label="Program Type"
-              value={studentData.programType}
+              value={studentData.admissionType.name}
               icon={<GlobeIcon className="text-indigo-600" />}
             />
             <DataItem
               label="College"
-              value={studentData.college}
+              value={"Wolaita Sodo Agricultural College"}
               icon={<HomeIcon className="text-indigo-600" />}
             />
             <DataItem
               label="Department"
-              value={studentData.department}
+              value={studentData.department.name}
               icon={<HomeIcon className="text-indigo-600" />}
             />
             <DataItem
               label="Admission Year"
-              value={studentData.admissionYear}
+              value={studentData.registrationDate}
               icon={<CalendarIcon className="text-indigo-600" />}
             />
             <DataItem
               label="Admission Date"
-              value={studentData.admissionDate}
+              value={studentData.registrationDate}
               icon={<CalendarIcon className="text-indigo-600" />}
             />
           </div>

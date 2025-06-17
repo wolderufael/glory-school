@@ -13,18 +13,19 @@ import { BasicInformation } from "./basic-information";
 import { AddressContact } from "./address-contact";
 import { EducationalBackground } from "./educational-background";
 import { mockStudentData } from "./mock-data";
-import { useStudentInfo } from "@/hooks/use-student-info";
+import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
 import { transformStudentInfo } from "@/lib/transforms/student-data";
 //import { useAuth } from "@/context/AuthContext";
 
 export function Profile() {
   //const { user } = useAuth();
-  const { data: studentInfo, isLoading, isError } = useStudentInfo(user?.id.toString() || "");
+  const studentID = localStorage.getItem("studentId") || "1";
+  const { data: studentInfo, isLoading, isError } = useStudentInfo(studentID);
 
   // Transform API data if available, otherwise fall back to mock data
-  const studentData = studentInfo
+ /*  const studentData = studentInfo
     ? transformStudentInfo(studentInfo)
-    : mockStudentData;
+    : mockStudentData; */
 
   // Show loading state
   if (isLoading) {
@@ -96,15 +97,15 @@ export function Profile() {
 
               <div className="space-y-6">
                 <Tabs.Content value="basic" className="focus:outline-none">
-                  <BasicInformation studentData={studentData} />
+                  <BasicInformation studentData={studentInfo} />
                 </Tabs.Content>
 
                 <Tabs.Content value="address" className="focus:outline-none">
-                  <AddressContact studentData={studentData} />
+                  <AddressContact studentData={studentInfo} />
                 </Tabs.Content>
 
                 <Tabs.Content value="education" className="focus:outline-none">
-                  <EducationalBackground studentData={studentData} />
+                  <EducationalBackground studentData={studentInfo} />
                 </Tabs.Content>
               </div>
             </Tabs.Root>

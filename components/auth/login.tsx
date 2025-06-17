@@ -137,7 +137,7 @@ const Login = () => {
   } catch (error) {
     console.error("Login error:", error);
     toast("Login Failed", {
-      description: "Invalid mainId or password. Please try again.",
+      description: "Invalid ID or Password. Please try again.",
       style: {
         backgroundColor: '#f8d7da',
         color: '#721c24',

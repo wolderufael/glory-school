@@ -18,6 +18,17 @@ export const getStudentInfo = async (studentID: string) => {
         sectionName = sectionData.sectionName;
       }
     }
+    // Fetch user info if userId exists
+    let userData = {};
+    if (studentData.userId) {
+      const userRes = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/users/${studentData.userId}`
+      );
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        //userName = userData.userName;
+      }
+    }
 
     // Add section name to the response
     return {
@@ -26,6 +37,7 @@ export const getStudentInfo = async (studentID: string) => {
         id: studentData.sectionId,
         name: sectionName,
       },
+      user: userData,
     };
   } catch (error) {
     console.error("Error fetching student info:", error);

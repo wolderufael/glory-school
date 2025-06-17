@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { StudentData } from "@/components/dashboard/profile/types";
 
 export interface StudentInfo {
   id: number;
@@ -30,7 +31,7 @@ export interface StudentInfo {
 }
 
 export function useStudentInfo(studentID: string) {
-  return useQuery<StudentInfo>({
+  return useQuery<StudentData>({
     queryKey: ["studentInfo"],
     queryFn: async () => {
       try {
