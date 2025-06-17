@@ -8,6 +8,7 @@ import { FullInfo } from '@/utils/typeSchema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import React from 'react';
 
 const initialPersonalInfo: StudentFullInfo = {
   student_id: '',
@@ -34,64 +35,101 @@ const initialPersonalInfo: StudentFullInfo = {
   phone_home: '',
   phone_mobile: '',
   phone_office: '',
-  department_id: '',
-  program_id: '',
-  admission_type_id: '',
-  registration_date: '',
+  department_id: 1,
+  program_id: 1,
+  admission_type_id: 1,
+  // registration_date: '',
   MaritalStatus: 'SINGLE'
 };
 
 export default function PersonalInfoForm({ nextStep }: { nextStep: () => void }) {
   const { personalInfo, setPersonalInfo } = useStudentFormStore();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [departmentName, setDepartmentName] = useState<any>({})
+  const [admissionTypeName, setAdmissionTypeName] = useState('regular');
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchStudentData() {
+    async function fetchAndFillStudentInfo() {
+      setLoading(true);
+      setFetchError(null);
       const userMainId = typeof window !== 'undefined' ? localStorage.getItem('userMainId') : null;
-      if (!userMainId) return;
+      if (!userMainId) {
+        setFetchError('No userMainId found in localStorage.');
+        setLoading(false);
+        return;
+      }
       try {
-        // Get JWT token from cookies if available
-        const token = typeof document !== 'undefined' ? document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] : undefined;
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/main-id`, {
+        // 1. Fetch admission type (REGULAR)
+        const admissionTypeRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/admission-types`);
+        if (!admissionTypeRes.ok) throw new Error('Failed to fetch admission types');
+        const admissionTypes = await admissionTypeRes.json();
+        const admissionType = admissionTypes.find((type: any) => type.admission_type_id === 'REGULAR');
+        let admissionTypeId = 1;
+        if (admissionType) {
+          setAdmissionTypeName(admissionType.name || '');
+          admissionTypeId = admissionType.admission_type_id;
+        }
+
+        // 2. Fetch department info using studentMainId
+        const departmentRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentMainId: userMainId }),
+        });
+        if (!departmentRes.ok) throw new Error('Failed to fetch department information');
+
+        const departmentData = await departmentRes.json();
+        
+        if (departmentData) {
+          setDepartmentName(departmentData.department);
+        }
+
+         console.log('dn', departmentName)
+        // 3. Fetch user info (main personal info)
+        const userRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/main-id`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mainId: userMainId }),
         });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data) {
-          setPersonalInfo({
-            ...personalInfo,
-            firstName: data.firstName || personalInfo.firstName || '',
-            fatherName: data.middleName || personalInfo.fatherName || '',
-            grandFather_Name: data.lastName || personalInfo.grandFather_Name || '',
-            student_id: data.userMainId || personalInfo.student_id || '',
-            student_temp_id: data.student_temp_id || personalInfo.student_temp_id || '',
-            department_id: data.department_id || personalInfo.department_id || '',
-            program_id: data.program_id || personalInfo.program_id || '',
-            admission_type_id: data.admission_type_id || personalInfo.admission_type_id || '',
-            registration_date: data.registration_date || personalInfo.registration_date || '',
-            currentLevel: data.currentLevel || personalInfo.currentLevel || '',
-            currentYear: data.currentYear || personalInfo.currentYear || '',
-            currentSemester: data.currentSemester || personalInfo.currentSemester || '',
-            email: data.email || personalInfo.email || '',
-            phone_mobile: data.phoneNumber || personalInfo.phone_mobile || '',
-            nationality: data.nationality || personalInfo.nationality || '',
-            sex: data.gender || personalInfo.sex || '', 
-            date_of_birth: data.date_of_birth || personalInfo.date_of_birth || '',
-          });
-        }
-      } catch (err) {
-        // Optionally handle error
+        if (!userRes.ok) throw new Error('Failed to fetch user info');
+        const userData = await userRes.json();
+        setPersonalInfo({
+          ...initialPersonalInfo,
+          admission_type_id: admissionTypeId,
+          student_temp_id: userData.userMainId || '',
+          department_id: departmentName.id || 1,
+          firstName: userData?.firstName || '',
+          fatherName: userData?.middleName || '',
+          grandFather_Name: userData?.lastName || '',
+          student_id: userData?.userMainId || '',
+          program_id: userData?.program_id || '',
+          // registration_date: userData?.registration_date || new Date().toISOString(),
+          currentLevel: userData?.currentLevel || '1', // Default value
+          currentYear: userData?.currentYear || new Date().getFullYear().toString(),
+          currentSemester: userData?.currentSemester || '1',
+          email: userData?.email || '',
+          phone_mobile: userData?.phoneNumber || '',
+          nationality: userData?.nationality || '',
+          sex: userData?.gender || 'M',
+          date_of_birth: userData?.date_of_birth || '',
+        });
+      } catch (err: any) {
+        setFetchError(err.message || 'Failed to fetch student info');
+      } finally {
+        setLoading(false);
       }
     }
-    fetchStudentData();
+    fetchAndFillStudentInfo();
   }, [setPersonalInfo]);
+
+ console.log('dn', departmentName)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log('Submitting personal info:', personalInfo);
     try {
       FullInfo.parse(personalInfo);
       setErrors({});
@@ -131,8 +169,9 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Information</h2>
           <p className="text-gray-600">Please fill in your personal details. Fields marked with <span className="text-red-500">*</span> are required.</p>
+          {loading && <div className="text-blue-600 mt-2">Loading student info...</div>}
+          {fetchError && <div className="text-red-600 mt-2">{fetchError}</div>}
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Student ID and Registration Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -146,7 +185,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 className="bg-gray-50"
               />
             </div>
-            <div className="space-ygetValue-2">
+            {/* <div className="space-ygetValue-2">
               <Label htmlFor="registration_date">Registration Date</Label>
               <Input
                 id="registration_date"
@@ -156,7 +195,7 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 readOnly
                 className="bg-gray-50"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Personal Information Section */}
@@ -400,45 +439,16 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 <Label htmlFor="department_id">
                   Department <span className="text-red-500">*</span>
                 </Label>
-                  <Input
+                <Input
                   id="department_id"
                   name="department_id"
-                  value={getValue('department_id')}
+                  value={departmentName.name}
                   readOnly
                   className='bg-gray-50'
-                  />
-
-                {  /* <select
-                  id="department_id"
-                  name="department_id"
-                  value={getValue('department_id')}
-                  onChange={handleChange}
-                  className={`${getInputClassName('department_id', !!errors.department_id)} h-10 px-3 py-2 border rounded-md focus:outline-none focus:ring-2`}
-                >
-                  <option value="">Select Department</option>
-                  <option value="animal_health">Animal Health</option>
-                  <option value="animal_production">Animal Production</option>
-                  <option value="crop_production">Crop Production</option>
-                  <option value="cooperative_accounting">Cooperative Accounting</option>
-                  <option value="crop_protection">Crop Protection</option>
-                  <option value="natural_resources">Natural Resources Conservation</option>
-                </select> */}
+                />
+                <input type="hidden" name="department_id" value={getValue('department_id')} />
                 {errors.department_id && <p className="text-red-500 text-sm mt-1">{errors.department_id}</p>}
               </div>
-              {/* <div className="space-y-2">
-                <Label htmlFor="program_id">
-                  Program ID <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="program_id"
-                  name="program_id"
-                  value={getValue('program_id')}
-                  onChange={handleChange}
-                  className={getInputClassName('program_id', !!errors.program_id)}
-                  placeholder="Enter program ID"
-                />
-                {errors.program_id && <p className="text-red-500 text-sm mt-1">{errors.program_id}</p>}
-              </div> */}
               <div className="space-y-2">
                 <Label htmlFor="admission_type_id">
                   Admission Type <span className="text-red-500">*</span>
@@ -446,13 +456,11 @@ export default function PersonalInfoForm({ nextStep }: { nextStep: () => void })
                 <Input
                   id="admission_type_id"
                   name="admission_type_id"
-                  value={getValue('admission_type_id')}
+                  value={admissionTypeName || getValue('admission_type_id')}
                   readOnly
                   className='bg-gray-50'
-                  // onChange={handleChange}
-                  // className={getInputClassName('admission_type_id', !!errors.admission_type_id)}
-                  // placeholder="Enter admission type"
                 />
+                <input type="hidden" name="admission_type_id" value={getValue('admission_type_id')} />
                 {errors.admission_type_id && <p className="text-red-500 text-sm mt-1">{errors.admission_type_id}</p>}
               </div>
             </div>

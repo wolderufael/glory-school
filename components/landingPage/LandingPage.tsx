@@ -114,21 +114,21 @@ export default function LandingPage() {
                     </div>
                     <div className="space-y-2">
                       <Link
-                        href="/auth/login"
+                        href="/student"
                         className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 text-blue-100 backdrop-blur-sm transition-all duration-300"
                       >
                         Student Portal
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                       <Link
-                        href="/auth/login"
+                        href="/teacher"
                         className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 text-blue-100 backdrop-blur-sm transition-all duration-300"
                       >
                         Teacher Portal
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                       <Link
-                        href="/auth/login"
+                        href="/registrar"
                         className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 text-blue-100 backdrop-blur-sm transition-all duration-300"
                       >
                         Registrar Portal

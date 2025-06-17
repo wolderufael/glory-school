@@ -24,7 +24,7 @@ export const FullInfo = z.object({
   fatherName: z.string().min(1, "Father's name is required"),
   grandFather_Name: z.string().min(1, "Grandfather's name is required"),
   sex: z.enum(['M', 'F']),
-  nationality: z.string().min(1, "Nationality is required"),
+  nationality: z.string().optional(),
   phone_Number: z.string().optional(),
   email: z.string().email("Invalid email format").optional().or(z.literal('')),
   place_of_birth_town: z.string().optional(),
@@ -42,10 +42,10 @@ export const FullInfo = z.object({
   phone_home: z.string().optional(),
   phone_mobile: z.string().min(1, "Mobile phone is required"),
   phone_office: z.string().optional(),
-  department_id: z.string().min(1, "Department is required"),
-  program_id: z.string().min(1, "Program ID is required"),
-  admission_type_id: z.string().min(1, "Admission type is required"),
-  registration_date: z.string().min(1, "Registration date is required"),
+  department_id: z.number().min(1, "Department is required"),
+  program_id: z.number().min(1, "Program ID is required"),
+  admission_type_id: z.number().min(1, "Admission type is required"),
+  // registration_date: z.string().min(1, "Registration date is required"),
   MaritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'])
 });
 

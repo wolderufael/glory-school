@@ -16,35 +16,20 @@ interface GenerateIdsRequest {
   academicYear: string;
 }
 
+const currentYear =  localStorage.getItem("academicYearId") || "2023-2024";
+
 // Fetch all temporary students
 export const useTempStudents = (academicYearID: string) => {
   return useQuery({
     queryKey: ["tempStudents"],
     queryFn: async () => {
-      const [studentsResponse, departmentsResponse] = await Promise.all([
-        fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${academicYearID}`
-        ),
-        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/departments`),
-      ]);
-
-      if (!studentsResponse.ok || !departmentsResponse.ok) {
-        throw new Error("Failed to fetch data");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${currentYear}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch temporary students");
       }
-
-      const [students, departments]: [TempStudent[], Department[]] =
-        await Promise.all([
-          studentsResponse.json(),
-          departmentsResponse.json(),
-        ]);
-
-      // Merge department information with students
-      return students.map((student) => ({
-        ...student,
-        department: departments.find(
-          (dept) => dept.id === student.departmentId
-        ),
-      }));
+      return response.json();
     },
   });
 };
