@@ -18,10 +18,7 @@ import { transformStudentInfo } from "@/lib/transforms/student-data";
 //import { useAuth } from "@/context/AuthContext";
 
 export function Profile() {
-  //const { user } = useAuth();
-  const studentID = "1";
-  //const studentId = typeof window !== "undefined" ? localStorage.getItem("studentId") : "1";
-  const { data: studentInfo, isLoading, isError } = useStudentInfo(studentID);
+  const { data: studentInfo, isLoading, isError } = useStudentInfo();
   console.log("studentInfo", studentInfo);
 
   // Transform API data if available, otherwise fall back to mock data

@@ -1,19 +1,26 @@
-'use client'
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import {useRouter} from 'next/navigation';
-import Link from 'next/link';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
-import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock } from "lucide-react";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    mainId: '',
-    password: ''
+    mainId: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -22,134 +29,134 @@ const Login = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.mainId) {
-      newErrors.mainId = 'ID is required';
-         
+      newErrors.mainId = "ID is required";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  const validationErrors = validateForm();
+    e.preventDefault();
+    const validationErrors = validateForm();
 
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    // Step 1: Authenticate with backend
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Login failed');
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
-    const data = await response.json();
-    const { token, user, academicYear, academicSemester } = data;
-    console.log('user', user)
+    setIsLoading(true);
 
-    // Store relevant info in localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('academicYearId', academicYear?.id?.toString() || '');
-      localStorage.setItem('academicYearName', academicYear?.name || '');
-      localStorage.setItem('academicSemesterId', academicSemester?.id?.toString() || '');
-      localStorage.setItem('academicSemesterName', academicSemester?.name || '');
-      localStorage.setItem('currentUserId', user?.id?.toString() || '');
-      localStorage.setItem('userType', user?.userType || '');
-      localStorage.setItem('userMainId', user?.userMainId || '');
-      if (user?.student?.id) localStorage.setItem('studentId', user.student.id.toString());
-      if (user?.registrar?.id) localStorage.setItem('registrarId', user.registrar.id.toString());
-      if (user?.teacher?.id) localStorage.setItem('teacherId', user.teacher.id.toString());
-    }
+    try {
+      // Step 1: Authenticate with backend
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
-    const student = user?.student || null; // Assuming user object contains student data
-
-    console.log("Login response data:", data);
-    console.log("Student data:", student);
-
-    if (!token) {
-      throw new Error('No token received');
-    }
-
-    
-    const cookieRes = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-    });
-
-    if (!cookieRes.ok) {
-      throw new Error('Failed to set session cookie');
-    }
-
-   
-    // Step 3: Decode token to get accountType
-    const decoded = JSON.parse(atob(token.split('.')[1])); 
-
-    console.log("Decoded token:", decoded);
-
-    const accountType = decoded.userType as any;
-
-    // Step 4: Conditional redirect logic
-    toast("Login Successful", {
-      description: `Welcome back, ${accountType}!`,
-    });
-
-    console.log('type', accountType);
-
-    if (accountType === 'Student') {
-      if (!student) {
-        router.push('/student/registration'); // student has not registered
-      } else {
-        router.push('/student');   
+      if (!response.ok) {
+        throw new Error("Login failed");
       }
-    } else {
-      // Redirect other roles to their dashboard based on middleware
-      router.push(`/${accountType.toLowerCase()}`);
+
+      const data = await response.json();
+      const { token, user, academicYear, academicSemester } = data;
+      console.log("user", user);
+
+      // Store relevant info in localStorage
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "academicYearId",
+          academicYear?.id?.toString() || ""
+        );
+        localStorage.setItem("academicYearName", academicYear?.name || "");
+        localStorage.setItem(
+          "academicSemesterId",
+          academicSemester?.id?.toString() || ""
+        );
+        localStorage.setItem(
+          "academicSemesterName",
+          academicSemester?.name || ""
+        );
+        localStorage.setItem("currentUserId", user?.id?.toString() || "");
+        localStorage.setItem("userType", user?.userType || "");
+        localStorage.setItem("userMainId", user?.userMainId || "");
+/*         if (user.userType === "Student")
+          localStorage.setItem("studentId", user.student.id.toString());
+        if (user.userType === "Registrar")
+          localStorage.setItem("registrarId", user.registrar.id.toString());
+        if (user.userType === "Teacher")
+          localStorage.setItem("teacherId", user.teacher.id.toString()); */
+      }
+
+      const student = user?.student || null; // Assuming user object contains student data
+
+      console.log("Login response data:", data);
+      console.log("Student data:", student);
+
+      if (!token) {
+        throw new Error("No token received");
+      }
+
+      const cookieRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!cookieRes.ok) {
+        throw new Error("Failed to set session cookie");
+      }
+
+      // Decode token to get accountType
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      console.log("Decoded token:", decoded);
+      console.log("user", user);
+      const accountType = decoded.userType;
+
+      // Show success toast
+      toast("Login Successful", {
+        description: `Welcome back, ${accountType}!`,
+      });
+
+      // Navigate and refresh using App Router
+     // await router.push("/student/dashboard");
+      window.location.reload();
+    } catch (error) {
+      console.error("Login error:", error);
+      toast("Login Failed", {
+        description: "Invalid ID or Password. Please try again.",
+        style: {
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+          borderColor: "#f5c6cb",
+        },
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-  } catch (error) {
-    console.error("Login error:", error);
-    toast("Login Failed", {
-      description: "Invalid ID or Password. Please try again.",
-      style: {
-        backgroundColor: '#f8d7da',
-        color: '#721c24',
-        borderColor: '#f5c6cb',
-      },
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
@@ -169,7 +176,10 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="ugr" className="text-sm font-medium flex items-center gap-2">
+              <Label
+                htmlFor="ugr"
+                className="text-sm font-medium flex items-center gap-2"
+              >
                 <Mail className="w-4 h-4" />
                 ID<span className="text-red-500">*</span>
               </Label>
@@ -188,7 +198,10 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium flex items-center gap-2"
+              >
                 <Lock className="w-4 h-4" />
                 Password <span className="text-red-500">*</span>
               </Label>
@@ -207,30 +220,29 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
               {errors.password && (
                 <p className="text-red-500 text-sm">{errors.password}</p>
               )}
             </div>
-
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4">
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
-            
+
             <div className="text-center">
               <span className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link 
-                  href="/auth/signup" 
+                Don't have an account?{" "}
+                <Link
+                  href="/auth/signup"
                   className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
                 >
                   Create Account

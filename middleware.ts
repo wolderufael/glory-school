@@ -3,7 +3,12 @@ import { NextRequest } from "next/server";
 import dayjs from "dayjs";
 import { decrypt } from "./utils/generateToken";
 
-export type UserEnumTypes = "Student" | "Teacher" | "Registrar" | "Department" | "President";
+export type UserEnumTypes =
+  | "Student"
+  | "Teacher"
+  | "Registrar"
+  | "Department"
+  | "President";
 
 export type UserTypePayload = {
   accountType: UserEnumTypes;
@@ -51,24 +56,35 @@ export async function middleware(req: NextRequest) {
 
   if (token) {
     try {
-
       console.log("JWT token found:", token);
-
-       const decoded = JSON.parse(atob(token.split('.')[1])); 
-
-    console.log("Decoded token:", decoded);
-    
-    const accountType = decoded.userType as any;
-
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      console.log("Decoded token:", decoded);
+      const accountType = decoded.userType as any;
 
       if (decoded && typeof decoded === "object") {
         const user = decoded as any;
-
         const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
 
         if (!isExpired) {
           isAuthenticated = true;
-          userRole = user.userType ;
+          userRole = user.userType;
+
+          // Handle student registration check
+          if (userRole === "Student") {
+            // Check if student has completed registration
+            const studentResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_URL}/students/${user.userId}`
+            );
+            const isRegistered = studentResponse.ok;
+
+            if (!isRegistered && !PATH.startsWith("/student/registration")) {
+              return NextResponse.redirect(buildUrl("/student/registration"));
+            }
+
+            if (isRegistered && PATH === "/student/registration") {
+              return NextResponse.redirect(buildUrl("/student/dashboard"));
+            }
+          }
         } else {
           console.warn("Session expired.");
         }
@@ -105,5 +121,4 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: ["/((?!_next|favicon.ico|api|public).*)"],
-  /* matcher:[] */
 };

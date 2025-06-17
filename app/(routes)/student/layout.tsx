@@ -9,9 +9,11 @@ export default async function StudentLayout({
 }) {
 
 
-/*   if (!user || user.role !== UserType.Teacher) {
+  /* if (!user || user.role !== UserType.Teacher) {
     return redirect("/unauthorized");
   } */
 
   return <div>{children}</div>;
 }
+
+

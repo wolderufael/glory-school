@@ -6,8 +6,8 @@ import { QuickActionsCard } from "@/components/dashboard/home/quick-actions-card
 import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
 
 export default function DashboardPage() {
-  const studentID = "1";
-  const { data: studentInfo, isLoading } = useStudentInfo(studentID);
+  //const studentID = "1";
+  const { data: studentInfo, isLoading } = useStudentInfo();
 
   const studentInfoData = {
     department: studentInfo?.department?.name || "Not assigned",

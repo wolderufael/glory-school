@@ -3,12 +3,18 @@ import { Department } from "./useDepartments";
 
 interface TempStudent {
   id: number;
+  registerId: number;
   firstName: string;
   middleName: string;
   lastName: string;
   departmentId: number;
+  academicYearId: number;
+  studentMainId: string;
+  currentStudyingYear: string;
+  currentStudyingSemester: string;
+  currentStudyingLevel: string;
+  createdAt: string;
   department?: Department;
-  generatedId?: string;
 }
 
 interface GenerateIdsRequest {
@@ -16,7 +22,7 @@ interface GenerateIdsRequest {
   academicYear: string;
 }
 
-const currentYear =  localStorage.getItem("academicYearId") || "2023-2024";
+const currentYear = localStorage.getItem("academicYearId") || "1";
 
 // Fetch all temporary students
 export const useTempStudents = (academicYearID: string) => {
@@ -26,10 +32,38 @@ export const useTempStudents = (academicYearID: string) => {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${currentYear}`
       );
+
       if (!response.ok) {
         throw new Error("Failed to fetch temporary students");
       }
-      return response.json();
+
+      const students: TempStudent[] = await response.json();
+
+      // Fetch department information for each student
+      const studentsWithDepartments = await Promise.all(
+        students.map(async (student) => {
+          try {
+            const deptResponse = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_URL}/departments/${student.departmentId}`
+            );
+
+            if (deptResponse.ok) {
+              const department = await deptResponse.json();
+              return { ...student, department };
+            }
+
+            return student;
+          } catch (error) {
+            console.error(
+              `Failed to fetch department for student ${student.id}:`,
+              error
+            );
+            return student;
+          }
+        })
+      );
+
+      return studentsWithDepartments;
     },
   });
 };

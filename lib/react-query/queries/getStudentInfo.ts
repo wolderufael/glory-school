@@ -1,8 +1,22 @@
-export const getStudentInfo = async (studentID: string | null) => {
+export const getStudentInfo = async () => {
   try {
+    //first fetch studentid 
+    const StudentRes = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentMainId: localStorage.getItem("userMainId"),
+        }),
+      }
+    );
+    const student = await StudentRes.json();
     // Fetch student info
     const studentRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/students/${studentID}`
+      `${process.env.NEXT_PUBLIC_BASE_URL}/students/${student.id}`
     );
     if (!studentRes.ok) throw new Error("Failed to fetch student info");
     const studentData = await studentRes.json();
