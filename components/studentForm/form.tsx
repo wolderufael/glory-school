@@ -37,13 +37,14 @@ interface TempStudent {
 export function StudentForm() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [registrarId, setRegistrarId] = useState<number | null>(null);
 
-  const registrarId = getLocalStorage("registrarId");
+  const userId = getLocalStorage("currentUserId");
   const academicYearId = getLocalStorage("academicYearId");
   const academicYearName = getLocalStorage("academicYearName");
 
   const [formData, setFormData] = useState({
-    registerId: Number(registrarId),
+    registerId: 0,
     academicYearId: Number(academicYearId),
     firstName: "",
     middleName: "",
@@ -99,6 +100,37 @@ export function StudentForm() {
     }
     fetchStudents();
   }, []);
+
+  // Add registrar fetching
+  useEffect(() => {
+    async function fetchRegistrarId() {
+      if (!userId) return;
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/registrars`
+        );
+        if (!response.ok) throw new Error("Failed to fetch registrars");
+
+        const registrars = await response.json();
+        const registrar = registrars.find(
+          (reg: any) => reg.userId === Number(userId)
+        );
+
+        if (registrar) {
+          setRegistrarId(registrar.id);
+          setFormData((prev) => ({
+            ...prev,
+            registerId: registrar.id,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching registrar ID:", error);
+      }
+    }
+
+    fetchRegistrarId();
+  }, [userId]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -177,7 +209,7 @@ export function StudentForm() {
       }
       // Refetch the full list of students from DB
       const updatedRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents/${academicYearId}`
       );
       if (!updatedRes.ok) {
         throw new Error("Failed to fetch updated students list");
