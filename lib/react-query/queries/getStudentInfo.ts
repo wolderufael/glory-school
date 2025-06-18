@@ -19,7 +19,9 @@ export const getStudentInfo = async () => {
     console.log("student", student);
     // Fetch student info
     const studentRes = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/students/${getLocalStorage("currentUserId")}`
+      `${process.env.NEXT_PUBLIC_BASE_URL}/students/${getLocalStorage(
+        "currentUserId"
+      )}`
     );
     if (!studentRes.ok) throw new Error("Failed to fetch student info");
     const studentData = await studentRes.json();
@@ -40,12 +42,12 @@ export const getStudentInfo = async () => {
       const academicYearRes = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/current-year`
       );
-      
+
       if (academicYearRes.ok) {
         const academicYearData = await academicYearRes.json();
-      
+
         academicYear = academicYearData.name;
-          console.log("academicYear", academicYear);
+        console.log("academicYear", academicYear);
       }
     }
     // Fetch user info if userId exists
