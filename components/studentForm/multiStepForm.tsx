@@ -107,16 +107,13 @@ export default function MultiStepForm() {
 
       console.log("Submitting form data:", formData);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/students`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/submitForm`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
 
       if (!response.ok) {
         console.error("Failed to submit form:", response.statusText);
