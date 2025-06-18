@@ -24,7 +24,7 @@ export type UserTypePayload = {
 const DASHBOARDS: Record<UserEnumTypes, string> = {
   Student: "/student/dashboard",
   Teacher: "/teacher",
-  Registrar: "/registrars",
+  Registrar: "/registrar",
   Department: "/department",
   President: "/president",
 };
@@ -33,7 +33,7 @@ const DASHBOARDS: Record<UserEnumTypes, string> = {
 const roleRoutes: Record<UserEnumTypes, string[]> = {
   Student: ["/student/dashboard"],
   Teacher: ["/teacher"],
-  Registrar: ["/registrars"],
+  Registrar: ["/registrar"],
   Department: ["/department"],
   President: ["/president"],
 };
