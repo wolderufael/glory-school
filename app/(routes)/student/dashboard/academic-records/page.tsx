@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { AcademicRecords } from "@/components/dashboard/academic-records/academic-records";
 
@@ -9,3 +9,4 @@ export default function AcademicRecordsPage() {
     </div>
   );
 }
+ */
