@@ -62,7 +62,7 @@ export default function MultiStepForm() {
         placeOfBirthTown: personalInfo.place_of_birth_town || "",
         placeOfBirthZone: personalInfo.place_of_birth_zone || "",
         placeOfBirthRegion: personalInfo.place_of_birth_region || "",
-        dateOfBirth: formatDate(personalInfo.date_of_birth),
+        dateOfBirth: formatDate(personalInfo.date_of_birth || ''),
         addressKebele: personalInfo.address_kebele || "",
         addressWoreda: personalInfo.address_woreda || "",
         addressZone: personalInfo.address_zone || "",
@@ -72,7 +72,7 @@ export default function MultiStepForm() {
         phoneOffice: personalInfo.phone_office || "",
         departmentId: personalInfo.department_id || 1,
         admissionTypeId: personalInfo.admission_type_id || 1,
-        maritalStatus: formatMaritalStatus(personalInfo.MaritalStatus),
+        maritalStatus: formatMaritalStatus(personalInfo.MaritalStatus ||  "SINGLE"),
         emergencyContacts: {
           fullName: contactInfo.full_name || "",
           phoneMobile: contactInfo.phone_mobile || "",
