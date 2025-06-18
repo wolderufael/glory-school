@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,7 +56,7 @@ export function SectionAssignmentPage() {
           setCurrentCriteria(criteria);
           console.log(`Found ${response.data.students.length} students`);
 
-          // Automatically generate section assignments
+          
           generateSectionAssignments(response.data.students);
         } else {
           throw new Error(response.error || "Failed to fetch students");
@@ -74,7 +74,7 @@ export function SectionAssignmentPage() {
     [currentCriteria]
   );
 
-  // Generate section assignments
+
   const generateSectionAssignments = (studentList: Student[]) => {
     try {
       const result =
@@ -101,7 +101,7 @@ export function SectionAssignmentPage() {
     }
   };
 
-  // Save section assignments to database
+  
   const handleSaveAssignment = async () => {
     if (!assignmentResult || !currentCriteria) {
       console.error("No assignment to save");
@@ -122,7 +122,7 @@ export function SectionAssignmentPage() {
           response.message || "Section assignments saved successfully"
         );
 
-        // Reset the form after successful save
+       
         setStudents([]);
         setAssignmentResult(null);
         setCurrentCriteria(null);
@@ -138,7 +138,7 @@ export function SectionAssignmentPage() {
     }
   };
 
-  // Regenerate assignments
+  
   const handleRegenerateAssignments = () => {
     if (students.length > 0) {
       generateSectionAssignments(students);
@@ -148,7 +148,7 @@ export function SectionAssignmentPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+     
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-blue-900 flex items-center gap-2">
@@ -172,10 +172,10 @@ export function SectionAssignmentPage() {
         )}
       </div>
 
-      {/* Assignment Form */}
+     
       <AssignmentForm onSearch={handleFetchStudents} loading={loading} />
 
-      {/* Error Display */}
+     
       {error && (
         <Card className="border-red-200 bg-red-50">
           <CardContent className="flex items-center gap-3 p-4">
@@ -185,12 +185,12 @@ export function SectionAssignmentPage() {
         </Card>
       )}
 
-      {/* Students List */}
+      
       {students.length > 0 && !assignmentResult && (
         <StudentList students={students} title="Fetched Students" />
       )}
 
-      {/* Section Assignment Results */}
+     
       {assignmentResult && (
         <SectionDisplay
           assignmentResult={assignmentResult}
@@ -199,7 +199,7 @@ export function SectionAssignmentPage() {
         />
       )}
 
-      {/* Loading State */}
+      
       {loading && (
         <Card className="border-blue-100">
           <CardContent className="flex items-center justify-center py-12">
@@ -214,7 +214,7 @@ export function SectionAssignmentPage() {
         </Card>
       )}
 
-      {/* Instructions */}
+      
       {!students.length && !loading && (
         <Card className="border-blue-100 bg-blue-50">
           <CardHeader>
@@ -249,3 +249,4 @@ export function SectionAssignmentPage() {
     </div>
   );
 }
+ */

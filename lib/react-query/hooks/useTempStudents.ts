@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Department } from "./useDepartments";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface TempStudent {
   id: number;
@@ -22,13 +23,12 @@ interface GenerateIdsRequest {
   academicYear: string;
 }
 
-const currentYear = localStorage.getItem("academicYearId") || "1";
-
 // Fetch all temporary students
 export const useTempStudents = (academicYearID: string) => {
   return useQuery({
     queryKey: ["tempStudents"],
     queryFn: async () => {
+      const currentYear = getLocalStorage("academicYearId") || "1";
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${currentYear}`
       );

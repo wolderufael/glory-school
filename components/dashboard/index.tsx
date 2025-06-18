@@ -28,7 +28,7 @@ import {
 import { DashboardHeader } from "./dashboard-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/sidebar";
-import { DashboardContent } from "./dashboard-content";
+//import { DashboardContent } from "./dashboard-content";
 
 const navigationItems = [
   {
@@ -188,7 +188,7 @@ export default function StudentPortal() {
         <AppSidebar />
         <div className="flex-1">
           <DashboardHeader />
-          <DashboardContent />
+         {/*  <DashboardContent /> */}
         </div>
       </SidebarProvider>
     </div>

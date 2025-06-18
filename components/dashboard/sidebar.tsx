@@ -33,6 +33,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavigationGroups } from "./navigation-group";
+import { clearLocalStorage } from "@/utils/localStorage";
 
 export function AppSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,7 +52,7 @@ export function AppSidebar() {
       }
 
       // Clear all localStorage items
-      localStorage.clear();
+      clearLocalStorage();
 
       // Wait a bit to ensure cookie is cleared
       await new Promise((resolve) => setTimeout(resolve, 100));

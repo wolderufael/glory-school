@@ -9,6 +9,7 @@ import ContactInfoForm from "./contactInfoForm";
 import AcademicBackgroundForm from "./academicBackground";
 import EmploymentHistoryForm from "./employmentHistory";
 import router from "next/router";
+import { getLocalStorage } from "@/utils/localStorage";
 
 const steps = [
   { id: 1, label: "Personal info", description: "Basic information" },
@@ -27,15 +28,15 @@ export default function MultiStepForm() {
     familyInfo,
     employmentHistory,
   } = useStudentFormStore();
-  const userMainId = localStorage.getItem("userMainId");
+  const userMainId = getLocalStorage("userMainId");
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, 5));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleSubmit = async () => {
     try {
-      const currentUserId = localStorage.getItem("currentUserId");
-      const academicYearId = localStorage.getItem("academicYearId");
+      const currentUserId = getLocalStorage("currentUserId");
+      const academicYearId = getLocalStorage("academicYearId");
 
       // Convert date string to ISO format with time
       const formatDate = (dateStr: string) => {

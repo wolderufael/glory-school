@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React from "react";
+import { getLocalStorage } from "@/utils/localStorage";
 
 const initialPersonalInfo: StudentFullInfo = {
   student_id: 0,
@@ -58,10 +59,7 @@ export default function PersonalInfoForm({
     async function fetchAndFillStudentInfo() {
       setLoading(true);
       setFetchError(null);
-      const userMainId =
-        typeof window !== "undefined"
-          ? localStorage.getItem("userMainId")
-          : null;
+      const userMainId = getLocalStorage("userMainId");
       if (!userMainId) {
         setFetchError("No userMainId found in localStorage.");
         setLoading(false);
@@ -117,7 +115,7 @@ export default function PersonalInfoForm({
         setPersonalInfo({
           ...initialPersonalInfo,
           admission_type_id: admissionTypeId,
-          student_temp_id: departmentData.id|| "",
+          student_temp_id: departmentData.id || "",
           department_id: departmentName.id || 1,
           firstName: userData?.firstName || "",
           fatherName: userData?.middleName || "",

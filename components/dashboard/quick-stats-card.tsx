@@ -1,4 +1,4 @@
-"use client"
+/* "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { quickStatsData } from "@/lib/dashboard-data"
@@ -21,3 +21,4 @@ export function QuickStatsCards() {
     </div>
   )
 }
+ */

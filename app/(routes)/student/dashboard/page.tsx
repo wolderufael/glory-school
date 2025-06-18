@@ -8,6 +8,7 @@ import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
 export default function DashboardPage() {
   //const studentID = "1";
   const { data: studentInfo, isLoading } = useStudentInfo();
+  console.log("studentInfoonDashboard", studentInfo);
 
   const studentInfoData = {
     department: studentInfo?.department?.name || "Not assigned",

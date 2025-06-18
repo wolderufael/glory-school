@@ -1,4 +1,4 @@
-import React from "react";
+/* import React from "react";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { SectionAssignmentPage } from "@/components/registrar";
 
@@ -15,3 +15,4 @@ const SectionAssignmentRoute = () => {
 };
 
 export default SectionAssignmentRoute;
+ */

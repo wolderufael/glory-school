@@ -47,6 +47,11 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
+const formatDate = (dateString: string) => {
+  if (!dateString) return "";
+  return dateString.split("T")[0];
+};
+
 export function BasicInformation({ studentData }: BasicInformationProps) {
   return (
     <div className="grid grid-cols-3 gap-6">
@@ -83,14 +88,13 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               </div>
             </div>
 
-
             {/* Personal Information */}
             <div>
               <SectionHeader title="Personal Information" />
               <div className="grid grid-cols-2 gap-6">
                 <DataItem
                   label="Date of Birth"
-                  value={studentData?.dateOfBirth}
+                  value={formatDate(studentData?.dateOfBirth)}
                   icon={<CalendarIcon className="text-indigo-600" />}
                 />
                 <DataItem
@@ -138,10 +142,8 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               </div>
             </div>
 
-    
-
             {/* Graduation Information */}
-  {/*           <div>
+            {/*           <div>
               <SectionHeader title="Expected Graduation" />
               <div className="grid grid-cols-3 gap-6">
                 <DataItem
@@ -199,22 +201,22 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               value={studentData?.user?.userMainId}
               icon={<PersonIcon className="text-indigo-600" />}
             />
-{/*             <DataItem
+            {/*             <DataItem
               label="Last Login"
               value={studentData.user.lastLogin}
               icon={<CalendarIcon className="text-indigo-600" />}
             /> */}
- {/*            <DataItem
+            {/*            <DataItem
               label="Last Password Change"
               value={studentData.user.lastPasswordChange}
               icon={<CalendarIcon className="text-indigo-600" />}
             /> */}
- {/*            <DataItem
+            {/*            <DataItem
               label="Failed Logins"
               value={studentData.failedLogins}
               icon={<IdCardIcon className="text-indigo-600" />}
             /> */}
- {/*            <DataItem
+            {/*            <DataItem
               label="E-Card Number"
               value={studentData.ecardNumber}
               icon={<IdCardIcon className="text-indigo-600" />}
@@ -255,12 +257,12 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
             />
             <DataItem
               label="Admission Year"
-              value={studentData?.registrationDate}
+              value={formatDate(studentData?.registrationDate)}
               icon={<CalendarIcon className="text-indigo-600" />}
             />
             <DataItem
               label="Admission Date"
-              value={studentData.registrationDate}
+              value={formatDate(studentData.registrationDate)}
               icon={<CalendarIcon className="text-indigo-600" />}
             />
           </div>

@@ -1,4 +1,4 @@
-import { AssignmentCriteria } from "./assignment-form";
+/* import { AssignmentCriteria } from "./assignment-form";
 import { Student } from "./student-list";
 import { Section } from "./section-assignment-logic";
 
@@ -31,9 +31,7 @@ export interface BulkSectionUpdateRequest {
 export class SectionAssignmentApiService {
   private readonly baseUrl = "/api/registrar";
 
-  /**
-   * Fetch students based on criteria
-   */
+
   async fetchStudents(
     criteria: AssignmentCriteria
   ): Promise<ApiResponse<StudentFetchResponse>> {
@@ -72,15 +70,13 @@ export class SectionAssignmentApiService {
     }
   }
 
-  /**
-   * Update section assignments for multiple students
-   */
+  
   async updateSectionAssignments(
     sections: Section[],
     criteria: AssignmentCriteria
   ): Promise<ApiResponse<{ updatedCount: number }>> {
     try {
-      // Prepare bulk update request
+ 
       const updates: SectionUpdateRequest[] = [];
 
       sections.forEach((section) => {
@@ -136,7 +132,7 @@ export class SectionAssignmentApiService {
   }
 }
 
-// Mock implementation for development/testing
+
 export class MockSectionAssignmentApiService extends SectionAssignmentApiService {
   private generateMockStudents(
     criteria: AssignmentCriteria,
@@ -239,7 +235,7 @@ export class MockSectionAssignmentApiService extends SectionAssignmentApiService
   async fetchStudents(
     criteria: AssignmentCriteria
   ): Promise<ApiResponse<StudentFetchResponse>> {
-    // Simulate API delay
+   
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const students = this.generateMockStudents(criteria);
@@ -257,7 +253,7 @@ export class MockSectionAssignmentApiService extends SectionAssignmentApiService
     sections: Section[],
     criteria: AssignmentCriteria
   ): Promise<ApiResponse<{ updatedCount: number }>> {
-    // Simulate API delay
+ 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const totalUpdates = sections.reduce(
@@ -265,7 +261,7 @@ export class MockSectionAssignmentApiService extends SectionAssignmentApiService
       0
     );
 
-    // Simulate random failure
+  
     if (Math.random() < 0.1) {
       return {
         success: false,
@@ -283,6 +279,7 @@ export class MockSectionAssignmentApiService extends SectionAssignmentApiService
   }
 }
 
-// Export the service instance
+
 export const sectionAssignmentApiService =
   new MockSectionAssignmentApiService();
+ */

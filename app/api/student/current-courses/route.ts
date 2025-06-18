@@ -5,14 +5,20 @@ export async function GET() {
   const courses = [
     {
       id: "1",
-      name: "Data Structure and Algorithm",
-      code: "DSA 102",
+      name: "Identifying and Handling Basic Veterinary Tools and Equipment",
+      code: "AGR ANH2 M01 0422 ",
       creditHours: 3,
     },
     {
       id: "2",
-      name: "Object Oriented Programming",
-      code: "OOP 201",
+      name: "Applying 5S Proceduress",
+      code: "AGR ANH2 M02 0422 ",
+      creditHours: 3,
+    },
+    {
+      id: "2",
+      name: "Handling and Restraining Animals",
+      code: "AGR ANH2 M04 0422 ",
       creditHours: 3,
     },
   ];

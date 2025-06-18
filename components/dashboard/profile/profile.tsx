@@ -11,8 +11,8 @@ import {
 import { User, MapPin, GraduationCap, Loader2 } from "lucide-react";
 import { BasicInformation } from "./basic-information";
 //import { AddressContact } from "./address-contact";
-import { EducationalBackground } from "./educational-background";
-import { mockStudentData } from "./mock-data";
+//import { EducationalBackground } from "./educational-background";
+//import { mockStudentData } from "./mock-data";
 import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
 import { transformStudentInfo } from "@/lib/transforms/student-data";
 //import { useAuth } from "@/context/AuthContext";

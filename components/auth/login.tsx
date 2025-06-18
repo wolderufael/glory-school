@@ -100,7 +100,7 @@ const Login = () => {
         localStorage.setItem("currentUserId", user?.id?.toString() || "");
         localStorage.setItem("userType", user?.userType || "");
         localStorage.setItem("userMainId", user?.userMainId || "");
-/*         if (user.userType === "Student")
+        /*         if (user.userType === "Student")
           localStorage.setItem("studentId", user.student.id.toString());
         if (user.userType === "Registrar")
           localStorage.setItem("registrarId", user.registrar.id.toString());
@@ -141,7 +141,7 @@ const Login = () => {
       });
 
       // Navigate and refresh using App Router
-     // await router.push("/student/dashboard");
+      // await router.push("/student/dashboard");
       window.location.reload();
     } catch (error) {
       console.error("Login error:", error);

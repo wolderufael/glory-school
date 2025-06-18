@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface Department {
   id: number;
@@ -37,13 +38,13 @@ export function StudentForm() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const registrarId = typeof window !== "undefined" ? localStorage.getItem("registrarId") : null;
-  const academicYearId = typeof window !== "undefined" ? localStorage.getItem("academicYearId") : null;
-  const academicYearName = typeof window !== "undefined" ? localStorage.getItem("academicYearName") : null;
+  const registrarId = getLocalStorage("registrarId");
+  const academicYearId = getLocalStorage("academicYearId");
+  const academicYearName = getLocalStorage("academicYearName");
 
   const [formData, setFormData] = useState({
-    registerId: Number(registrarId) ,
-    academicYearId: Number(academicYearId) ,
+    registerId: Number(registrarId),
+    academicYearId: Number(academicYearId),
     firstName: "",
     middleName: "",
     lastName: "",
@@ -52,19 +53,22 @@ export function StudentForm() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [inputValue, setInputValue] = useState("");
-  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
+  const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
+    []
+  );
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-     
-  
+
   console.log("Registrar ID:", registrarId);
 
   // Fetch departments from API on mount
   useEffect(() => {
     async function fetchDepartments() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/departments`);
-        if (!res.ok) throw new Error('Failed to fetch departments');
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
+        );
+        if (!res.ok) throw new Error("Failed to fetch departments");
         const data = await res.json();
 
         setDepartmentList(data);
@@ -77,20 +81,21 @@ export function StudentForm() {
 
   // Fetch students from DB on mount
   useEffect(() => {
-     setLoading(true);
+    setLoading(true);
     async function fetchStudents() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents?academicYearId=${academicYearId}`);
-        if (!res.ok) throw new Error('Failed to fetch students');
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents?academicYearId=${academicYearId}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch students");
         const data = await res.json();
-        // 
+        //
         setStudents(data);
       } catch (e) {
         console.error("Error fetching students:", e);
+      } finally {
+        setLoading(false);
       }
-      finally {
-      setLoading(false);
-    }
     }
     fetchStudents();
   }, []);
@@ -136,13 +141,22 @@ export function StudentForm() {
     e.preventDefault();
     try {
       // Validate only required fields
-      if (!formData.firstName || !formData.lastName || !formData.departmentId || !formData.registerId || !formData.academicYearId) {
+      if (
+        !formData.firstName ||
+        !formData.lastName ||
+        !formData.departmentId ||
+        !formData.registerId ||
+        !formData.academicYearId
+      ) {
         const newErrors: Record<string, string> = {};
         if (!formData.firstName) newErrors.firstName = "First name is required";
         if (!formData.lastName) newErrors.lastName = "Last name is required";
-        if (!formData.departmentId) newErrors.department = "Department is required";
-        if (!formData.registerId) newErrors.registerId = "Registrar ID is required";
-        if (!formData.academicYearId) newErrors.academicYearId = "Academic Year ID is required";
+        if (!formData.departmentId)
+          newErrors.department = "Department is required";
+        if (!formData.registerId)
+          newErrors.registerId = "Registrar ID is required";
+        if (!formData.academicYearId)
+          newErrors.academicYearId = "Academic Year ID is required";
         setErrors(newErrors);
         return;
       }
@@ -188,7 +202,6 @@ export function StudentForm() {
     }
   };
 
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -218,13 +231,11 @@ export function StudentForm() {
       if (!response.ok) {
         throw new Error("Failed to generate IDs");
       }
-      
+
       toast.success("Student IDs generated successfully");
       const updatedStudents = await response.json();
 
-        const {students} = updatedStudents;
-
-      
+      const { students } = updatedStudents;
 
       setStudents(students);
     } catch (error) {
@@ -233,8 +244,7 @@ export function StudentForm() {
     }
   };
 
-
-console.log("Students:", students);
+  console.log("Students:", students);
 
   return (
     <div className="flex w-full h-auto p-8 gap-8">
@@ -252,7 +262,6 @@ console.log("Students:", students);
               <input
                 type="text"
                 value={academicYearName || ""}
-                
                 readOnly
                 className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="YYYY"
@@ -261,7 +270,6 @@ console.log("Students:", students);
             {students.length > 0 && (
               <Button
                 onClick={handleGenerateAllIds}
-                
                 className="bg-blue-600 text-white hover:bg-blue-700"
               >
                 Generate All IDs
@@ -292,37 +300,52 @@ console.log("Students:", students);
               </TableHead>
             </TableRow>
           </TableHeader>
-            <TableBody>
-          {loading ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-sm text-gray-500 py-4">
-                Loading students...
-              </TableCell>
-            </TableRow>
-          ) : students.length > 0 ? (
-            students.map((student: TempStudent) => (
-              <TableRow key={student.id} className="hover:bg-gray-50">
-                <TableCell className="p-3 text-sm text-gray-600">{student.id}</TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">{student.firstName}</TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">{student.middleName}</TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">{student.lastName}</TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.department?.name ||
-                    departmentList.find((d) => d.id === student.departmentId)?.name ||
-                    "N/A"}
-                </TableCell>
-                <TableCell className="p-3 text-sm text-gray-600">
-                  {student.studentMainId || "Not generated"}
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center text-sm text-gray-500 py-4"
+                >
+                  Loading students...
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center text-sm text-gray-500 py-4">
-                No students registered yet.
-              </TableCell>
-            </TableRow>
-          )}
+            ) : students.length > 0 ? (
+              students.map((student: TempStudent) => (
+                <TableRow key={student.id} className="hover:bg-gray-50">
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.id}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.firstName}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.middleName}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.lastName}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.department?.name ||
+                      departmentList.find((d) => d.id === student.departmentId)
+                        ?.name ||
+                      "N/A"}
+                  </TableCell>
+                  <TableCell className="p-3 text-sm text-gray-600">
+                    {student.studentMainId || "Not generated"}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center text-sm text-gray-500 py-4"
+                >
+                  No students registered yet.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

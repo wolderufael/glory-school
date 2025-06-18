@@ -18,6 +18,7 @@ export function StudentInfoCard({
   data,
   isLoading = false,
 }: StudentInfoCardProps) {
+  console.log("data", data);
   if (isLoading) {
     return (
       <Card className="mb-6 bg-blue-50 border-blue-200">
