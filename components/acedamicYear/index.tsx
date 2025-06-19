@@ -21,6 +21,7 @@ import {
 import { useAddAcademicYear } from "@/lib/react-query/mutations/useAddAcademicYear";
 import { z } from "zod";
 import { parseISO, startOfDay, formatISO } from "date-fns";
+import { useRouter } from "next/navigation";
 
 type AcademicYearData = z.infer<typeof academicYearSchema>;
 
@@ -66,6 +67,7 @@ const formatAcademicYearDates = (data: AcademicYearData): AcademicYearData => {
 };
 
 const AcademicYearForm = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<AcademicYearFormData>({
     name: "",
     startDate: "",
@@ -126,6 +128,7 @@ const AcademicYearForm = () => {
           semeester2RegistrationStartDate: "",
           semeester2RegistrationEndDate: "",
         });
+        router.push("/registrar");
       },
     });
   };

@@ -38,6 +38,7 @@ export function StudentForm() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [registrarId, setRegistrarId] = useState<number | null>(null);
+  //const [isSubmitted, setIsSubmitted] = useState(false);
 
   const userId = getLocalStorage("currentUserId");
   const academicYearId = getLocalStorage("academicYearId");
@@ -215,6 +216,7 @@ export function StudentForm() {
         throw new Error("Failed to fetch updated students list");
       }
       const updatedStudents = await updatedRes.json();
+      //setIsSubmitted(true);
       setStudents(updatedStudents);
       setFormData((prev) => ({
         ...prev,
