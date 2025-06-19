@@ -210,7 +210,7 @@ export function StudentForm() {
       }
       // Refetch the full list of students from DB
       const updatedRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents/${academicYearId}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${academicYearId}`
       );
       if (!updatedRes.ok) {
         throw new Error("Failed to fetch updated students list");

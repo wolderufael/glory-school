@@ -19,6 +19,12 @@ import {
 import { useDepartment } from "@/lib/react-query/hooks/useDepartment";
 import { useGetSection } from "@/lib/react-query/hooks/useAcademicYear";
 import { useCreateSection } from "@/lib/react-query/mutations/Section";
+import { getLocalStorage } from "@/utils/localStorage";
+
+type AcademicYear = {
+  id: string;
+  name: string;
+};
 
 type sectionSchema = {
   studentCount: number;
@@ -26,26 +32,31 @@ type sectionSchema = {
 
 const departmentId = 1;
 
-const CreateSection = () => {
+export function CreateSection() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [numberOfSection, setNumberOfSection] = useState<number>(1);
   const [sections, setSections] = useState<sectionSchema[]>([]);
 
-  const { data: academicYear, isLoading: isAcademicYearLoading } =
-    useGetSection();
-  console.log("academicYear", academicYear);
+  //Added to avoid hydration error
+  const [academicYear, setAcademicYear] = useState<AcademicYear | null>(null);
+
   const { data: studentCount, isLoading: isStudentCountLoading } =
     useDepartment(departmentId);
-    
 
   const { mutate: createSectionMutation, isPending: isCreatingSection } =
     useCreateSection();
 
   const [formData, setFormData] = useState<CreateSectionFormData>({
     academicYearId: academicYear?.id || "",
-    departmentId: 1,
+    departmentId: departmentId,
     numberOfSection: 2,
   });
+
+  useEffect(() => {
+    const yearName = getLocalStorage("academicYearName");
+    const yearId = getLocalStorage("academicYearId");
+    setAcademicYear({ id: yearId || "", name: yearName || "Loading..." });
+  }, []);
 
   useEffect(() => {
     if (academicYear?.id) {
@@ -55,7 +66,6 @@ const CreateSection = () => {
 
   useEffect(() => {
     if (studentCount > 0 && numberOfSection > 0) {
-   
       const n = numberOfSection;
       const base = Math.floor(studentCount / n);
       const remainder = studentCount % n;
@@ -97,6 +107,7 @@ const CreateSection = () => {
         filledErrors[error.path[0] as string] = error.message;
       });
       setErrors(filledErrors);
+      console.log("filledErrors", filledErrors);
       return false;
     }
 
@@ -105,6 +116,7 @@ const CreateSection = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("formData", formData);
 
     if (!handleValidate()) return;
 
@@ -129,8 +141,8 @@ const CreateSection = () => {
   };
 
   return (
-    <div className="min-h-screen w-full  bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="w-7xl mx-auto">
+    <div className="w-full p-4 overflow-hidden">
+      <div className="max-w-4xl mx-auto">
         <Card className="shadow-xl">
           <CardHeader className="space-y-1 text-center">
             <div className="flex justify-center mb-4">
@@ -139,15 +151,15 @@ const CreateSection = () => {
               </div>
             </div>
             <CardTitle className="text-2xl font-bold">
-              Create New Section{" "}
+              Create New Section
             </CardTitle>
             <CardDescription>
               Set up a new section within the academic year
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="px-6 flex flex-col items-center justify-center  py-4">
-            <p className="text-sm text-gray-600 mb-4">
+          <CardContent className="px-4 sm:px-6 flex flex-col items-center justify-center py-4">
+            <p className="text-sm text-gray-600 mb-4 text-center">
               please fill out the form below and create an equal number of
               students for the section.
             </p>
@@ -158,17 +170,16 @@ const CreateSection = () => {
             </p>
             <p className="text-xl text-gray-600 mb-4">
               Academic Year{" "}
-             
-                    <span className="font-semibold">
-                      {academicYear?.name || "Loading..."}
-                    </span>
+              <span className="font-semibold">
+                {academicYear?.name || "Loading..."}
+              </span>
             </p>
           </CardContent>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-8">
+            <CardContent className="space-y-6 px-4 sm:px-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-center  gap-4">
-                  <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <div className="space-y-2 w-full sm:w-auto">
                     <Label
                       htmlFor="numberOfSection"
                       className="text-sm font-medium"
@@ -182,7 +193,9 @@ const CreateSection = () => {
                       placeholder="1"
                       value={formData.numberOfSection ?? 1}
                       onChange={handleChange}
-                      className={errors.numberOfSection ? "border-red-500" : ""}
+                      className={`${
+                        errors.numberOfSection ? "border-red-500" : ""
+                      } w-full sm:w-48`}
                       min={1}
                       max={20}
                     />
@@ -195,7 +208,7 @@ const CreateSection = () => {
 
                   <Button
                     onClick={handlePreview}
-                    className="space-y-2 flex items-center justify-center"
+                    className="w-full sm:w-auto mt-2 sm:mt-8"
                   >
                     Preview
                   </Button>
@@ -203,7 +216,7 @@ const CreateSection = () => {
               </div>
 
               {sections.length > 0 && (
-                <div className="space-y-4 mt-6">
+                <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Generated Sections</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {sections.map((section, index) => (
@@ -227,7 +240,7 @@ const CreateSection = () => {
                 <Button
                   type="submit"
                   disabled={isCreatingSection}
-                  className="min-w-[120px]"
+                  className="w-full sm:w-auto min-w-[120px]"
                 >
                   {isCreatingSection ? "Creating..." : "Create Section"}
                 </Button>
@@ -238,6 +251,6 @@ const CreateSection = () => {
       </div>
     </div>
   );
-};
+}
 
-export default CreateSection;
+//export default CreateSection;
