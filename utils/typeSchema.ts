@@ -4,11 +4,11 @@ import { z } from "zod";
 import { de, fa, pl } from "zod/v4/locales";
 
 export const StudentSchema = z.object({
-  id: z.string(),
-  firstName: z.string(),
-  middleName: z.string(),
-  lastName: z.string(),
-  departmentId: z.number(),
+    id: z.string(),
+    firstName: z.string(),
+    middleName: z.string(),
+    lastName: z.string(),
+    departmentId: z.number(),
 });
 
 export type Student = z.infer<typeof StudentSchema>;
