@@ -108,6 +108,16 @@ const Login = () => {
           localStorage.setItem("teacherId", user.teacher.id.toString()); */
       }
 
+      //Temporary solution to store student.id, registrar.id, department.id, teacher.id
+/*       if (user.userType === "Student")
+        localStorage.setItem("studentId", user.student.id.toString());
+      if (user.userType === "Registrar")
+        localStorage.setItem("registrarId", user.registrar.id.toString());
+      if (user.userType === "Teacher")
+        localStorage.setItem("teacherId", user.teacher.id.toString());
+      if (user.userType === "Department")
+        localStorage.setItem("departmentId", user.department.id.toString()); */
+
       const student = user?.student || null; // Assuming user object contains student data
 
       console.log("Login response data:", data);

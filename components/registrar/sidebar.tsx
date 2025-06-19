@@ -31,6 +31,34 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { RegistrarNavigationGroups } from "./navigation-groups";
+import { clearLocalStorage } from "@/utils/localStorage";
+
+ const handleLogout = async () => {
+   try {
+     // Call the dedicated logout endpoint
+     const response = await fetch("/api/auth/logout", {
+       method: "POST",
+       credentials: "include", // Important for cookie handling
+     });
+
+     if (!response.ok) {
+       throw new Error("Logout failed");
+     }
+
+     // Clear all localStorage items
+     clearLocalStorage();
+
+     // Wait a bit to ensure cookie is cleared
+     await new Promise((resolve) => setTimeout(resolve, 100));
+
+     // Force a complete page reload and redirect
+     window.location.href = "/";
+   } catch (error) {
+     console.error("Logout error:", error);
+     // Fallback: force reload
+     window.location.href = "/";
+   }
+ };
 
 export function RegistrarSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,7 +124,10 @@ export function RegistrarSidebar() {
                   Preferences
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem
+                  className="text-red-600"
+                  onClick={handleLogout}
+                >
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
