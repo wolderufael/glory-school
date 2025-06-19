@@ -16,8 +16,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Eye, EyeOff, LogIn, Mail, Lock } from "lucide-react";
+import { useAuthStore } from "@/lib/store/authStore";
 
 const Login = () => {
+  const { login } = useAuthStore();
   const [formData, setFormData] = useState({
     mainId: "",
     password: "",
@@ -48,6 +50,38 @@ const Login = () => {
     }
 
     return newErrors;
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent form default submission
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await login(formData.mainId, formData.password);
+      // Show success toast
+      toast("Login Successful", {
+        description: "Welcome back!",
+      });
+      // Redirect or refresh
+      window.location.reload();
+    } catch (error) {
+      toast("Login Failed", {
+        description: "Invalid ID or Password. Please try again.",
+        style: {
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+          borderColor: "#f5c6cb",
+        },
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,7 +143,7 @@ const Login = () => {
       }
 
       //Temporary solution to store student.id, registrar.id, department.id, teacher.id
-/*       if (user.userType === "Student")
+      /*       if (user.userType === "Student")
         localStorage.setItem("studentId", user.student.id.toString());
       if (user.userType === "Registrar")
         localStorage.setItem("registrarId", user.registrar.id.toString());
@@ -183,7 +217,7 @@ const Login = () => {
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label

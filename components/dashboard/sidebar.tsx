@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GraduationCap,
   Search,
@@ -33,38 +33,19 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavigationGroups } from "./navigation-group";
-import { clearLocalStorage } from "@/utils/localStorage";
+import { getLocalStorage} from "@/utils/localStorage";
+import { handleLogout } from "@/utils/handleLogout";
+import { useAuthStore } from "@/lib/store/authStore";
+
+
 
 export function AppSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const { user } = useAuthStore();
 
-  const handleLogout = async () => {
-    try {
-      // Call the dedicated logout endpoint
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include", // Important for cookie handling
-      });
 
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
 
-      // Clear all localStorage items
-      clearLocalStorage();
-
-      // Wait a bit to ensure cookie is cleared
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Force a complete page reload and redirect
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Fallback: force reload
-      window.location.href = "/";
-    }
-  };
 
   return (
     <Sidebar className="border-r border-blue-200">
@@ -109,8 +90,12 @@ export function AppSidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col text-left">
-                    <span className="text-sm font-medium">John Doe</span>
-                    <span className="text-xs text-gray-500">NSR/2551/12</span>
+                    <span className="text-sm font-medium">
+                      {user?.firstName} {user?.lastName}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {user?.userMainId}
+                    </span>
                   </div>
                   <MoreHorizontal className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>

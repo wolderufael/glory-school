@@ -49,7 +49,7 @@ export function CreateSection() {
   const [formData, setFormData] = useState<CreateSectionFormData>({
     academicYearId: academicYear?.id || "",
     departmentId: departmentId,
-    numberOfSection: 2,
+    numberOfSection: numberOfSection,
   });
 
   useEffect(() => {
@@ -207,6 +207,7 @@ export function CreateSection() {
                   </div>
 
                   <Button
+                    type="button"
                     onClick={handlePreview}
                     className="w-full sm:w-auto mt-2 sm:mt-8"
                   >

@@ -5,9 +5,17 @@ export interface User {
   id: number;
   firstName: string;
   lastName: string;
-  role: "STUDENT" | "REGISTRAR" | "DEPARTMENT" | "ADMIN" | "PRESIDENT" | "TEACHER";
+  role:
+    | "STUDENT"
+    | "REGISTRAR"
+    | "DEPARTMENT"
+    | "ADMIN"
+    | "PRESIDENT"
+    | "TEACHER";
   department?: string;
+  userMainId?: string;
   studentId?: string;
+  userType?: string;
 }
 
 interface AuthState {
@@ -16,7 +24,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (id: number, password: string) => Promise<void>;
+  login: (mainId: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
@@ -45,31 +53,60 @@ export const useAuthStore = create<AuthState>()(
 
       setLoading: (isLoading) => set(() => ({ isLoading })),
 
-      login: async (id: number, password: string) => {
+      login: async (mainId: string, password: string) => {
         try {
           set({ isLoading: true, error: null });
 
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/login`,
+            `${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ id, password }),
+              body: JSON.stringify({ mainId, password }),
             }
           );
 
           if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || "Failed to login");
+            throw new Error("Login failed");
           }
 
           const data = await response.json();
+          const { token, user, academicYear, academicSemester } = data;
+
+          // Set cookie
+          await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          // Store in localStorage
+          if (typeof window !== "undefined") {
+            localStorage.setItem(
+              "academicYearId",
+              academicYear?.id?.toString() || ""
+            );
+            localStorage.setItem("academicYearName", academicYear?.name || "");
+            localStorage.setItem(
+              "academicSemesterId",
+              academicSemester?.id?.toString() || ""
+            );
+            localStorage.setItem(
+              "academicSemesterName",
+              academicSemester?.name || ""
+            );
+            localStorage.setItem("currentUserId", user?.id?.toString() || "");
+            localStorage.setItem("userType", user?.userType || "");
+            localStorage.setItem("userMainId", user?.userMainId || "");
+          }
 
           set({
-            user: data.user,
-            token: data.token,
+            user,
+            token,
             isAuthenticated: true,
             isLoading: false,
             error: null,
