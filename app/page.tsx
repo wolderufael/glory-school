@@ -1,13 +1,13 @@
 "use client";
 
-import LandingPage from "@/components/landingPage/LandingPage";
+import SchoolPortal from "@/components/dashboard/mainpage";
 
 export default function Home() {
   return (
     <div>
-      <div className="flex justify-center items-center ">
-        <LandingPage />
-      </div>
+      
+        <SchoolPortal  />
+     
     </div>
   );
 }
