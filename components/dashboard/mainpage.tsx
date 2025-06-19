@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { HeroSection } from "../landingPage/hero-section"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -163,6 +164,8 @@ export default function SchoolPortal() {
           )}
         </div>
       </motion.header>
+
+         <HeroSection />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-15">
