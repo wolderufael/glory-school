@@ -6,7 +6,7 @@ export default function SectionAssignment() {
 
 "use client";
 
-import CreateSection from "@/components/section/from";
+import { CreateSection } from "@/components/section/from";
 
 const CreateSectionPage = () => {
   return <CreateSection />;

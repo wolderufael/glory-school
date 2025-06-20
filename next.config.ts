@@ -8,6 +8,18 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    const env = process.env.NODE_ENV;
+    return [
+      {
+        source: "/:path*",
+        destination:
+          env === "production"
+            ? "https://168.231.80.15/:path*" // Use HTTPS in production if your backend supports it
+            : "http://168.231.80.15/:path*", // Use HTTP in development
+      },
+    ];
+  },
 };
 
 export default nextConfig;
