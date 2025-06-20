@@ -32,17 +32,19 @@ export function CurrentCoursesCard() {
           <div className="space-y-4">
             <div className="rounded-lg border border-slate-200">
               <div className="divide-y divide-slate-200">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="p-4">
-                    <div className="animate-pulse flex justify-between items-center">
-                      <div className="space-y-2">
-                        <div className="h-4 bg-slate-200 rounded w-48"></div>
-                        <div className="h-3 bg-slate-200 rounded w-24"></div>
+                {["skeleton-1", "skeleton-2", "skeleton-3"].map(
+                  (skeletonId) => (
+                    <div key={skeletonId} className="p-4">
+                      <div className="animate-pulse flex justify-between items-center">
+                        <div className="space-y-2">
+                          <div className="h-4 bg-slate-200 rounded w-48"></div>
+                          <div className="h-3 bg-slate-200 rounded w-24"></div>
+                        </div>
+                        <div className="h-4 bg-slate-200 rounded w-20"></div>
                       </div>
-                      <div className="h-4 bg-slate-200 rounded w-20"></div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </div>
           </div>

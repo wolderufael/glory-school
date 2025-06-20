@@ -8,8 +8,11 @@ import FamilyInfoForm from "./familyInfo";
 import ContactInfoForm from "./contactInfoForm";
 import AcademicBackgroundForm from "./academicBackground";
 import EmploymentHistoryForm from "./employmentHistory";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 import { getLocalStorage } from "@/utils/localStorage";
+import { useAuthStore } from "@/lib/store/authStore";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const steps = [
   { id: 1, label: "Personal info", description: "Basic information" },
@@ -21,6 +24,7 @@ const steps = [
 
 export default function MultiStepForm() {
   const [step, setStep] = useState(1);
+  const router = useRouter();
   const {
     personalInfo,
     contactInfo,
@@ -28,6 +32,7 @@ export default function MultiStepForm() {
     familyInfo,
     employmentHistory,
   } = useStudentFormStore();
+  const { logout } = useAuthStore();
   const userMainId = getLocalStorage("userMainId");
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, 5));
@@ -62,7 +67,7 @@ export default function MultiStepForm() {
         placeOfBirthTown: personalInfo.place_of_birth_town || "",
         placeOfBirthZone: personalInfo.place_of_birth_zone || "",
         placeOfBirthRegion: personalInfo.place_of_birth_region || "",
-        dateOfBirth: formatDate(personalInfo.date_of_birth || ''),
+        dateOfBirth: formatDate(personalInfo.date_of_birth || ""),
         addressKebele: personalInfo.address_kebele || "",
         addressWoreda: personalInfo.address_woreda || "",
         addressZone: personalInfo.address_zone || "",
@@ -72,7 +77,9 @@ export default function MultiStepForm() {
         phoneOffice: personalInfo.phone_office || "",
         departmentId: personalInfo.department_id || 1,
         admissionTypeId: personalInfo.admission_type_id || 1,
-        maritalStatus: formatMaritalStatus(personalInfo.MaritalStatus ||  "SINGLE"),
+        maritalStatus: formatMaritalStatus(
+          personalInfo.MaritalStatus || "SINGLE"
+        ),
         emergencyContacts: {
           fullName: contactInfo.full_name || "",
           phoneMobile: contactInfo.phone_mobile || "",
@@ -107,13 +114,16 @@ export default function MultiStepForm() {
 
       console.log("Submitting form data:", formData);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/submitForm`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/students`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
         console.error("Failed to submit form:", response.statusText);
@@ -121,10 +131,19 @@ export default function MultiStepForm() {
       }
 
       console.log("Form submitted successfully");
-      router.push("/auth/login");
       setStep(1);
+      router.push("/auth/login");
     } catch (error) {
       console.error("Error submitting form:", error);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      await logout();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
     }
   };
 
@@ -134,10 +153,48 @@ export default function MultiStepForm() {
     return "upcoming";
   };
 
+  if (getLocalStorage("isAccepted") === "No") {
+    const handleCheckStatus = async () => {
+      try {
+        await logout();
+        router.push("/?tab=accepted-students");
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
+
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Not Listed</h2>
+          <p className="text-gray-700 mb-6">
+            Check student temp student, You are not Listed
+          </p>
+          <button
+            onClick={handleCheckStatus}
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Go to Accepted Students List
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto p-6">
       {/* Progress Header */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8 shadow-sm border border-blue-100">
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="destructive"
+            onClick={handleCancel}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            Cancel Registration
+          </Button>
+        </div>
+
         <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
           Student Registration Form
         </h1>
@@ -157,15 +214,15 @@ export default function MultiStepForm() {
                 <div className="flex flex-col items-center">
                   <div
                     className={`
-                      relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ease-in-out
-                      ${
-                        status === "completed"
-                          ? "bg-green-500 border-green-500 text-white shadow-lg"
-                          : status === "current"
-                          ? "bg-blue-500 border-blue-500 text-white shadow-lg scale-110"
-                          : "bg-white border-gray-300 text-gray-400"
-                      }
-                    `}
+                    relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ease-in-out
+                    ${
+                      status === "completed"
+                        ? "bg-green-500 border-green-500 text-white shadow-lg"
+                        : status === "current"
+                        ? "bg-blue-500 border-blue-500 text-white shadow-lg scale-110"
+                        : "bg-white border-gray-300 text-gray-400"
+                    }
+                  `}
                   >
                     {status === "completed" ? (
                       <Check className="w-6 h-6" />

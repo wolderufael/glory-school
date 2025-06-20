@@ -31,8 +31,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { DepartmentNavigationGroups } from "./navigation-groups";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export function DepartmentSidebar() {
+  const { user, logout } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -96,7 +98,10 @@ export function DepartmentSidebar() {
                   Preferences
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem
+                  className="text-red-600"
+                  onClick={logout}
+                >
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
