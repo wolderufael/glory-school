@@ -205,3 +205,19 @@ export const departmentNavigationItems = [
     ],
   },
 ];
+export const teacherNavigationItems = [
+  {
+    title: "Dashboard",
+    items: [
+      { title: "Dashboard", icon: Home, url: "/teacher", isActive: true },
+    ],
+  },
+  {
+    title: "Assesment",
+    items: [
+      { title: "Assesment", icon: Calendar, url: "/teacher/markList" },
+      { title: "Evaluation", icon: BookOpen, url: "#" },
+      { title: "Grade Approval", icon: Award, url: "#" },
+    ],
+  },
+];

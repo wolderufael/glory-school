@@ -1,12 +1,46 @@
-import ListTable from "@/components/markList/table";
+"use client";
 
-const StudentList = () => {
+import React from "react";
+import { SidebarInset } from "@/components/ui/sidebar";
+/* import {
+  TeacherDashboardHeader,
+  TeacherStatsCards,
+  TeacherQuickActions,
+  TeacherRecentActivities,
+} from "@/components/teacher"; */
+import { TeacherDashboardHeader } from "@/components/teacher/dashboard-header";
+import { TeacherStatsCards } from "@/components/teacher/stats-cards";
+import { TeacherQuickActions } from "@/components/teacher/quick-actions";
+import { TeacherRecentActivities } from "@/components/teacher/recent-activities";
+
+const TeacherDashboard = () => {
   return (
-    <div className="flex flex-col items-center pt-6 md:pt-14 px-2 md:px-7 h-screen">
-      <h1 className="text-2xl font-bold mb-9">Student Mark List</h1>
-      <ListTable />
+    <div className="min-h-screen bg-slate-50">
+      <SidebarInset className="flex-1">
+        {/* Dashboard Header */}
+        <TeacherDashboardHeader />
+
+        <main className="flex-1 p-6 space-y-6">
+          {/* Stats Cards */}
+          <section>
+            <TeacherStatsCards />
+          </section>
+
+          {/* Main Content Grid */}
+
+          {/* Right Column - Quick Actions */}
+          <div className="space-y-6">
+            <TeacherQuickActions />
+          </div>
+
+          {/* Recent Activities */}
+          <section>
+            <TeacherRecentActivities />
+          </section>
+        </main>
+      </SidebarInset>
     </div>
   );
 };
 
-export default StudentList;
+export default TeacherDashboard;

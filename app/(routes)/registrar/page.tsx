@@ -5,7 +5,6 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import {
   RegistrarDashboardHeader,
   RegistrarStatsCards,
-  TeacherAssignmentPortal,
   RegistrarQuickActions,
   RegistrarRecentActivities,
 } from "@/components/registrar";

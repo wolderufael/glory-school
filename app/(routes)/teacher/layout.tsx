@@ -1,15 +1,22 @@
-// app/dashboard/student/layout.tsx
- //import { getCurrentUser } from '@/lib/auth/getCurrentUser';
- import { UserType } from '@/utils/typeUser';
- import { redirect } from 'next/navigation';
+import { TeacherSidebar } from "@/components/teacher/sidebar";
+import "../../globals.css";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
-
- export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-/*    const user = await getCurrentUser();
-
-   if (!user || user.role !== UserType.Student) {
-     return redirect('/unauthorized');
-   } */
-
-   return (<div>{children}</div>);
+export default function TeacherLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen min-w-full md:flex bg-slate-50">
+        <TeacherSidebar />
+        <div className="flex-1 flex flex-col md:ml-8">
+          <main className="flex-1 no-scrollbar overflow-y-auto">
+            {children}
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
 }

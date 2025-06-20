@@ -1,7 +1,9 @@
-import { checkStudentRegistration,isAcceptedStudent } from "@/utils/checkregistration";
+import {
+  checkStudentRegistration,
+  isAcceptedStudent,
+} from "@/utils/checkregistration";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
 
 export interface User {
   id: number;
@@ -26,6 +28,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isAccepted: any;
   login: (mainId: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User | null) => void;
@@ -33,10 +36,12 @@ interface AuthState {
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
 }
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
+      isAccepted: null,
       user: null,
       token: null,
       isAuthenticated: false,
@@ -76,8 +81,11 @@ export const useAuthStore = create<AuthState>()(
 
           const data = await response.json();
           const { token, user, academicYear, academicSemester } = data;
-          
-          const isRegistered = await checkStudentRegistration(user.userMainId) ? "Yes" :"No";
+
+          const isRegistered = (await checkStudentRegistration(user.userMainId))
+            ? "Yes"
+            : "No";
+
           const isAccepted = (await isAcceptedStudent(
             user.userMainId,
             academicYear.id?.toString()
@@ -113,11 +121,11 @@ export const useAuthStore = create<AuthState>()(
             localStorage.setItem("userType", user?.userType || "");
             localStorage.setItem("userMainId", user?.userMainId || "");
             localStorage.setItem("isRegistered", isRegistered);
-            localStorage.setItem("isAccepted",isAccepted)
-
+            localStorage.setItem("isAccepted", isAccepted);
           }
 
           set({
+            isAccepted,
             user,
             token,
             isAuthenticated: true,
@@ -140,13 +148,13 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        // 1. Clear the HTTP-only cookie 
+        // 1. Clear the HTTP-only cookie
         await fetch("/api/auth/logout", {
           method: "POST",
         });
 
         // 2. Clear localStorage items
-        localStorage.clear()
+        localStorage.clear();
 
         // 3. Clear the Zustand store state
         set({

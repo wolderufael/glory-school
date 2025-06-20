@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import { decrypt } from "./utils/generateToken";
 import { checkStudentRegistration } from "./utils/checkregistration";
 
+
+
 export type UserEnumTypes =
   | "Student"
   | "Teacher"
@@ -149,8 +151,9 @@ export async function middleware(req: NextRequest) {
   // Handle student registration routing
   if (isAuthenticated && userRole === "Student" && userId) {
     console.log("Checking student registration status");
+    //await delay(60000);
     const isRegistered = await checkStudentRegistration(userId);
-    //const isRegistered = true;
+    //const isRegistered = false;
     console.log("Registration check result:", isRegistered);
 
     // If student is not registered

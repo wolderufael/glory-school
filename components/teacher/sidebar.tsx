@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   GraduationCap,
   Search,
   User,
   Settings,
   MoreHorizontal,
-  LogOut,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -32,19 +30,12 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavigationGroups } from "./navigation-group";
-import { getLocalStorage} from "@/utils/localStorage";
 import { useAuthStore } from "@/lib/store/authStore";
+import { TeacherNavigationGroups } from "./navigation-groups";
 
-
-
-export function AppSidebar() {
-  const { user, logout } = useAuthStore();
+export function TeacherSidebar() {
+   const { user, logout } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
-
-
-
 
   return (
     <Sidebar className="border-r border-blue-200">
@@ -55,7 +46,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold text-white">SMIS</span>
-            <span className="text-xs text-blue-100">Student Portal</span>
+            <span className="text-xs text-blue-100">Teacher Portal</span>
           </div>
         </div>
       </SidebarHeader>
@@ -73,7 +64,7 @@ export function AppSidebar() {
           </div>
         </div>
 
-        <NavigationGroups searchQuery={searchQuery} />
+        <TeacherNavigationGroups searchQuery={searchQuery} />
       </SidebarContent>
 
       <SidebarFooter className="border-t border-blue-200 bg-blue-50">
@@ -116,7 +107,6 @@ export function AppSidebar() {
                   onClick={logout}
                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -24,6 +24,7 @@ const steps = [
 
 export default function MultiStepForm() {
   const [step, setStep] = useState(1);
+  const [isAcceptedStatus, setIsAcceptedStatus] = useState<string | null>(null);
   const router = useRouter();
   const {
     personalInfo,
@@ -33,10 +34,49 @@ export default function MultiStepForm() {
     employmentHistory,
   } = useStudentFormStore();
   const { logout } = useAuthStore();
-  const userMainId = getLocalStorage("userMainId");
+
+  useEffect(() => {
+    // Check isAccepted status on client-side only
+    const status = getLocalStorage("isAccepted");
+    setIsAcceptedStatus(status);
+  }, []);
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, 5));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  const handleCheckStatus = async () => {
+    try {
+      await logout();
+      router.push("/?tab=accepted-students");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
+  // Show nothing during initial render to prevent flash
+  if (isAcceptedStatus === null) {
+    return null;
+  }
+
+  // Show Not Listed message if not accepted
+  if (isAcceptedStatus === "No") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Not Listed</h2>
+          <p className="text-gray-700 mb-6">
+            Check accepted student list, You are not Listed
+          </p>
+          <button
+            onClick={handleCheckStatus}
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Go to Accepted Students List
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async () => {
     try {
@@ -140,8 +180,8 @@ export default function MultiStepForm() {
 
   const handleCancel = async () => {
     try {
-      await logout();
-      router.push("/auth/login");
+      logout();
+      //router.push("/auth/login");
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -152,34 +192,6 @@ export default function MultiStepForm() {
     if (stepId === step) return "current";
     return "upcoming";
   };
-
-  if (getLocalStorage("isAccepted") === "No") {
-    const handleCheckStatus = async () => {
-      try {
-        await logout();
-        router.push("/?tab=accepted-students");
-      } catch (error) {
-        console.error("Error during logout:", error);
-      }
-    };
-
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Not Listed</h2>
-          <p className="text-gray-700 mb-6">
-            Check student temp student, You are not Listed
-          </p>
-          <button
-            onClick={handleCheckStatus}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Go to Accepted Students List
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full max-w-6xl mx-auto p-6">

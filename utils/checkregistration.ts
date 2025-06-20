@@ -13,7 +13,7 @@ export async function checkStudentRegistration(userMainId: string) {
     const student = studentsData.find(
       (student: any) => student.user.userMainId === userMainId
     );
-    console.log("###########Staus#########", student);
+    console.log("###########Staus#########", student.maritalStatus);
     if (student) {
       return true;
     } else {
@@ -40,8 +40,9 @@ export async function isAcceptedStudent(
     );
     const tempStudentsData = await tempStudents.json();
     const tempStudent = tempStudentsData.find(
-      (student: any) => student.user.studentMainId === userMainId
+      (student: any) => student.studentMainId === userMainId
     );
+
     if (tempStudent) {
       return true;
     } else {
@@ -49,6 +50,6 @@ export async function isAcceptedStudent(
     }
   } catch (error) {
     console.error("Failed to check temp student registration:", error);
-    return false;
+    return [];
   }
 }
