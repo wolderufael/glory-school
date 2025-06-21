@@ -59,19 +59,19 @@ export const navigationItems = [
         icon: BookOpen,
         url: "/student/dashboard/course-registration",
       },
-      {
+      { title: "Assessment", icon: BookOpen, url: "/student/dashboard/assesment" },
+     /*  {
         title: "Academic Records",
         icon: FileText,
         url: "/student/dashboard/academic-records",
       },
-      { title: "Assessment", icon: BookOpen, url: "/student/dashboard/assesment" },
       {
         title: "Grades & Transcripts",
         icon: Award,
         url: "/student/dashboard/grades-transcripts",
       },
       { title: "Class Schedule", icon: Calendar, url: "#" },
-      { title: "Assignments", icon: ClipboardList, url: "#" },
+      { title: "Assignments", icon: ClipboardList, url: "#" }, */
     ],
   },
   {
