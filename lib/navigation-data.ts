@@ -42,7 +42,12 @@ export const navigationItems = [
   {
     title: "Dashboard",
     items: [
-      { title: "Dashboard", icon: Home, url: "/student/dashboard", isActive: true },
+      {
+        title: "Dashboard",
+        icon: Home,
+        url: "/student/dashboard",
+        isActive: true,
+      },
       { title: "Profile", icon: User, url: "/student/dashboard/profile" },
     ],
   },
@@ -59,6 +64,7 @@ export const navigationItems = [
         icon: FileText,
         url: "/student/dashboard/academic-records",
       },
+      { title: "Assessment", icon: BookOpen, url: "/student/dashboard/assesment" },
       {
         title: "Grades & Transcripts",
         icon: Award,
