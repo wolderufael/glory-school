@@ -129,7 +129,7 @@ export default function AnnouncementsPage() {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-2">Stay Updated</h3>
                 <p className="text-blue-100 text-sm mb-4">Subscribe to get notifications for important announcements</p>
-                <Button className="w-full bg-white text-blue-600 hover:bg-blue-50">Subscribe</Button>
+               
               </CardContent>
             </Card>
           </div>

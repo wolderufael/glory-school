@@ -53,20 +53,20 @@ export function HeroSection() {
             <Link href="/admission">
               <Button
                 size="lg"
-                className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-white cursor-pointer text-blue-900 hover:bg-blue-50 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Apply Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/virtual-tour">
+            <Link href="/programs">
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-blue-900 px-8 py-4 text-lg font-semibold backdrop-blur-sm bg-white/10"
+                className="border-white  cursor-pointer text-white hover:bg-white hover:text-blue-900 px-8 py-4 text-lg font-semibold backdrop-blur-sm bg-white/10"
               >
                 <Play className="mr-2 h-5 w-5" />
-                Virtual Tour
+                Explore More
               </Button>
             </Link>
           </motion.div>

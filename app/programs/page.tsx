@@ -1,7 +1,7 @@
-import ProgramsPage  from "@/components/landingPage/tabs/CourseTab";
+import DepartmentsPage from "@/components/landingPage/tabs/DepartmentsTab";
 
 export default async function Program(){
     return(
-        <ProgramsPage  />
+        <DepartmentsPage  />
     )
 }

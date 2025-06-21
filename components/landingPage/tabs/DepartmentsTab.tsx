@@ -21,7 +21,6 @@ import {
   Building2,
 } from "lucide-react"
 import Link from "next/link"
-import { useDepartment } from "@/lib/react-query/hooks/useDepartment"
 import { useEffect, useState } from "react"
 
 
@@ -82,7 +81,8 @@ const fadeInUp = {
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   
-  // const { data, isLoading, error } = useDepartment()
+  // Provide a valid departmentId, e.g., 1 or fetch dynamically as needed
+  // const { data, isLoading, error } = useDepartment(1)
   // const departments = Array.isArray(data?.departments) ? data.departments : data || []
 
 
@@ -112,8 +112,7 @@ export default function DepartmentsPage() {
       bg: "bg-blue-50",
     },
     { title: "Faculty Members", value: "85", icon: BookOpen, color: "text-green-600", bg: "bg-green-50" },
-    { title: "Research Projects", value: "24", icon: Leaf, color: "text-purple-600", bg: "bg-purple-50" },
-    { title: "Students Enrolled", value: "1,200+", icon: Stethoscope, color: "text-orange-600", bg: "bg-orange-50" },
+    { title: "Students Enrolled", value: "2000+", icon: Stethoscope, color: "text-orange-600", bg: "bg-orange-50" },
   ]
 
   return (
@@ -288,60 +287,6 @@ export default function DepartmentsPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-900">Email</p>
                       <p className="text-xs text-gray-600">departments@wsac.edu.et</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Quick Links */}
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Links</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {[
-                    { name: "Faculty Directory", href: "/faculty" },
-                    { name: "Research Projects", href: "/research" },
-                    { name: "Course Catalog", href: "/courses" },
-                    { name: "Department News", href: "/news" },
-                  ].map((link, index) => (
-                    <motion.div key={link.name} whileHover={{ x: 5 }}>
-                      <Link
-                        href={link.href}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-blue-50 transition-colors group"
-                      >
-                        <span className="text-gray-700 group-hover:text-blue-600">{link.name}</span>
-                        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600" />
-                      </Link>
-                    </motion.div>
-                  ))}
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Department Highlights */}
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-600 to-green-700 text-white">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4">Department Highlights</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-green-100">Research Publications</span>
-                      <span className="font-bold">150+</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-green-100">Industry Partnerships</span>
-                      <span className="font-bold">25</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-green-100">Graduate Employment</span>
-                      <span className="font-bold">95%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-green-100">International Collaborations</span>
-                      <span className="font-bold">12</span>
                     </div>
                   </div>
                 </CardContent>

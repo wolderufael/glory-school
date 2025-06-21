@@ -50,28 +50,17 @@ const scaleOnHover = {
 
 export default function SchoolPortal() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [loginData, setLoginData] = useState({ username: "", password: "" })
-
+ 
   const navigationItems = [
     { name: "Home", href: "/", active: true },
     { name: "Announcement", href: "/noticeboard" },
     { name: "Admission", href: "/admission", hasDropdown: true },
-    { name: "Departments", href: "/departments", hasDropdown: true },
-    { name: "Freshman", href: "/freshman" },
     { name: "Programs", href: "/programs" },
     { name: "Calendar", href: "/calendar" },
   ]
 
   const serviceCards = [
-    {
-      title: "Digital Library",
-      description:
-        "Explore our comprehensive digital library with e-books, research papers, and multimedia resources available 24/7",
-      image: "/placeholder.svg?height=200&width=300",
-      href: "/library",
-      color: "from-emerald-500 to-emerald-600",
-      icon: "library",
-    },
+
      {
       title: "Apply for Admission",
       description: "New applicants who aspire to join Wolaita Sodo Agricultural College can apply",
@@ -80,9 +69,9 @@ export default function SchoolPortal() {
       color: "from-green-500 to-green-600",
     },
     {
-      title: "Virtual Campus Tour",
+      title: "Campus Tour",
       description:
-        "Take an immersive 360° virtual tour of our campus facilities, labs, and learning spaces from anywhere",
+        "Take an immersive 360° tour of our campus facilities, labs, and learning spaces from anywhere",
       image: "/placeholder.svg?height=200&width=300",
       href: "/virtual-tour",
       color: "from-orange-500 to-orange-600",
@@ -92,7 +81,7 @@ export default function SchoolPortal() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header */}
+ 
       <motion.header
         className="bg-white shadow-lg border-b sticky top-0 z-50"
         initial={{ y: -100 }}
@@ -167,10 +156,10 @@ export default function SchoolPortal() {
 
          <HeroSection />
 
-      {/* Main Content */}
+    
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-15">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Content - Service Cards */}
+          
           <div className="lg:col-span-2">
             <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-6">
               <motion.div variants={fadeInUp}>
@@ -227,9 +216,8 @@ export default function SchoolPortal() {
             </motion.div>
           </div>
 
-          {/* Right Sidebar - Login & Quick Links */}
           <div className="space-y-6 md:pt-22">
-            {/* Login Card */}
+            
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -240,59 +228,27 @@ export default function SchoolPortal() {
                   <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Building2 className="h-10 w-10 text-white" />
                   </div>
-                  <CardTitle className="text-xl text-gray-900">Login to your account</CardTitle>
+                  <CardTitle className="text-xl text-gray-900">Self service portal</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      type="text"
-                      placeholder="User name"
-                      className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                      value={loginData.username}
-                      onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
-                    />
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                      value={loginData.password}
-                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                    />
-                  </div>
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium">
-                      Login
+                    <Link href='/aut/login'>
+                   
+                    <Button className="w-full h-12 bg-gradient-to-r cursor-pointer from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium">
+                       Login to your account
                     </Button>
+                   </Link>
                   </motion.div>
-                  <div className="text-center">
-                    <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                      Forgot Password?
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
 
-            {/* Quick Links */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <Card className="border-0 shadow-lg bg-white">
+                
                 <CardHeader>
                   <CardTitle className="text-lg text-gray-900">Quick Links</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+             
                   {[
-                    { name: "E-Learning", href: "/elearning", icon: BookOpen },
+                   
                     { name: "Student Portal", href: "/student", icon: GraduationCap },
-                    { name: "Faculty Portal", href: "/faculty", icon: Users },
-                    { name: "Library", href: "/library", icon: BookOpen },
+                    { name: "Faculty Portal", href: "/registrar", icon: Users },
                   ].map((link, index) => (
                     <motion.div key={link.name} whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
                       <Link
@@ -310,7 +266,6 @@ export default function SchoolPortal() {
                 </CardContent>
               </Card>
             </motion.div>
-
            
           </div>
         </div>
@@ -323,7 +278,7 @@ export default function SchoolPortal() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1 }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div  className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4">Contact Information</h3>

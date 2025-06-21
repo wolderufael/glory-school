@@ -168,10 +168,6 @@ export default function NoticeBoardPage() {
             <motion.div className="space-y-6" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}>
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Latest Announcements</h2>
-                <Button variant="outline" className="text-blue-600 border-blue-600 hover:bg-blue-50">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export All
-                </Button>
               </div>
 
               {isLoading && (
@@ -338,14 +334,6 @@ export default function NoticeBoardPage() {
                   <p className="text-blue-100 text-sm mb-4">
                     Subscribe to get notifications for important announcements and deadlines.
                   </p>
-                  <div className="space-y-3">
-                    <Button className="w-full bg-white text-blue-600 hover:bg-blue-50">
-                      Subscribe to Notifications
-                    </Button>
-                    <Button variant="outline" className="w-full border-white text-white hover:bg-white/10">
-                      Download Mobile App
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </motion.div>
