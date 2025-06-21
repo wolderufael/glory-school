@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,7 +29,14 @@ interface TempStudent {
 
 export default function AcceptedStudents() {
   const [searchQuery, setSearchQuery] = useState("");
-  const academicYearID=  localStorage.getItem("academicYearId") || "";
+  const [academicYearID, setAcademicYearID] = useState("");
+
+  useEffect(() => {
+  const id = localStorage.getItem("academicYearId");
+  if (id) {
+    setAcademicYearID(id);
+  }
+}, []);
 
 
   const { data: students = [], isLoading, error } = useTempStudents(academicYearID);
