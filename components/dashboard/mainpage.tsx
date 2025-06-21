@@ -232,7 +232,7 @@ export default function SchoolPortal() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Link href='/aut/login'>
+                    <Link href='/auth/login'>
                    
                     <Button className="w-full h-12 bg-gradient-to-r cursor-pointer from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium">
                        Login to your account
