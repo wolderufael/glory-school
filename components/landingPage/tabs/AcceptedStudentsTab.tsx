@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,8 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Loader2, GraduationCap } from "lucide-react";
+import { Search, Loader2, GraduationCap, ArrowLeft } from "lucide-react";
 import { useTempStudents } from "@/lib/react-query/hooks/useTempStudents";
+import Link from "next/link";
 
 interface TempStudent {
   id: number;
@@ -28,9 +29,16 @@ interface TempStudent {
 
 export default function AcceptedStudents() {
   const [searchQuery, setSearchQuery] = useState("");
-  const academicYearID= "1"
+  const [academicYearID, setAcademicYearID] = useState("");
 
-  // Fetch temporary students
+  useEffect(() => {
+  const id = localStorage.getItem("academicYearId");
+  if (id) {
+    setAcademicYearID(id);
+  }
+}, []);
+
+
   const { data: students = [], isLoading, error } = useTempStudents(academicYearID);
 
   // Filter students based on search query
@@ -50,7 +58,13 @@ export default function AcceptedStudents() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+       <Link href="/admission" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+        </Link>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -117,6 +131,7 @@ export default function AcceptedStudents() {
           )}
         </CardContent>
       </Card>
+    </div>
     </div>
   );
 }

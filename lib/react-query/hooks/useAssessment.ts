@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Assessment, AssessmentSubmission, CreateAssessmentRequest, UpdateAssessmentRequest } from '@/utils/assessment';
 
 
+
 export const useAssessments = () => {
   const [assessments, setAssessments] = useState<Record<number, Partial<Assessment>>>({});
   const queryClient = useQueryClient();
@@ -13,9 +14,19 @@ export const useAssessments = () => {
   const createAssessmentMutation = useMutation({
     mutationFn: async (data: CreateAssessmentRequest): Promise<Assessment> => {
       console.log('Creating assessment:', data);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/assessments/bulk-update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create assessment');
+      }
+
       const newAssessment: Assessment = {
         id: Math.floor(Math.random() * 10000),
         ...data,

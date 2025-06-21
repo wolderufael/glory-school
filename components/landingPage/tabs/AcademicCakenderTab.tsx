@@ -1,26 +1,13 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, CalendarDays, GraduationCap } from "lucide-react";
+import { ArrowLeft, Calendar, CalendarDays, GraduationCap, MoveLeft, MoveRight } from "lucide-react";
 import {
   useAcademicCalender,
   AcademicCalender,
 } from "@/lib/react-query/hooks/useAcademicCalender";
-
-// Sample data - replace with actual data from your API
-/* const academicCalendar: AcademicCalender = {
-  name: "2023/24 Academic Year",
-  startDate: "2023-09-11",
-  endDate: "2024-07-26",
-  semester1StartDate: "2023-09-11",
-  semester1EndDate: "2024-01-26",
-  semester2StartDate: "2024-02-12",
-  semester2EndDate: "2024-07-26",
-  semester1RegistrationStartDate: "2023-09-04",
-  semester1RegistrationEndDate: "2023-09-08",
-  semester2RegistrationStartDate: "2024-02-05",
-  semester2RegistrationEndDate: "2024-02-09",
-}; */
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const formatDate = (dateString: string | undefined) => {
   if (!dateString) return "";
@@ -33,6 +20,8 @@ const formatDate = (dateString: string | undefined) => {
 
 export default function AcademicCalenderTab() {
   const { data: academicCalenders, isLoading, error } = useAcademicCalender();
+  const router = useRouter();
+
 
   if (isLoading) {
     return (
@@ -58,11 +47,20 @@ export default function AcademicCalenderTab() {
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-green-200 rounded-full opacity-10 blur-3xl" />
       </div>
 
+     <div className="flex justify-start items-start rounded-xl p-6 md:p-12 overflow-hidden">
+            <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Link>
+      </div>
+
       {(academicCalenders as AcademicCalender[]).map(
         (calendar: AcademicCalender, calendarIndex: number) => (
           <div key={calendarIndex} className="space-y-8 relative">
             {/* Section background decoration */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent backdrop-blur-sm rounded-3xl" />
+
+            
 
             <div className="relative">
               <div className="text-center mb-12">
