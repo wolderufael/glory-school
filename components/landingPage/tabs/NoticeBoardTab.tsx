@@ -68,7 +68,6 @@ export default function NoticeBoardPage() {
   }
 
 
-  // Update filteredNotices to use real data:
   const filteredNotices = noticesData.filter((notice:any) => {
     const matchesSearch =
       notice.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -77,7 +76,6 @@ export default function NoticeBoardPage() {
     return matchesSearch && matchesCategory
   })
 
-  // Update noticeStats to use real data:
   const noticeStats = [
     {
       title: "Total Notices",
