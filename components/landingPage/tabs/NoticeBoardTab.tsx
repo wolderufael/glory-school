@@ -33,7 +33,7 @@ const fadeInUp = {
 export default function NoticeBoardPage() {
   // Remove the mockNotices array and replace with:
   const { data: notices, isLoading, error } = useNotice({})
-  const noticesData = notices || []
+  const noticesData = notices?.toReversed() || []
 
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
