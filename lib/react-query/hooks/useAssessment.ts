@@ -13,9 +13,8 @@ export const useAssessments = () => {
   const createAssessmentMutation = useMutation({
     mutationFn: async (data: CreateAssessmentRequest): Promise<Assessment> => {
       console.log('Creating assessment:', data);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
+        
       const newAssessment: Assessment = {
         id: Math.floor(Math.random() * 10000),
         ...data,
