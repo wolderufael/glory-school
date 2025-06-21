@@ -10,11 +10,13 @@
 
 // export default AcedamicYearPage;
 import AcademicYearForm from "@/components/acedamicYear";
+import AcademicYearHome from "@/components/acedamicYear/AcademicYearHome";
 
 const AcedamicYearPage = () => {
   return (
     <div>
-      <AcademicYearForm />
+      {/* <AcademicYearForm /> */}
+      <AcademicYearHome />
     </div>
   );
 };

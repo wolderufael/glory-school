@@ -2,7 +2,7 @@ import axios from "axios";
 import {
   StudentRegistration,
   Module,
-} from "@/components/dashboard/course-registration";
+} from "@/components/dashboard/registration/course-registration";
 
 export interface Course {
   id: string;
@@ -349,7 +349,7 @@ interface ApiRegistrationSlip {
 }
 
 export const getSlip = async (
-  studentId: string
+  studentId: string 
 ): Promise<StudentRegistration[]> => {
   // Get registration slips with courses
   const { data: slips } = await axios.get<ApiRegistrationSlip[]>(

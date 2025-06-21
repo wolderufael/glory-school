@@ -1,4 +1,4 @@
-/* import { NoticeBoardSchema } from "@/utils/NoticeSchema";
+import { RegNoticeBoardSchema } from "@/utils/NoticeSchema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
@@ -8,15 +8,16 @@ const axiosInstance = axios.create({
   // withCredentials: true,
 });
 
-export const useAddNotice = () => {
+export const useAddRegNotice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: NoticeBoardSchema) => {
+    mutationFn: async (data: RegNoticeBoardSchema) => {
       try {
-        const response = await axiosInstance.post("/noticeboard", {
-          collegeId: data.collegeId,
-          //departmentId: data.departmentId,
+        const response = await axiosInstance.post("/registrar-noticeboard", {
+          title: data.title,
+          //registrarId: data.registrarId,
+          //collegeId: data.collegeId,
           message: data.message,
           deadline: data.deadline,
           authorId: data.authorId,
@@ -46,4 +47,3 @@ export const useAddNotice = () => {
     },
   });
 };
- */

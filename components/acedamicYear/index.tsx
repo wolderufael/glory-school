@@ -22,6 +22,7 @@ import { useAddAcademicYear } from "@/lib/react-query/mutations/useAddAcademicYe
 import { z } from "zod";
 import { parseISO, startOfDay, formatISO } from "date-fns";
 import { useRouter } from "next/navigation";
+import { setLocalStorage } from "@/utils/localStorage";
 
 type AcademicYearData = z.infer<typeof academicYearSchema>;
 
@@ -112,7 +113,7 @@ const AcademicYearForm = () => {
     // Format all dates using the helper function
     const formattedData = formatAcademicYearDates(formData);
     console.log("Submitting data:", JSON.stringify(formattedData, null, 2));
-
+   
     mutate(formattedData, {
       onSuccess: () => {
         setFormData({
@@ -128,6 +129,7 @@ const AcademicYearForm = () => {
           semeester2RegistrationStartDate: "",
           semeester2RegistrationEndDate: "",
         });
+        ;
         router.push("/registrar");
       },
     });

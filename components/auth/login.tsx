@@ -74,8 +74,8 @@ const Login = () => {
       toast("Login Failed", {
         description: "Invalid ID or Password. Please try again.",
         style: {
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
+          backgroundColor: "#e2f8d7",
+          color: "#62721c",
           borderColor: "#f5c6cb",
         },
       });

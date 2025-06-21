@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const academicYearSchema = z.object({
+  id: z.number().optional(),
   name: z.string()
     .min(1, 'Academic year name is required')
     .max(20, 'Name must be 20 characters or less'),

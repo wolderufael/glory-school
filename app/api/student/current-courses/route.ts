@@ -16,7 +16,7 @@ export async function GET() {
       creditHours: 3,
     },
     {
-      id: "2",
+      id: "3",
       name: "Handling and Restraining Animals",
       code: "AGR ANH2 M04 0422 ",
       creditHours: 3,

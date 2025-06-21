@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StudentRegistration } from "./course-registration";
+import { useAuthStore } from "@/lib/store/authStore";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface RegistrationSlipCardProps {
   slip: StudentRegistration;
@@ -21,6 +23,8 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
     (sum, module) => sum + module.nominalHour,
     0
   );
+
+  const { user } = useAuthStore();
 
   // Determine if the slip is active based on current date
   const isActive = (() => {
@@ -99,11 +103,11 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
           <div className="flex justify-between items-center border-b border-black pb-1">
             <div className="flex items-center gap-2">
               <Label className="font-bold">NAME IN BLOCK LETTERS:</Label>
-              <span className="font-semibold">{slip.name.toUpperCase()}</span>
+              <span className="font-semibold">{user?.firstName.toUpperCase()} {user?.lastName.toUpperCase()}</span>
             </div>
             <div className="flex items-center gap-2">
               <Label className="font-bold">ID NO:</Label>
-              <span className="font-semibold">{slip.idNo}</span>
+              <span className="font-semibold">{getLocalStorage("userMainId")?.toString()}</span>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-/* import { StudentData } from "./types";
+import { StudentData } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   MapPin,
@@ -17,8 +17,6 @@ interface AddressContactProps {
 export function AddressContact({ studentData }: AddressContactProps) {
   return (
     <div className="grid grid-cols-2 gap-6">
-  
-      
       <Card className="border border-blue-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -37,35 +35,45 @@ export function AddressContact({ studentData }: AddressContactProps) {
                 <Building2 className="h-4 w-4 mt-1 text-blue-500" />
                 <div>
                   <p className="text-xs text-gray-500">Region</p>
-                  <p className="text-sm text-gray-900">{studentData?.region}</p>
+                  <p className="text-sm text-gray-900">
+                    {studentData?.addressRegion}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <MapPinned className="h-4 w-4 mt-1 text-blue-500" />
                 <div>
                   <p className="text-xs text-gray-500">Zone</p>
-                  <p className="text-sm text-gray-900">{studentData?.zone}</p>
+                  <p className="text-sm text-gray-900">
+                    {studentData?.addressZone}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-1 text-blue-500" />
                 <div>
                   <p className="text-xs text-gray-500">Woreda</p>
-                  <p className="text-sm text-gray-900">{studentData?.woreda}</p>
+                  <p className="text-sm text-gray-900">
+                    {studentData?.addressWoreda}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-1 text-blue-500" />
                 <div>
                   <p className="text-xs text-gray-500">Kebele</p>
-                  <p className="text-sm text-gray-900">{studentData?.kebele}</p>
+                  <p className="text-sm text-gray-900">
+                    {studentData?.addressKebele}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <Home className="h-4 w-4 mt-1 text-blue-500" />
                 <div>
-                  <p className="text-xs text-gray-500">House No.</p>
-                  <p className="text-sm text-gray-900">{studentData?.houseNo}</p>
+                  <p className="text-xs text-gray-500">Place of Birth</p>
+                  <p className="text-sm text-gray-900">
+                    {studentData?.placeOfBirthTown}
+                  </p>
                 </div>
               </div>
             </div>
@@ -73,7 +81,6 @@ export function AddressContact({ studentData }: AddressContactProps) {
         </CardContent>
       </Card>
 
-      
       <Card className="border border-purple-100 rounded-xl shadow-sm hover:shadow-md transition-shadow">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg font-semibold">
@@ -85,39 +92,47 @@ export function AddressContact({ studentData }: AddressContactProps) {
             </span>
           </CardTitle>
         </CardHeader>
+
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-start gap-2">
-              <User className="h-4 w-4 mt-1 text-purple-500" />
-              <div>
-                <p className="text-xs text-gray-500">Full Name</p>
-                <p className="text-sm text-gray-900">
-                  {studentData.emergencyContact.name}
-                </p>
+          {studentData.emergencyContacts.map((contact) => (
+            <div key={contact.id} className="space-y-4">
+              <div className="flex items-start gap-2">
+                <User className="h-4 w-4 mt-1 text-purple-500" />
+                <div>
+                  <p className="text-xs text-gray-500">Full Name</p>
+                  <p className="text-sm text-gray-900">{contact.fullName}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Phone className="h-4 w-4 mt-1 text-purple-500" />
+                <div>
+                  <p className="text-xs text-gray-500">Phone Number</p>
+                  <p className="text-sm text-gray-900">
+                    {contact.phoneMobile || "Not provided"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 mt-1 text-purple-500" />
+                <div>
+                  <p className="text-xs text-gray-500">Address</p>
+                  <p className="text-sm text-gray-900">
+                    {[
+                      contact.addressKebele,
+                      contact.addressWoreda,
+                      contact.addressTown,
+                      contact.addressZone,
+                      contact.addressRegion,
+                    ]
+                      .filter(Boolean)
+                      .join(", ") || "Not provided"}
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <User className="h-4 w-4 mt-1 text-purple-500" />
-              <div>
-                <p className="text-xs text-gray-500">Relationship</p>
-                <p className="text-sm text-gray-900">
-                  {studentData.emergencyContact.relation}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Phone className="h-4 w-4 mt-1 text-purple-500" />
-              <div>
-                <p className="text-xs text-gray-500">Phone Number</p>
-                <p className="text-sm text-gray-900">
-                  {studentData.emergencyContact.phone}
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </CardContent>
       </Card>
     </div>
   );
 }
- */

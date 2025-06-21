@@ -89,6 +89,11 @@
 
  */
 
+export interface SectionData {
+  id: string;
+  name: string;
+}
+
 export interface StudentData {
   id: string;
   studentTempId: string;
@@ -128,6 +133,7 @@ export interface StudentData {
   program: ProgramData;
   admissionType: AdmissionTypeData;
   registrationSlips: RegistrationSlipData[];
+  section?: SectionData;
 }
 
 export interface UserData {
@@ -162,7 +168,18 @@ export interface AdmissionTypeData {
 }
 
 export interface EmergencyContactData {
-  // Add emergency contact fields as needed
+  id: number;
+  studentId: number;
+  fullName: string;
+  phoneHome: string | null;
+  phoneOffice: string | null;
+  phoneMobile: string | null;
+  addressKebele: string | null;
+  addressWoreda: string | null;
+  addressTown: string | null;
+  addressZone: string | null;
+  addressRegion: string | null;
+  createdAt: string;
 }
 
 export interface ParentData {
@@ -188,3 +205,6 @@ export interface DormAssignmentData {
 export interface RegistrationSlipData {
   // Add registration slip fields as needed
 }
+
+
+//export interface 

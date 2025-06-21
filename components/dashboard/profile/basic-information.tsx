@@ -70,7 +70,7 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
           <div className="space-y-8">
             {/* English Name */}
             <div>
-              <SectionHeader title="English Name" />
+              <SectionHeader title="Full Name" />
               <div className="grid grid-cols-3 gap-6">
                 <DataItem
                   label="First Name"
@@ -141,6 +141,109 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
                 />
               </div>
             </div>
+
+            {/* Graduation Information */}
+            {/*           <div>
+              <SectionHeader title="Expected Graduation" />
+              <div className="grid grid-cols-3 gap-6">
+                <DataItem
+                  label="Month"
+                  value={studentData.graduationDate.month}
+                  icon={<CalendarIcon className="text-indigo-600" />}
+                />
+                <DataItem label="Day" value={studentData.graduationDate.day} />
+                <DataItem
+                  label="Year"
+                  value={studentData.graduationDate.year}
+                />
+              </div>
+            </div> */}
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-blue-100 mt-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <PersonIcon className="h-6 w-6 text-indigo-600" />
+              </div>
+              Academic Information
+            </h2>
+          </div>
+
+          <div className="space-y-8">
+            {/* Academic Information */}
+            {/*             <div>
+              <SectionHeader title="Academic Information" />
+              <div className="grid grid-cols-3 gap-6">
+                <DataItem
+                  label="First Name"
+                  value={studentData?.user?.firstName}
+                  icon={<PersonIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Middle Name"
+                  value={studentData?.user?.middleName}
+                />
+                <DataItem
+                  label="Last Name"
+                  value={studentData?.user?.lastName}
+                />
+              </div>
+            </div> */}
+
+            {/* Academic Information */}
+            <div>
+              <SectionHeader title="Academic Information" />
+              <div className="grid grid-cols-2 gap-6">
+                <DataItem
+                  label=" Year"
+                  value={formatDate(studentData?.currentStudyingYear)}
+                  icon={<CalendarIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Level"
+                  value={studentData?.currentStudyingLevel}
+                  icon={<PersonIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Semester"
+                  value={studentData?.currentStudyingSemester}
+                  icon={<GlobeIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Section"
+                  value={studentData?.section?.name}
+                  icon={<HeartIcon className="text-indigo-600" />}
+                />
+              </div>
+            </div>
+
+            {/* Contact Information */}
+   {/*          <div>
+              <SectionHeader title="Contact Information" />
+              <div className="grid grid-cols-2 gap-6">
+                <DataItem
+                  label="Email"
+                  value={studentData?.user?.email}
+                  icon={<EnvelopeClosedIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Alternative Email"
+                  value={studentData?.user?.email}
+                  icon={<EnvelopeClosedIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Mobile Phone"
+                  value={studentData?.user?.phoneNumber}
+                  icon={<MobileIcon className="text-indigo-600" />}
+                />
+                <DataItem
+                  label="Home Phone"
+                  value={studentData?.phoneHome}
+                  icon={<HomeIcon className="text-indigo-600" />}
+                />
+              </div>
+            </div> */}
 
             {/* Graduation Information */}
             {/*           <div>

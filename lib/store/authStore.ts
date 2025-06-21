@@ -82,6 +82,8 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
           const { token, user, academicYear, academicSemester } = data;
 
+          console.log("user123", user);
+
           const isRegistered = (await checkStudentRegistration(user.userMainId))
             ? "Yes"
             : "No";
@@ -101,7 +103,8 @@ export const useAuthStore = create<AuthState>()(
             },
             body: JSON.stringify({ token }),
           });
-
+          console.log("isRegistered", isRegistered);
+          console.log("isAccepted", isAccepted);
           // Store in localStorage
           if (typeof window !== "undefined") {
             localStorage.setItem(
@@ -119,6 +122,26 @@ export const useAuthStore = create<AuthState>()(
             );
             localStorage.setItem("currentUserId", user?.id?.toString() || "");
             localStorage.setItem("userType", user?.userType || "");
+            localStorage.setItem(
+              "studentId",
+              user?.student?.id?.toString() || ""
+            );
+            localStorage.setItem(
+              "registrarId",
+              user?.registrar?.id?.toString() || ""
+            );
+            localStorage.setItem(
+              "teacherId",
+              user?.teacher?.id?.toString() || ""
+            );
+            localStorage.setItem(
+              "departmentId",
+              user?.departmentUsers?.id?.toString() || ""
+            );
+            localStorage.setItem(
+              "presidentId",
+              user?.President?.id?.toString() || ""
+            );
             localStorage.setItem("userMainId", user?.userMainId || "");
             localStorage.setItem("isRegistered", isRegistered);
             localStorage.setItem("isAccepted", isAccepted);

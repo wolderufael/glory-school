@@ -295,7 +295,10 @@ export function StudentForm() {
               </label>
               <input
                 type="text"
-                value={academicYearName || ""}
+                value={
+                  academicYearName || ""
+                  //academicYearName?.toString().replace(/[^0-9]/g, "") || ""
+                }
                 readOnly
                 className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="YYYY"

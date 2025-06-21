@@ -22,27 +22,6 @@ export function NoticeBoard() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [showForm, setShowForm] = useState(true);
 
-  /*  const notices = [
-    {
-      notice_id: 1,
-      college_id: 1,
-      college_name: "Engineering College",
-      message: "Notice about the upcoming engineering seminar.",
-      deadline: "2023-11-30T23:59:59Z",
-      published_at: "2023-11-01T10:00:00Z",
-      is_active: true,
-    },
-    {
-      notice_id: 2,
-      college_id: 2,
-      college_name: "Medical College",
-      message: "Medical college notice regarding health camp.",
-      deadline: "2023-12-05T23:59:59Z",
-      published_at: "2023-11-02T10:00:00Z",
-      is_active: true,
-    },
-  ]; */
-
   const colleges = [
     { id: 1, name: "Engineering College" },
     { id: 2, name: "Medical College" },
@@ -92,15 +71,19 @@ export function NoticeBoard() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading notices...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] text-lg">
+        Loading notices...
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Select value={selectedCollege} onValueChange={setSelectedCollege}>
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[280px]">
               <SelectValue placeholder="Select college" />
             </SelectTrigger>
             <SelectContent>
@@ -113,55 +96,55 @@ export function NoticeBoard() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex justify-end mb-4">
-          <Button
-            onClick={handleAddNotice}
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Add Notice
-          </Button>
-        </div>
+        <Button
+          onClick={handleAddNotice}
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 transition-colors px-6"
+        >
+          <Plus className="h-4 w-4" />
+          Add Notice
+        </Button>
       </div>
 
       {notices?.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <p className="text-gray-500">No notices available at the moment.</p>
+        <Card className="bg-white shadow-sm">
+          <CardContent className="flex items-center justify-center min-h-[200px]">
+            <p className="text-gray-500 text-lg">
+              No notices available at the moment.
+            </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-8">
           {notices?.map((notice) => (
-            <Card key={notice.college_id} className="relative">
+            <Card key={notice.id} className="relative">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-gray-500" />
                       <span className="text-sm font-medium text-gray-600">
-                        {notice.college_id}
+                        {notice.author.firstName} {notice.author.lastName}
                       </span>
                     </div>
                     <CardTitle className="text-lg leading-relaxed">
-                      Notice #{notice.college_id}
+                      {notice.title}
                     </CardTitle>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <Badge
-                      variant={notice.is_active ? "default" : "secondary"}
+                      variant={notice.isActive ? "default" : "secondary"}
                       className="text-xs"
                     >
-                      {notice.is_active ? "Active" : "Inactive"}
+                      {notice.isActive ? "Active" : "Inactive"}
                     </Badge>
-                    {isOverdue(notice.deadline) && notice.is_active && (
+                    {isOverdue(notice.deadline) && notice.isActive && (
                       <Badge variant="destructive" className="text-xs">
                         Overdue
                       </Badge>
                     )}
                     {isDeadlineSoon(notice.deadline) &&
                       !isOverdue(notice.deadline) &&
-                      notice.is_active && (
+                      notice.isActive && (
                         <Badge
                           variant="outline"
                           className="text-xs border-orange-500 text-orange-600"
@@ -200,7 +183,7 @@ export function NoticeBoard() {
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
                     <span className="font-medium">Published:</span>
-                    <span>{formatDateTime(notice.deadline)}</span>
+                    <span>{formatDateTime(notice.publishedAt)}</span>
                   </div>
                 </div>
               </CardContent>

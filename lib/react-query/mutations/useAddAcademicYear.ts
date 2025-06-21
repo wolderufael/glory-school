@@ -2,27 +2,40 @@
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { academicYearSchema } from "@/utils/academicYearSchema";
+import { setLocalStorage } from "@/utils/localStorage";
+import axios from "axios";
+import { z } from "zod";
 
-
+interface AcademicYear {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  semester1StartDate: string;
+  semester1EndDate: string;
+  semester2StartDate: string;
+  semester2EndDate: string;
+  semeester1RegistrationStartDate: string;
+  semeester1RegistrationEndDate: string;
+  semeester2RegistrationStartDate: string;
+  semeester2RegistrationEndDate: string;
+  createdAt: string;
+}
 
 export const useAddAcademicYear = () => {
   return useMutation({
-    mutationFn: async (data: AcademicYearSchema) => {
-      const res = await fetch(
+    mutationFn: async (data: z.infer<typeof academicYearSchema>) => {
+      const res = await axios.post<AcademicYear>(
         `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
+        data
       );
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to create academic year");
-      }
+      // Save the complete academic year data
+      console.log(res.data);
+      setLocalStorage("academicYearName", res.data.name);
+      setLocalStorage("academicYearId", res.data.id.toString());
 
-      return res.json();
+      return res.data;
     },
     onSuccess: () => {
       toast("Success", {

@@ -2,6 +2,7 @@
 
 import { useSlip } from "@/lib/react-query/hooks/useSlip";
 import { RegistrationSlipCard } from "./registration-slip-card";
+import { getLocalStorage } from "@/utils/localStorage";
 
 export interface Module {
   no: number;
@@ -119,7 +120,7 @@ interface CourseRegistrationProps {
 export default function CourseRegistration({
   studentId,
 }: CourseRegistrationProps) {
-  const { data: slips, isLoading, error } = useSlip(studentId);
+  const { data: slips, isLoading, error } = useSlip(getLocalStorage("studentId")?.toString() || "");
 
   if (isLoading) {
     return <div>Loading...</div>;

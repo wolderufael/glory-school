@@ -20,7 +20,7 @@ export const getStudentInfo = async () => {
     // Fetch student info
     const studentRes = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/students/${getLocalStorage(
-        "currentUserId"
+        "studentId"
       )}`
     );
     if (!studentRes.ok) throw new Error("Failed to fetch student info");
@@ -34,11 +34,11 @@ export const getStudentInfo = async () => {
       );
       if (sectionRes.ok) {
         const sectionData = await sectionRes.json();
-        sectionName = sectionData.sectionName;
+        sectionName = sectionData.id < 7 ? "Not assigned" : sectionData.sectionName;
       }
     }
-    let academicYear = "Not assigned";
-    if (studentData.sectionId) {
+    
+/*     if (studentData.sectionId) {
       const academicYearRes = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/current-year`
       );
@@ -49,7 +49,7 @@ export const getStudentInfo = async () => {
         academicYear = academicYearData.name;
         console.log("academicYear", academicYear);
       }
-    }
+    } */
     // Fetch user info if userId exists
     let userData = {};
     if (studentData.userId) {
@@ -69,7 +69,7 @@ export const getStudentInfo = async () => {
         id: studentData.sectionId,
         name: sectionName,
       },
-      academicYear: academicYear,
+      academicYear: getLocalStorage("academicYearName"),
       user: studentData.user,
     };
   } catch (error) {

@@ -14,13 +14,15 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useAddNotice } from "@/lib/react-query/mutations/useAddNotice";
+//import { useAddNotice } from "@/lib/react-query/mutations/useAddNotice";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getLocalStorage } from "@/utils/localStorage";
+import { useAddRegNotice } from "@/lib/react-query/mutations/useAddRegNotice";
 
 interface College {
   id: number;
@@ -43,8 +45,10 @@ interface AddNoticeProps {
 }
 
 interface NoticeFormData {
+  title: string;
   college_id: string;
-  department_id: string;
+  //department_id?: string;
+  //registrar_id?: string;
   message: string;
   deadline: string;
   is_active: boolean;
@@ -59,8 +63,10 @@ export function AddNoticeForm({
   isDialog = false,
 }: AddNoticeProps) {
   const [formData, setFormData] = useState<NoticeFormData>({
+    title: "",
     college_id: "",
-    department_id: "",
+    //department_id?: "",    
+    //registrar_id: "",
     message: "",
     deadline: "",
     is_active: true,
@@ -69,7 +75,7 @@ export function AddNoticeForm({
   const [isDeptLoading, setIsDeptLoading] = useState(false);
 
   // Fetch departments when college_id changes
-  useEffect(() => {
+ /*  useEffect(() => {
     if (!formData.college_id) {
       setDepartments([]);
       setFormData((prev) => ({ ...prev, department_id: "" }));
@@ -98,32 +104,41 @@ export function AddNoticeForm({
         setDepartments([]);
       })
       .finally(() => setIsDeptLoading(false));
-  }, [formData.college_id]);
+  }, [formData.college_id]); */
 
-  const { mutate, isPending } = useAddNotice();
-
+  //const { mutate, isPending } = useAddNotice();
+  const { mutate: mutateReg, isPending: isPendingReg } = useAddRegNotice();
   const filteredDepartments = departments; // Already filtered by college_id in API
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const authorId =
-      typeof window !== "undefined"
-        ? Number(localStorage.getItem("currentUserId")) || 1
-        : 1;
-    const payload = {
-      collegeId: Number(formData.college_id),
-      departmentId: Number(formData.department_id),
+    const authorId =  Number(getLocalStorage("registrarId"));
+   /*  const payload = {
+      title: formData.title,
+      //departmentId: Number(formData.department_id),
+      //collegeId: Number(formData.college_id),
+      message: formData.message,
+      deadline: new Date(formData.deadline).toISOString(),
+      is_active: formData.is_active,
+      authorId,
+    } */;
+    const payloadreg = {
+      title: formData.title,
+      //collegeId: Number(formData.college_id),
       message: formData.message,
       deadline: new Date(formData.deadline).toISOString(),
       is_active: formData.is_active,
       authorId,
     };
-    mutate(payload, {
+
+    if (getLocalStorage("userType") === "Registrar") {
+    mutateReg(payloadreg, {
       onSuccess: () => {
         toast.success("Notice added successfully!");
         setFormData({
+          title: "",
           college_id: "",
-          department_id: "",
+          //registrar_id: getLocalStorage("registrarId") || "",
           message: "",
           deadline: "",
           is_active: true,
@@ -136,7 +151,8 @@ export function AddNoticeForm({
       onError: () => {
         toast.error("Failed to add notice. Please try again.");
       },
-    });
+    })
+    } 
   };
 
   const formContent = (
@@ -170,7 +186,7 @@ export function AddNoticeForm({
         </Select>
       </div>
 
-      <div className="space-y-3">
+   {/*  { getLocalStorage("userType") === "registrar" && <div className="space-y-3">
         <Label htmlFor="department">
           Department <span className="text-red-500">*</span>
         </Label>
@@ -198,8 +214,24 @@ export function AddNoticeForm({
             )}
           </SelectContent>
         </Select>
-      </div>
+      </div>} */}
 
+      <div className="space-y-3">
+        <Label htmlFor="message">
+          Notice Title <span className="text-red-500">*</span>
+        </Label>
+        <Textarea
+          id="message"
+          placeholder="Enter the notice title..."
+          value={formData.title}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, title: e.target.value }))
+          }
+          required
+          rows={1}
+          className="min-h-[40px]"
+        />
+      </div>
       <div className="space-y-3">
         <Label htmlFor="message">
           Notice Message <span className="text-red-500">*</span>
@@ -216,6 +248,7 @@ export function AddNoticeForm({
           className="min-h-[120px]"
         />
       </div>
+      
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
@@ -265,10 +298,10 @@ export function AddNoticeForm({
         </Button>
         <Button
           type="submit"
-          disabled={isPending}
+          disabled={isPendingReg}
           className="min-w-[100px] bg-blue-600 hover:bg-blue-700"
         >
-          {isPending ? "Adding..." : "Add Notice"}
+          {isPendingReg ? "Adding..." : "Add Notice"}
         </Button>
       </div>
     </form>

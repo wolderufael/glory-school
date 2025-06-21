@@ -1,10 +1,8 @@
-
-
-import React from 'react';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Bell, MessageSquare, Printer, User } from 'lucide-react';
+import React from "react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Bell, MessageSquare, Printer, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,22 +10,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 interface TopNavProps {
   title?: string;
   studentId?: string;
 }
 
-export function TopNav({ title = "Full Information", studentId = "NSR/2551/12" }: TopNavProps) {
+const props: TopNavProps = {
+  title: "Full Information",
+  studentId: "NSR/2551/12",
+};
+
+export function TopNav({
+  title = props.title,
+  studentId = props.studentId,
+}: TopNavProps) {
   return (
     <header className="h-16  bg-white border-b border-slate-200 flex  justify-between px-4">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-medium text-slate-800">{title}</h1>
-          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
-              4
+          <Badge
+            variant="secondary"
+            className="bg-green-100 text-green-700 border-green-200"
+          >
+            4
           </Badge>
         </div>
       </div>
@@ -50,42 +59,39 @@ export function TopNav({ title = "Full Information", studentId = "NSR/2551/12" }
 
         <div className="flex items-center gap-2 ml-4">
           <div className="text-right ">
-            <div className="text-sm font-medium text-slate-800">{studentId}</div>
+            <div className="text-sm font-medium text-slate-800">
+              {studentId}
+            </div>
           </div>
           <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                     <Button variant="ghost" size="sm" className="p-2">
-                        <User className="w-4 h-4" />
-                    </Button>
-                </DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2">
+                <User className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
 
-            <DropdownMenuContent  className='w-45   md:w-70'>
-                <DropdownMenuLabel className="text-slate-800">John Doe</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem >
-
-                    <User className="w-4 h-4 mr-2" />
-                    Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Bell className="w-4 h-4 mr-2" />
-                    Notifications
-                    <Badge className="ml-auto bg-red-100 text-red-700">3</Badge>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print Transcript
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    Logout
-                </DropdownMenuItem>
-
+            <DropdownMenuContent className="w-45   md:w-70">
+              <DropdownMenuLabel className="text-slate-800">
+                John Doe
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Bell className="w-4 h-4 mr-2" />
+                Notifications
+                <Badge className="ml-auto bg-red-100 text-red-700">3</Badge>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Printer className="w-4 h-4 mr-2" />
+                Print Transcript
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>
-
-
           </DropdownMenu>
-           
         </div>
       </div>
     </header>

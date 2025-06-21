@@ -19,7 +19,7 @@ export function CurrentCoursesCard() {
     },
   });
 
-  if (isLoading) {
+  /* if (isLoading) {
     return (
       <Card className="bg-white border-slate-200">
         <CardHeader>
@@ -51,7 +51,7 @@ export function CurrentCoursesCard() {
         </CardContent>
       </Card>
     );
-  }
+  } */
 
   return (
     <Card className="bg-white border-slate-200">

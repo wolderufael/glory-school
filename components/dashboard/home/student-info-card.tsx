@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface StudentInfo {
   department: string;
@@ -76,7 +77,7 @@ export function StudentInfoCard({
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Academic Year:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {data.academicYear}
+                {getLocalStorage("academicYearName")}
               </span>
             </div>
             <div className="flex justify-between">

@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/card";
 import { User, MapPin, GraduationCap, Loader2 } from "lucide-react";
 import { BasicInformation } from "./basic-information";
-//import { AddressContact } from "./address-contact";
-//import { EducationalBackground } from "./educational-background";
+import { AddressContact } from "./address-contact";
+import { EducationalBackground } from "./educational-background";
 //import { mockStudentData } from "./mock-data";
 import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
 import { transformStudentInfo } from "@/lib/transforms/student-data";
@@ -78,20 +78,20 @@ export function Profile() {
                   <User className="w-4 h-4" />
                   Basic Information
                 </Tabs.Trigger>
-            {/*     <Tabs.Trigger
+                <Tabs.Trigger
                   value="address"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <MapPin className="w-4 h-4" />
                   Address & Contact
-                </Tabs.Trigger> */}
-          {/*       <Tabs.Trigger
+                </Tabs.Trigger>
+                <Tabs.Trigger
                   value="education"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <GraduationCap className="w-4 h-4" />
                   Educational Background
-                </Tabs.Trigger> */}
+                </Tabs.Trigger>
               </Tabs.List>
 
               <div className="space-y-6">
@@ -99,13 +99,13 @@ export function Profile() {
                   <BasicInformation studentData={studentInfo} />
                 </Tabs.Content>
 
-             {/*    <Tabs.Content value="address" className="focus:outline-none">
+                <Tabs.Content value="address" className="focus:outline-none">
                   <AddressContact studentData={studentInfo} />
-                </Tabs.Content> */}
+                </Tabs.Content>
 
-{/*                 <Tabs.Content value="education" className="focus:outline-none">
+                <Tabs.Content value="education" className="focus:outline-none">
                   <EducationalBackground studentData={studentInfo} />
-                </Tabs.Content> */}
+                </Tabs.Content>
               </div>
             </Tabs.Root>
           </CardContent>

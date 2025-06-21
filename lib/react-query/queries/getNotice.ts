@@ -1,16 +1,27 @@
 import axios from "axios";
 
+interface Author {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export interface Notice {
-  college_id: number;
-  department_id: number;
+  id: number;
+  title: string;
   message: string;
   deadline: string;
-  is_active: boolean;
+  publishedAt: string;
+  isActive: boolean;
+  authorId: number;
+  author: Author;
 }
 
 export const getNotice = async (): Promise<Notice[]> => {
   const { data } = await axios.get<Notice[]>(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/noticeboard`
+    `${process.env.NEXT_PUBLIC_BASE_URL}/registrar-noticeboard`
   );
+  data.reverse();
   return data;
 };
