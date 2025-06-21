@@ -8,6 +8,7 @@ interface AssignTeacherData {
   departmentId: number;
   sectionId: number;
   level: string;
+  academicYearId: number;
   academicSemesterId: number;
 }
 

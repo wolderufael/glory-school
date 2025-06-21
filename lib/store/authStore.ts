@@ -135,12 +135,16 @@ export const useAuthStore = create<AuthState>()(
               user?.teacher?.id?.toString() || ""
             );
             localStorage.setItem(
+              "departmentUserId",
+              user?.departmentUser?.id?.toString() || ""
+            );
+            localStorage.setItem(
               "departmentId",
-              user?.departmentUsers?.id?.toString() || ""
+              user?.departmentUser?.departmentId?.toString() || ""
             );
             localStorage.setItem(
               "presidentId",
-              user?.President?.id?.toString() || ""
+              user?.president?.id?.toString() || ""
             );
             localStorage.setItem("userMainId", user?.userMainId || "");
             localStorage.setItem("isRegistered", isRegistered);

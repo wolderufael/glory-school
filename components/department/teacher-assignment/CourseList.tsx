@@ -12,6 +12,7 @@ interface CourseListProps {
   levelId: string;
   sectionId: string;
   academicSemesterId: string;
+  academicYearId: string;
   selectedCourseId?: string;
   onCourseSelect?: (courseId: string) => void;
 }
@@ -21,6 +22,7 @@ export default function CourseList({
   levelId,
   sectionId,
   academicSemesterId,
+  academicYearId,
   selectedCourseId,
   onCourseSelect,
 }: CourseListProps) {
@@ -163,6 +165,7 @@ export default function CourseList({
           sectionId={sectionId}
           levelId={levelId}
           academicSemesterId={academicSemesterId}
+          academicYearId={academicYearId}
         />
       )}
     </>

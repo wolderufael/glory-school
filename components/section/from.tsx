@@ -17,7 +17,7 @@ import {
   CreateSectionSchema,
 } from "@/utils/createSection";
 import { useDepartment } from "@/lib/react-query/hooks/useDepartment";
-import { useGetSection } from "@/lib/react-query/hooks/useAcademicYear";
+//import { useGetSection } from "@/lib/react-query/hooks/useAcademicYear";
 import { useCreateSection } from "@/lib/react-query/mutations/Section";
 import { getLocalStorage } from "@/utils/localStorage";
 
@@ -30,7 +30,8 @@ type sectionSchema = {
   studentCount: number;
 };
 
-const departmentId = 1;
+const departmentId = getLocalStorage("departmentId");
+console.log("departmentId", departmentId);
 
 export function CreateSection() {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -41,14 +42,14 @@ export function CreateSection() {
   const [academicYear, setAcademicYear] = useState<AcademicYear | null>(null);
 
   const { data: studentCount, isLoading: isStudentCountLoading } =
-    useDepartment(departmentId);
+    useDepartment(Number(departmentId));
 
   const { mutate: createSectionMutation, isPending: isCreatingSection } =
     useCreateSection();
 
   const [formData, setFormData] = useState<CreateSectionFormData>({
-    academicYearId: academicYear?.id || "",
-    departmentId: departmentId,
+    academicYearId: Number(academicYear?.id),
+    departmentId: Number(departmentId),
     numberOfSection: numberOfSection,
   });
 
@@ -60,7 +61,7 @@ export function CreateSection() {
 
   useEffect(() => {
     if (academicYear?.id) {
-      setFormData((prev) => ({ ...prev, academicYearId: academicYear.id }));
+      setFormData((prev) => ({ ...prev, academicYearId: Number(academicYear.id) }));
     }
   }, [academicYear]);
 
@@ -117,10 +118,15 @@ export function CreateSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("formData", formData);
+    const payload = {
+      academicYearId: Number(academicYear?.id),
+      numberOfSections: numberOfSection ,
+      departmentId: Number(departmentId)  ,
+    };
 
     if (!handleValidate()) return;
 
-    createSectionMutation(formData, {
+    createSectionMutation(payload, {
       onSuccess: () => {
         setNumberOfSection(1);
         setSections([]);
@@ -130,7 +136,7 @@ export function CreateSection() {
 
   useMemo(() => {
     if (academicYear?.id) {
-      setFormData({ academicYearId: academicYear.id });
+      setFormData({ academicYearId: Number(academicYear.id) });
     }
   }, [academicYear, setFormData]);
 

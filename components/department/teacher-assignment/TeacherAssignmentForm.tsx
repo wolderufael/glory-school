@@ -13,6 +13,8 @@ import {
 import { GraduationCap, Users, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CourseList from "./CourseList";
+import { useSection } from "@/lib/react-query/hooks/useSection";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface TeacherAssignmentFormData {
   departmentId: string;
@@ -20,6 +22,7 @@ interface TeacherAssignmentFormData {
   sectionId: string;
   level: string;
   academicSemesterId: string;
+  academicYearId: string;
 }
 
 interface TeacherAssignmentFormProps {
@@ -42,12 +45,14 @@ const SECTIONS = [
 const TeacherAssignmentForm = ({
   departmentId,
 }: TeacherAssignmentFormProps) => {
+  const { data: sections, isLoading: isSectionsLoading } = useSection(departmentId);
   const [formData, setFormData] = useState<TeacherAssignmentFormData>({
     courseId: "",
     departmentId,
     sectionId: "1", // Default to first section
     level: "I", // Default to first level
-    academicSemesterId: "1",
+    academicSemesterId: getLocalStorage("academicSemesterId") || "",
+    academicYearId: getLocalStorage("academicYearId") || "",
   });
 
   const handleLevelChange = (value: string) => {
@@ -64,7 +69,8 @@ const TeacherAssignmentForm = ({
       courseId: "",
       sectionId: "1",
       level: "I",
-      academicSemesterId: "1",
+      academicSemesterId: getLocalStorage("academicSemesterId") || "",
+      academicYearId: getLocalStorage("academicYearId") || "",
     });
   };
 
@@ -154,19 +160,19 @@ const TeacherAssignmentForm = ({
                       </div>
                       
                       <div className="grid grid-cols-3 gap-3">
-                        {SECTIONS.map(({ value, label }) => (
+                        {sections?.map(({ id, sectionName }) => (
                           <Button
-                            key={value}
-                            variant={formData.sectionId === value ? "default" : "outline"}
+                            key={id}
+                            variant={formData.sectionId === id ? "default" : "outline"}
                             className={cn(
                               "h-12 transition-all duration-300",
-                              formData.sectionId === value 
+                              formData.sectionId === id 
                                 ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg"
                                 : "bg-white hover:bg-purple-50 border-purple-100"
                             )}
-                            onClick={() => handleSectionChange(value)}
+                            onClick={() => handleSectionChange(id)}
                           >
-                            {label}
+                            {sectionName}
                           </Button>
                         ))}
                       </div>
@@ -195,6 +201,7 @@ const TeacherAssignmentForm = ({
                       sectionId={formData.sectionId}
                       academicSemesterId={formData.academicSemesterId}
                       selectedCourseId={formData.courseId}
+                      academicYearId={formData.academicYearId}
                       onCourseSelect={(courseId) =>
                         setFormData({ ...formData, courseId })
                       }

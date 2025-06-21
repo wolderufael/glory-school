@@ -23,6 +23,7 @@ interface AssignmentConfirmDialogProps {
   sectionId: string;
   levelId: string;
   academicSemesterId: string;
+  academicYearId: string;
 }
 
 interface SelectedTeacher {
@@ -39,6 +40,7 @@ export function AssignmentConfirmDialog({
   sectionId,
   levelId,
   academicSemesterId,
+  academicYearId,
 }: AssignmentConfirmDialogProps) {
   const [selectedTeacher, setSelectedTeacher] =
     useState<SelectedTeacher | null>(null);
@@ -75,6 +77,7 @@ export function AssignmentConfirmDialog({
       sectionId: parseInt(sectionId),
       level: levelId,
       academicSemesterId: parseInt(academicSemesterId),
+      academicYearId: parseInt(academicYearId),
     });
   };
 

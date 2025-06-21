@@ -135,11 +135,11 @@ export const registrarNavigationItems = [
     items: [
       { title: "Student Profiles", icon: User, url: "#" },
       { title: "Enrollment", icon: UserPlus, url: "/registrar/enrollment" },
-      {
+      /* {
         title: "Section Assignment",
         icon: Users,
         url: "/registrar/section-assignment",
-      },
+      }, */
       { title: "Attendance", icon: CheckCircle, url: "#" },
       { title: "Discipline", icon: AlertTriangle, url: "#" },
     ],
