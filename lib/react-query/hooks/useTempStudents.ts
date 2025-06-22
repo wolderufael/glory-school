@@ -28,9 +28,13 @@ export const useTempStudents = (academicYearID: string) => {
   return useQuery({
     queryKey: ["tempStudents"],
     queryFn: async () => {
-      const currentYear = getLocalStorage("academicYearId") || "1";
+      const currentYear = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/current-year`
+      );
+      const currentYearData = await currentYear.json();
+      const currentYearId = currentYearData.id;
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${currentYear}`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents?academicYearId=${currentYearId}`
       );
 
       if (!response.ok) {
