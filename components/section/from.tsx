@@ -118,6 +118,9 @@ export function CreateSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("formData", formData);
+    console.log("numberOfSection", numberOfSection);
+    console.log("academicYear", academicYear);
+    console.log("departmentId", departmentId);
     const payload = {
       academicYearId: Number(academicYear?.id),
       numberOfSections: numberOfSection ,

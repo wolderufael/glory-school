@@ -4,11 +4,16 @@ import { StudentInfoCard } from "@/components/dashboard/home/student-info-card";
 import { CurrentCoursesCard } from "@/components/dashboard/home/current-courses-card";
 import { QuickActionsCard } from "@/components/dashboard/home/quick-actions-card";
 import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   //const studentID = "1";
-  const { data: studentInfo, isLoading } = useStudentInfo();
+  const { data: studentInfo, isLoading, refetch } = useStudentInfo();
   console.log("studentInfoonDashboard", studentInfo);
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const studentInfoData = {
     department: studentInfo?.department?.name || "Not assigned",
