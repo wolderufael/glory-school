@@ -13,14 +13,15 @@ import {
 import { Calendar, Clock, Building2, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useNotice } from "@/lib/react-query/hooks/useNotice";
 
 export function NoticeBoard() {
-  const { data: notices, isLoading, error } = useNotice({});
+  const { data: notices, isLoading, error, refetch } = useNotice({});
   const [selectedCollege, setSelectedCollege] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [showForm, setShowForm] = useState(true);
+  const pathname = usePathname();
 
   const colleges = [
     { id: 1, name: "Engineering College" },
@@ -28,9 +29,12 @@ export function NoticeBoard() {
     { id: 3, name: "Arts College" },
   ];
 
-  /*   useEffect(() => {
-    console.log(notices);
-  }, [notices]); */
+  useEffect(() => {
+    // Refetch notices when the component mounts or when navigating back to this page
+    if (pathname === "/registrar/board") {
+      refetch();
+    }
+  }, [pathname, refetch]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {

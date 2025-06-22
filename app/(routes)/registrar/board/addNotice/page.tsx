@@ -41,7 +41,7 @@ const RegistrarAddNoticePage = () => {
         colleges={collegeList}
         departments={[]} 
         onNoticeAdded={() => {
-          toast.success('Notice added successfully!');
+          /* toast.success('Notice added successfully!'); */
           router.push('/registrar/board');
         }}
         onCancel={() => router.push('/registrar/board')}

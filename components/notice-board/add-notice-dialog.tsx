@@ -134,7 +134,7 @@ export function AddNoticeForm({
     if (getLocalStorage("userType") === "Registrar") {
     mutateReg(payloadreg, {
       onSuccess: () => {
-        toast.success("Notice added successfully!");
+       /*  toast.success("Notice added successfully!"); */
         setFormData({
           title: "",
           college_id: "",
