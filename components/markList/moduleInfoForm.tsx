@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
@@ -11,12 +11,20 @@ interface ModuleInfoFormProps {
   handleGet: (id: number) => void;
 }
 
-const teacherId = 1; // This should be dynamically set based on the logged-in teacher
+
 
 
 export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ handleGet }:{handleGet: (id: number) => void}) => {
   // Fetching the teaching assignment data for the teacher
-    const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId);
+  const [teacherId, setTeacherId] = useState<number | null>(null)
+   
+ useEffect(()=>{
+    const id = localStorage.getItem('teacherId')
+    setTeacherId(Number(id))
+ },[])
+
+  const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId ?? 1);
+
 
   return (
     <Card className="mb-6">
