@@ -123,6 +123,10 @@ export const useAuthStore = create<AuthState>()(
             localStorage.setItem("currentUserId", user?.id?.toString() || "");
             localStorage.setItem("userType", user?.userType || "");
             localStorage.setItem(
+              "userId",
+              user?.id?.toString() || ""
+            );
+            localStorage.setItem(
               "studentId",
               user?.student?.id?.toString() || ""
             );

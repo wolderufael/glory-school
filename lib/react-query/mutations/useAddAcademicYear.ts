@@ -6,6 +6,17 @@ import { setLocalStorage } from "@/utils/localStorage";
 import axios from "axios";
 import { z } from "zod";
 
+interface Semester {
+  id: number;
+  name: string;
+  academicYearId: number;
+  startDate: string;
+  endDate: string;
+  registrationStartDate: string;
+  registrationEndDate: string;
+  createdAt: string;
+}
+
 interface AcademicYear {
   id: number;
   name: string;
@@ -22,18 +33,23 @@ interface AcademicYear {
   createdAt: string;
 }
 
+interface AcademicYearResponse {
+  year: AcademicYear;
+  semesters: Semester[];
+}
+
 export const useAddAcademicYear = () => {
   return useMutation({
     mutationFn: async (data: z.infer<typeof academicYearSchema>) => {
-      const res = await axios.post<AcademicYear>(
+      const res = await axios.post<AcademicYearResponse>(
         `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears`,
         data
       );
 
       // Save the complete academic year data
       console.log(res.data);
-      setLocalStorage("academicYearName", res.data.name);
-      setLocalStorage("academicYearId", res.data.id.toString());
+      setLocalStorage("academicYearName", res.data.year.name);
+      setLocalStorage("academicYearId", res.data.year.id.toString());
 
       return res.data;
     },

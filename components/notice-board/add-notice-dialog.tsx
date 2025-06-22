@@ -112,7 +112,7 @@ export function AddNoticeForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const authorId =  Number(getLocalStorage("registrarId"));
+    const authorId =  Number(getLocalStorage("userId"));
    /*  const payload = {
       title: formData.title,
       //departmentId: Number(formData.department_id),
