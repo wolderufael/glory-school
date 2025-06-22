@@ -3,7 +3,7 @@ import z from "zod";
 export const CreateSectionSchema = z.object({
         academicYearId: z.number()
           .min(1, 'Academic year is required')
-          .max(30, 'Academic year must be 10 characters or less'),
+          .max(1000, 'Academic year must be 10 characters or less'),
         departmentId: z.number()
           .min(1, 'Department ID is required')
           .optional(),
