@@ -54,7 +54,7 @@ export default function SchoolPortal() {
   const navigationItems = [
     { name: "Home", href: "/", active: true },
     { name: "Announcement", href: "/noticeboard" },
-    { name: "Admission", href: "/admission" },
+    { name: "Admission", href: "/admission"},
     { name: "Programs", href: "/programs" },
     { name: "Calendar", href: "/calendar" },
   ]
@@ -118,7 +118,7 @@ export default function SchoolPortal() {
                     }`}
                   >
                     <span>{item.name}</span>
-                    {<ChevronDown className="h-4 w-4" />}
+                    {/* {item.hasDropdown && <ChevronDown className="h-4 w-4" />} */}
                   </Link>
                 </motion.div>
               ))}
