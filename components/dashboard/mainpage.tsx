@@ -118,7 +118,7 @@ export default function SchoolPortal() {
                     }`}
                   >
                     <span>{item.name}</span>
-                    {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
+                    {<ChevronDown className="h-4 w-4" />}
                   </Link>
                 </motion.div>
               ))}

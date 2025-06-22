@@ -13,6 +13,7 @@ import { getLocalStorage } from "@/utils/localStorage";
 import { useAuthStore } from "@/lib/store/authStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const steps = [
   { id: 1, label: "Personal info", description: "Basic information" },
@@ -171,8 +172,11 @@ export default function MultiStepForm() {
       }
 
       console.log("Form submitted successfully");
+      toast.success("Registration successful");
       setStep(1);
-      router.push("/auth/login");
+      logout();
+      //router.push("/");
+      //router.push("/auth/login");
     } catch (error) {
       console.error("Error submitting form:", error);
     }
