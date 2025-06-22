@@ -23,11 +23,6 @@ export function NoticeBoard() {
   const [showForm, setShowForm] = useState(true);
   const pathname = usePathname();
 
-/*   const colleges = [
-    { id: 1, name: "Engineering College" },
-    { id: 2, name: "Medical College" },
-    { id: 3, name: "Arts College" },
-  ]; */
 
   useEffect(() => {
     // Refetch notices when the component mounts or when navigating back to this page
@@ -86,19 +81,6 @@ export function NoticeBoard() {
     <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          {/* <Select value={selectedCollege} onValueChange={setSelectedCollege}>
-            <SelectTrigger className="w-[280px]">
-              <SelectValue placeholder="Select college" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Colleges</SelectItem>
-              {colleges.map((college) => (
-                <SelectItem key={college.id} value={college.id.toString()}>
-                  {college.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select> */}
           <h1 className="text-2xl font-bold">College Notice Board</h1>
         </div>
         <Button
