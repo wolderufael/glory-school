@@ -54,7 +54,7 @@ export default function SchoolPortal() {
   const navigationItems = [
     { name: "Home", href: "/", active: true },
     { name: "Announcement", href: "/noticeboard" },
-    { name: "Admission", href: "/admission", hasDropdown: true },
+    { name: "Admission", href: "/admission" },
     { name: "Programs", href: "/programs" },
     { name: "Calendar", href: "/calendar" },
   ]
