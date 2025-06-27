@@ -4,11 +4,11 @@ import { z } from "zod";
 import { de, fa, pl } from "zod/v4/locales";
 
 export const StudentSchema = z.object({
-    id: z.string(),
-    firstName: z.string(),
-    middleName: z.string(),
-    lastName: z.string(),
-    departmentId: z.number(),
+  id: z.string(),
+  firstName: z.string(),
+  middleName: z.string(),
+  lastName: z.string(),
+  departmentId: z.number(),
 });
 
 export type Student = z.infer<typeof StudentSchema>;
@@ -43,6 +43,7 @@ export const FullInfo = z.object({
   MaritalStatus: z
     .enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"])
     .optional(),
+  profilePicture: z.instanceof(File).optional(),
 });
 
 export type StudentFullInfo = z.infer<typeof FullInfo>;
@@ -94,18 +95,18 @@ export type EmergencyContactType = z.infer<typeof emergencyContact>;
 
 export const TranscriptSchema = z.object({
   transcript_id: z.number().int().positive().optional(),
-  grade_9_file_path: z.string().min(1, "Grade 9 file path is required"),
-  grade_10_file_path: z.string().min(1, "Grade 10 file path is required"),
-  grade_11_file_path: z.string().min(1, "Grade 11 file path is required"),
-  grade_12_file_path: z.string().min(1, "Grade 12 file path is required"),
-  exam_file_path: z.string().min(1, "Exam file path is required"),
+  grade_9_file_path: z.instanceof(File).optional(),
+  grade_10_file_path: z.instanceof(File).optional(),
+  grade_11_file_path: z.instanceof(File).optional(),
+  grade_12_file_path: z.instanceof(File).optional(),
+  exam_file_path: z.instanceof(File).optional(),
   english_grade: z.number().int().min(0).max(100),
   maths_grade: z.number().int().min(0).max(100),
 });
 
 export const PastSecondarySchoolSchema = z.object({
   past_secondary_id: z.number().int().positive().optional(),
-  file_paths: z.string().optional(),
+  file_paths: z.instanceof(File).optional(),
 });
 
 export type Transcript = z.infer<typeof TranscriptSchema>;

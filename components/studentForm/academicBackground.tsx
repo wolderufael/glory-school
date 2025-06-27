@@ -5,14 +5,24 @@ import {
   TranscriptSchema,
   PastSecondarySchoolSchema,
 } from "@/utils/typeSchema";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Upload, FileText, X } from "lucide-react";
+import { toast } from "sonner";
 
+interface FileUploadState {
+  grade9File: File | null;
+  grade10File: File | null;
+  grade11File: File | null;
+  grade12File: File | null;
+  examFile: File | null;
+  pastSecondaryFile: File | null;
+  profilePicture: File | null;
+}
 interface PostSecondaryEntry {
   id: string;
   files: File[];
@@ -30,51 +40,151 @@ export default function AcademicBackgroundForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [postSecondaryEntries, setPostSecondaryEntries] = useState<
     PostSecondaryEntry[]
-  >([{ id: "1", files: [], filePaths: [] }]);
-
+  >([]);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<FileUploadState>({
+    grade9File: null,
+    grade10File: null,
+    grade11File: null,
+    grade12File: null,
+    examFile: null,
+    pastSecondaryFile: null,
+    profilePicture: null,
+  });
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    //console.log("Current academicInfo:", academicInfo); // Debug log
+    console.log("Current postSecondaryEntries:", postSecondaryEntries); // Debug log
+
     try {
-      // Initialize transcript if not exists
-      const transcript = academicInfo.transcript || {
-        student_id: "",
-        grade_9_file_path: "",
-        grade_10_file_path: "",
-        grade_11_file_path: "",
-        grade_12_file_path: "",
-        exam_file_path: "",
-        english_grade: 0,
-        maths_grade: 0,
-      };
+      // Check if all required files are present
+      const requiredFiles = [
+        { field: "grade_9_file_path", label: "Grade 9 Transcript" },
+        { field: "grade_10_file_path", label: "Grade 10 Transcript" },
+        { field: "grade_11_file_path", label: "Grade 11 Transcript" },
+        { field: "grade_12_file_path", label: "Grade 12 Transcript" },
+        { field: "exam_file_path", label: "Entrance Exam" },
+      ];
 
-      // Validate transcripts
-      const validatedTranscripts = TranscriptSchema.parse(transcript);
+      const newErrors: Record<string, string> = {};
 
-      // Validate past schools
-      const pastSchools = postSecondaryEntries.map((entry) => ({
-        student_id: "",
-        file_paths: entry.filePaths.join(","),
-      }));
-      const validatedPastSchools =
-        PastSecondarySchoolSchema.array().parse(pastSchools);
+      // Validate files
+      /*   for (const { field, label } of requiredFiles) {
+        if (!(academicInfo.transcript?.[field] instanceof File)) {
+          newErrors[field] = `${label} is required`;
+        }
+      } */
 
-      setAcademicInfo({
-        transcript: validatedTranscripts,
-        pastSchools: validatedPastSchools,
-      });
+      // Validate grades
+      if (!academicInfo.transcript?.english_grade) {
+        newErrors.english_grade = "English grade is required";
+      }
+      if (!academicInfo.transcript?.maths_grade) {
+        newErrors.maths_grade = "Mathematics grade is required";
+      }
+
+      // If there are any errors, display them and stop submission
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        console.log("Validation errors:", newErrors); // Debug log
+        toast.error("Please fill in all required fields");
+        return;
+      }
+
+      // If validation passes, proceed to next step
+      //console.log("Form validation passed, proceeding to next step"); // Debug log
       nextStep();
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          const path = err.path.join(".");
-          newErrors[path] = err.message;
-        });
-        setErrors(newErrors);
-      }
+      console.error("Error in form submission:", error);
+      toast.error("An error occurred while submitting the form");
     }
   };
 
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fileKey: keyof FileUploadState
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Validate PDF for files
+      if (file.type !== "application/pdf") {
+        toast.error("Please upload PDF files only");
+        return;
+      }
+
+      // Update local state
+      setFiles((prev) => ({
+        ...prev,
+        [fileKey]: file,
+      }));
+
+      // Map file keys to transcript fields
+      const fileKeyToTranscriptField: Record<string, string> = {
+        grade9File: "grade_9_file_path",
+        grade10File: "grade_10_file_path",
+        grade11File: "grade_11_file_path",
+        grade12File: "grade_12_file_path",
+        examFile: "exam_file_path",
+      };
+
+      // Update academicInfo based on file type
+      if (fileKey === "pastSecondaryFile") {
+        // Get the current entry ID from the file input's data attribute
+        const entryId = e.target.getAttribute("data-entry-id");
+        if (!entryId) return;
+
+        // Update only the specific entry's file in pastSchools
+        const updatedPastSchools = postSecondaryEntries.map((entry) => ({
+          past_secondary_id: parseInt(entry.id),
+          file_paths:
+            entry.id === entryId
+              ? file
+              : academicInfo.pastSchools.find(
+                  (school) => school.past_secondary_id === parseInt(entry.id)
+                )?.file_paths,
+        }));
+
+        setAcademicInfo({
+          ...academicInfo,
+          pastSchools: updatedPastSchools,
+        });
+
+        // Also update the postSecondaryEntries state to reflect the change
+        setPostSecondaryEntries((entries) =>
+          entries.map((entry) =>
+            entry.id === entryId
+              ? {
+                  ...entry,
+                  files: [file],
+                  filePaths: [file.name],
+                }
+              : entry
+          )
+        );
+      } else if (fileKeyToTranscriptField[fileKey]) {
+        // Handle transcript files
+        setAcademicInfo({
+          ...academicInfo,
+          transcript: {
+            ...academicInfo.transcript,
+            [fileKeyToTranscriptField[fileKey]]: file,
+          },
+        });
+      }
+
+      // Clear any errors for this field
+      const errorKey = fileKeyToTranscriptField[fileKey] || fileKey;
+      if (errors[errorKey]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[errorKey];
+          return newErrors;
+        });
+      }
+    }
+  };
   const handleFileUpload = async (field: string, files: FileList) => {
     const paths = await uploadFiles(files);
     setAcademicInfo({
@@ -180,35 +290,33 @@ export default function AcademicBackgroundForm({
               <CardContent className="space-y-6">
                 {/* Grade File Uploads */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[9, 10, 11, 12].map((grade) => (
-                    <div key={grade} className="space-y-3">
-                      <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                        <Upload className="h-4 w-4 text-gray-500" />
-                        Grade {grade} Transcript{" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          onChange={(e) =>
-                            e.target.files &&
-                            handleFileUpload(
-                              `grade_${grade}_file_path`,
-                              e.target.files
-                            )
-                          }
-                          className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                        />
+                  {[9, 10, 11, 12].map((grade) => {
+                    const fileKey =
+                      `grade${grade}File` as keyof FileUploadState;
+                    return (
+                      <div key={grade} className="space-y-3">
+                        <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                          <Upload className="h-4 w-4 text-gray-500" />
+                          Grade {grade} Transcript{" "}
+                          <span className="text-red-500">*</span>
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) => handleFileChange(e, fileKey)}
+                            className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          />
+                        </div>
+                        {errors[`grade_${grade}_file_path`] && (
+                          <p className="text-red-500 text-sm flex items-center gap-1">
+                            <X className="h-3 w-3" />
+                            {errors[`grade_${grade}_file_path`]}
+                          </p>
+                        )}
                       </div>
-                      {errors[`grade_${grade}_file_path`] && (
-                        <p className="text-red-500 text-sm flex items-center gap-1">
-                          <X className="h-3 w-3" />
-                          {errors[`grade_${grade}_file_path`]}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Exam File Upload */}
@@ -221,10 +329,7 @@ export default function AcademicBackgroundForm({
                   <Input
                     type="file"
                     accept=".pdf,.doc,.docx"
-                    onChange={(e) =>
-                      e.target.files &&
-                      handleFileUpload("exam_file_path", e.target.files)
-                    }
+                    onChange={(e) => handleFileChange(e, "examFile")}
                     className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
                   {errors.exam_file_path && (
@@ -338,12 +443,9 @@ export default function AcademicBackgroundForm({
                           type="file"
                           multiple
                           accept=".pdf,.doc,.docx"
+                          data-entry-id={entry.id}
                           onChange={(e) =>
-                            e.target.files &&
-                            handlePostSecondaryFileUpload(
-                              entry.id,
-                              e.target.files
-                            )
+                            handleFileChange(e, "pastSecondaryFile")
                           }
                           className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                         />

@@ -81,6 +81,11 @@ export default function MultiStepForm() {
 
   const handleSubmit = async () => {
     try {
+      console.log(
+        "Post111111111111111 Secondary Info:",
+        academicInfo.pastSchools
+      );
+
       const currentUserId = getLocalStorage("currentUserId");
       const academicYearId = getLocalStorage("academicYearId");
 
@@ -97,88 +102,187 @@ export default function MultiStepForm() {
         return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
       };
 
-      const formData = {
-        userId: parseInt(currentUserId || "0"),
-        studentTempId: personalInfo.student_temp_id || "",
-        programId: 1,
-        sectionId: 1,
-        currentStudyingLevel: personalInfo.currentLevel || "1",
-        currentStudyingSemester: personalInfo.currentSemester || "1",
-        currentStudyingYear: academicYearId || "1",
-        placeOfBirthTown: personalInfo.place_of_birth_town || "",
-        placeOfBirthZone: personalInfo.place_of_birth_zone || "",
-        placeOfBirthRegion: personalInfo.place_of_birth_region || "",
-        dateOfBirth: formatDate(personalInfo.date_of_birth || ""),
-        addressKebele: personalInfo.address_kebele || "",
-        addressWoreda: personalInfo.address_woreda || "",
-        addressZone: personalInfo.address_zone || "",
-        addressRegion: personalInfo.address_region || "",
-        addressTown: personalInfo.address_town || "",
-        phoneHome: personalInfo.phone_home || "",
-        phoneOffice: personalInfo.phone_office || "",
-        departmentId: personalInfo.department_id || 1,
-        admissionTypeId: personalInfo.admission_type_id || 1,
-        maritalStatus: formatMaritalStatus(
-          personalInfo.MaritalStatus || "SINGLE"
-        ),
-        emergencyContacts: {
+      // Create FormData instance
+      const formData = new FormData();
+
+      // Add profile picture if it exists
+      if (personalInfo.profilePicture instanceof File) {
+        formData.append("profilePicture", personalInfo.profilePicture);
+      }
+
+      // Add all personal info fields
+      formData.append("userId", currentUserId?.toString() || "0");
+      formData.append(
+        "studentTempId",
+        personalInfo.student_temp_id?.toString() || ""
+      );
+      formData.append("programId", "1");
+      formData.append("sectionId", "1");
+      formData.append("currentStudyingLevel", personalInfo.currentLevel || "1");
+      formData.append(
+        "currentStudyingSemester",
+        personalInfo.currentSemester || "1"
+      );
+      formData.append("currentStudyingYear", academicYearId?.toString() || "1");
+      formData.append(
+        "placeOfBirthTown",
+        personalInfo.place_of_birth_town || ""
+      );
+      formData.append(
+        "placeOfBirthZone",
+        personalInfo.place_of_birth_zone || ""
+      );
+      formData.append(
+        "placeOfBirthRegion",
+        personalInfo.place_of_birth_region || ""
+      );
+      formData.append(
+        "dateOfBirth",
+        formatDate(personalInfo.date_of_birth || "")
+      );
+      formData.append("addressKebele", personalInfo.address_kebele || "");
+      formData.append("addressWoreda", personalInfo.address_woreda || "");
+      formData.append("addressZone", personalInfo.address_zone || "");
+      formData.append("addressRegion", personalInfo.address_region || "");
+      formData.append("addressTown", personalInfo.address_town || "");
+      formData.append("phoneHome", personalInfo.phone_home || "");
+      formData.append("phoneOffice", personalInfo.phone_office || "");
+      formData.append(
+        "departmentId",
+        personalInfo.department_id?.toString() || "1"
+      );
+      formData.append(
+        "admissionTypeId",
+        personalInfo.admission_type_id?.toString() || "1"
+      );
+      formData.append(
+        "maritalStatus",
+        formatMaritalStatus(personalInfo.MaritalStatus || "SINGLE")
+      );
+
+      // Add emergency contacts
+      formData.append(
+        "emergencyContacts",
+        JSON.stringify({
           fullName: contactInfo.full_name || "",
           phoneMobile: contactInfo.phone_mobile || "",
-        },
-        parents: familyInfo.map((parent) => ({
-          parentType: parent.parent_type === "FATHER" ? "Father" : "Mother",
-          fullName: parent.full_name || "",
-          occupation: parent.occupation || "",
-          educationLevel: parent.education_level || "",
-          addressHouseNo: parent.address_house_no || "",
-          addressKebele: parent.address_kebele || "",
-          addressWoreda: parent.address_woreda || "",
-          addressZone: parent.address_zone || "",
-          addressRegion: parent.address_region || "",
-          phone: parent.phone || "",
-          poBox: parent.po_box || "",
-        })),
-        employments: employmentHistory || [],
-        transcript: {
-          grade9FilePath: academicInfo.transcript.grade_9_file_path || "",
-          grade10FilePath: academicInfo.transcript.grade_10_file_path || "",
-          grade11FilePath: academicInfo.transcript.grade_11_file_path || "",
-          grade12FilePath: academicInfo.transcript.grade_12_file_path || "",
-          examFilePath: academicInfo.transcript.exam_file_path || "",
-          englishGrade: academicInfo.transcript.english_grade || 0,
-          mathsGrade: academicInfo.transcript.maths_grade || 0,
-        },
-        pastSecondary: {
-          filePaths: academicInfo.pastSchools[0]?.file_paths || "",
-        },
-      };
+        })
+      );
 
-      console.log("Submitting form data:", formData);
+      // Add parents info
+      formData.append(
+        "parents",
+        JSON.stringify(
+          familyInfo.map((parent) => ({
+            parentType: parent.parent_type === "FATHER" ? "Father" : "Mother",
+            fullName: parent.full_name || "",
+            occupation: parent.occupation || "",
+            educationLevel: parent.education_level || "",
+            addressHouseNo: parent.address_house_no || "",
+            addressKebele: parent.address_kebele || "",
+            addressWoreda: parent.address_woreda || "",
+            addressZone: parent.address_zone || "",
+            addressRegion: parent.address_region || "",
+            phone: parent.phone || "",
+            poBox: parent.po_box || "",
+          }))
+        )
+      );
 
+      // Add employment history
+      employmentHistory.forEach((employment, index) => {
+        Object.entries(employment).forEach(([key, value]) => {
+          formData.append(`employment${index}${key}`, value?.toString() || "");
+        });
+      });
+
+      // Add transcript files
+      if (academicInfo.transcript.grade_9_file_path instanceof File) {
+        formData.append(
+          "nineTranscript",
+          academicInfo.transcript.grade_9_file_path
+        );
+      }
+      if (academicInfo.transcript.grade_10_file_path instanceof File) {
+        formData.append(
+          "tenTranscript",
+          academicInfo.transcript.grade_10_file_path
+        );
+      }
+      if (academicInfo.transcript.grade_11_file_path instanceof File) {
+        formData.append(
+          "elevenTranscript",
+          academicInfo.transcript.grade_11_file_path
+        );
+      }
+      if (academicInfo.transcript.grade_12_file_path instanceof File) {
+        formData.append(
+          "twelveTranscript",
+          academicInfo.transcript.grade_12_file_path
+        );
+      }
+      if (academicInfo.transcript.exam_file_path instanceof File) {
+        formData.append("entranceExam", academicInfo.transcript.exam_file_path);
+      }
+
+      /*     // Add transcript grades
+      formData.append(
+        "englishGrade",
+        academicInfo.transcript.english_grade?.toString() || "0"
+      );
+      formData.append(
+        "mathsGrade",
+        academicInfo.transcript.maths_grade?.toString() || "0"
+      ); */
+
+      // Add emergency contacts
+      formData.append(
+        "englishGrade",
+        academicInfo.transcript.english_grade?.toString() || "0"
+      );
+      formData.append(
+        "mathsGrade",
+        academicInfo.transcript.maths_grade?.toString() || "0"
+      );
+
+      academicInfo.pastSchools.forEach((school) => {
+        if (school.file_paths instanceof File) {
+          formData.append("postSecondary", school.file_paths);
+        }
+      });
+
+      // Log to verify multiple fields
+      console.log("Files being sent:");
+      for (const pair of formData.entries()) {
+        console.log(
+          pair[0],
+          ":",
+          pair[1] instanceof File ? pair[1].name : pair[1]
+        );
+      }
+      
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/students`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/upload`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+          body: formData,
         }
       );
 
       if (!response.ok) {
-        console.error("Failed to submit form:", response.statusText);
+        const errorData = await response.json().catch(() => null);
+        console.error("Failed to submit form:", response.statusText, errorData);
+        toast.error("Failed to submit form. Please try again.");
         return;
       }
 
       console.log("Form submitted successfully");
       toast.success("Registration successful");
-      setStep(1);
+      //setStep(1);
       logout();
-      //router.push("/");
-      //router.push("/auth/login");
     } catch (error) {
       console.error("Error submitting form:", error);
+      toast.error("An error occurred while submitting the form");
     }
   };
 

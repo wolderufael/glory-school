@@ -2,14 +2,16 @@
 
 import { useStudentFormStore } from "@/lib/store/studentFormStore";
 import { StudentFullInfo } from "@/utils/typeSchema";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { toast } from "sonner";
 import { FullInfo } from "@/utils/typeSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React from "react";
 import { getLocalStorage } from "@/utils/localStorage";
+import Image from "next/image";
 
 const initialPersonalInfo: StudentFullInfo = {
   student_id: 0,
@@ -41,7 +43,12 @@ const initialPersonalInfo: StudentFullInfo = {
   admission_type_id: 1,
   // registration_date: '',
   MaritalStatus: "SINGLE",
+  profilePicture: undefined,
 };
+
+interface FileUploadState {
+  profilePicture: File | null;
+}
 
 export default function PersonalInfoForm({
   nextStep,
@@ -54,6 +61,11 @@ export default function PersonalInfoForm({
   const [admissionTypeName, setAdmissionTypeName] = useState("regular");
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [files, setFiles] = useState<FileUploadState>({
+    profilePicture: null,
+  });
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function fetchAndFillStudentInfo() {
@@ -143,7 +155,76 @@ export default function PersonalInfoForm({
   }, [setPersonalInfo]);
 
   console.log("dn", departmentName);
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fileKey: keyof FileUploadState
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
 
+      if (fileKey === "profilePicture") {
+        // Validate image file
+        if (!file.type.startsWith("image/")) {
+          toast.error("Please upload an image file");
+          return;
+        }
+        // Create preview URL
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } else {
+        // Validate PDF for other files
+        if (file.type !== "application/pdf") {
+          toast.error("Please upload PDF files only");
+          return;
+        }
+      }
+
+      setFiles((prev) => ({
+        ...prev,
+        [fileKey]: file,
+      }));
+    }
+  };
+
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      // Validate image file
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({
+          ...prev,
+          profilePicture: "Please upload an image file",
+        }));
+        return;
+      }
+
+      // Create preview URL
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+
+      // Update personalInfo with the file
+      setPersonalInfo({
+        ...personalInfo,
+        profilePicture: file,
+      });
+
+      // Clear any previous errors
+      if (errors.profilePicture) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.profilePicture;
+          return newErrors;
+        });
+      }
+    }
+  };
+
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("1. Form submission started");
@@ -190,7 +271,14 @@ export default function PersonalInfoForm({
     }
   };
 
-  const getValue = (field: keyof StudentFullInfo) => personalInfo[field] || "";
+  const getValue = (field: keyof StudentFullInfo) => {
+    const value = personalInfo[field];
+    // If the value is a File object, return empty string for input value
+    if (value instanceof File) {
+      return "";
+    }
+    return value || "";
+  };
 
   const getInputClassName = (fieldName: string, hasError: boolean = false) => {
     const baseClasses = "w-full transition-colors duration-200";
@@ -217,6 +305,58 @@ export default function PersonalInfoForm({
           {fetchError && <div className="text-red-600 mt-2">{fetchError}</div>}
         </div>
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Profile Picture Upload Section */}
+          <div className="flex flex-col items-center space-y-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Profile Picture
+            </h3>
+            <div
+              className="relative w-40 h-40 rounded-full overflow-hidden cursor-pointer border-4 border-white shadow-lg hover:opacity-90 transition-opacity"
+              onClick={handleProfilePictureClick}
+            >
+              {previewUrl || personalInfo.profilePicture ? (
+                <Image
+                  src={
+                    previewUrl ||
+                    URL.createObjectURL(personalInfo.profilePicture as File)
+                  }
+                  alt="Profile Preview"
+                  fill
+                  style={{ objectFit: "cover" }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <svg
+                    className="w-16 h-16 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleProfilePictureChange}
+              className="hidden"
+            />
+            <p className="text-sm text-gray-600">
+              Click to upload profile picture (JPG, PNG)
+            </p>
+            {errors.profilePicture && (
+              <p className="text-sm text-red-600">{errors.profilePicture}</p>
+            )}
+          </div>
           {/* Student ID and Registration Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">

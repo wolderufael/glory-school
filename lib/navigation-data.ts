@@ -59,8 +59,12 @@ export const navigationItems = [
         icon: BookOpen,
         url: "/student/dashboard/course-registration",
       },
-      { title: "Assessment", icon: BookOpen, url: "/student/dashboard/assesment" },
-     /*  {
+      {
+        title: "Assessment",
+        icon: BookOpen,
+        url: "/student/dashboard/assesment",
+      },
+      /*  {
         title: "Academic Records",
         icon: FileText,
         url: "/student/dashboard/academic-records",
@@ -74,7 +78,7 @@ export const navigationItems = [
       { title: "Assignments", icon: ClipboardList, url: "#" }, */
     ],
   },
-  {
+  /* {
     title: "Student Services",
     items: [
       { title: "Dormitory", icon: Building, url: "#" },
@@ -109,7 +113,7 @@ export const navigationItems = [
       { title: "Transfers", icon: MapPin, url: "#" },
       { title: "Readmissions", icon: GraduationCap, url: "#" },
     ],
-  },
+  }, */
 ];
 
 export const registrarNavigationItems = [
@@ -122,9 +126,13 @@ export const registrarNavigationItems = [
   {
     title: "Academic Management",
     items: [
-      { title: "Academic Year", icon: Calendar, url: "/registrar/acadamicYear" },
-      { title: "Course Catalog", icon: BookOpen, url: "#" },
-      /* {  title: "Class Scheduling", icon: Calendar, url: "#" }, */
+      {
+        title: "Academic Year",
+        icon: Calendar,
+        url: "/registrar/acadamicYear",
+      },
+/*       { title: "Course Catalog", icon: BookOpen, url: "#" },
+      { title: "Class Scheduling", icon: Calendar, url: "#" },
       { title: "Grades & Transcripts", icon: Award, url: "#" },
       {
         title: "Grade Approval",
@@ -133,41 +141,41 @@ export const registrarNavigationItems = [
       },
       { title: "Degree Audit", icon: FileText, url: "#" },
       { title: "Assessments & Evaluations", icon: BarChart, url: "#" },
-      { title: "Academic Policies", icon: Shield, url: "#" },
+      { title: "Academic Policies", icon: Shield, url: "#" }, */
     ],
   },
   {
     title: "Student Management",
     items: [
-      { title: "Student Profiles", icon: User, url: "#" },
       { title: "Enrollment", icon: UserPlus, url: "/registrar/enrollment" },
-      /* {
+      /*       { title: "Student Profiles", icon: User, url: "#" },
+      {
         title: "Section Assignment",
         icon: Users,
         url: "/registrar/section-assignment",
-      }, */
+      }, 
       { title: "Attendance", icon: CheckCircle, url: "#" },
-      { title: "Discipline", icon: AlertTriangle, url: "#" },
+      { title: "Discipline", icon: AlertTriangle, url: "#" }, */
     ],
   },
-  {
+  /*   {
     title: "Financial Management",
     items: [
       { title: "Billing & Payments", icon: CreditCard, url: "#" },
       { title: "Financial Aid", icon: DollarSign, url: "#" },
       { title: "Scholarships", icon: Star, url: "#" },
     ],
-  },
+  }, */
   {
     title: "Communication",
     items: [
       { title: "Notice Board", icon: Bell, url: "/registrar/board" },
-      { title: "Messaging", icon: Mail, url: "#" },
+      /*       { title: "Messaging", icon: Mail, url: "#" },
       { title: "Parent/Student Portal", icon: Users, url: "#" },
-      { title: "Event Calendar", icon: Calendar, url: "#" },
+      { title: "Event Calendar", icon: Calendar, url: "#" }, */
     ],
   },
-  {
+  /* {
     title: "Reports & Analytics",
     items: [
       { title: "Academic Reports", icon: BarChart2, url: "#" },
@@ -192,7 +200,7 @@ export const registrarNavigationItems = [
       { title: "Contact Support", icon: Phone, url: "#" },
       { title: "Training Resources", icon: Book, url: "#" },
     ],
-  },
+  }, */
 ];
 
 export const departmentNavigationItems = [
@@ -205,9 +213,17 @@ export const departmentNavigationItems = [
   {
     title: "Academic Management",
     items: [
-      { title: "Section Assignment", icon: Calendar, url: "/department/section-assignment" },
-      { title: "Teacher Assignment", icon: BookOpen, url: "/department/teacher-assignment" },
-      { title: "Grade Approval", icon: Award, url: "#" },
+      {
+        title: "Section Assignment",
+        icon: Calendar,
+        url: "/department/section-assignment",
+      },
+      {
+        title: "Teacher Assignment",
+        icon: BookOpen,
+        url: "/department/teacher-assignment",
+      },
+      /*    { title: "Grade Approval", icon: Award, url: "#" }, */
     ],
   },
 ];
@@ -222,8 +238,8 @@ export const teacherNavigationItems = [
     title: "Assesment",
     items: [
       { title: "Assesment", icon: Calendar, url: "/teacher/markList" },
-      { title: "Evaluation", icon: BookOpen, url: "#" },
-      { title: "Grade Approval", icon: Award, url: "#" },
+      /*  { title: "Evaluation", icon: BookOpen, url: "#" }, */
+      /*    { title: "Grade Approval", icon: Award, url: "#" }, */
     ],
   },
 ];
