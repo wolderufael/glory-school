@@ -126,7 +126,7 @@ export interface StudentData {
   emergencyContacts: EmergencyContactData[];
   parents: ParentData[];
   transcript: TranscriptData | null;
-  pastSecondary: PastSecondaryData | null;
+  pastSecondary: PastSecondaryEducation | null;
   employments: EmploymentData[];
   dormAssignment: DormAssignmentData | null;
   department: DepartmentData;
@@ -187,11 +187,20 @@ export interface ParentData {
 }
 
 export interface TranscriptData {
-  // Add transcript fields as needed
+  grade9FilePath?: File | string;
+  grade10FilePath?: File | string;
+  grade11FilePath?: File | string;
+  grade12FilePath?: File | string;
+  examFilePath?: File | string;
+  englishGrade?: number;
+  mathsGrade?: number;
 }
 
-export interface PastSecondaryData {
-  // Add past secondary education fields as needed
+export interface PastSecondaryEducation {
+  id: number;
+  studentId: number;
+  filePaths: string;
+  createdAt: string;
 }
 
 export interface EmploymentData {
@@ -206,5 +215,4 @@ export interface RegistrationSlipData {
   // Add registration slip fields as needed
 }
 
-
-//export interface 
+//export interface
