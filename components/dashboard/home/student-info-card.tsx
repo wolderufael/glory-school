@@ -83,7 +83,7 @@ export function StudentInfoCard({
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Semester:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {data.semester}
+                {getLocalStorage("currentStudyingSemester")}
               </span>
             </div>
             <div className="flex justify-between">

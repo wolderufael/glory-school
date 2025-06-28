@@ -32,12 +32,12 @@ export function TopNav({
         <SidebarTrigger />
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-medium text-slate-800">{title}</h1>
-          <Badge
+       {/*    <Badge
             variant="secondary"
             className="bg-green-100 text-green-700 border-green-200"
           >
             4
-          </Badge>
+          </Badge> */}
         </div>
       </div>
 

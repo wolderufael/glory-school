@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { StudentRegistration } from "./course-registration";
 import { useAuthStore } from "@/lib/store/authStore";
 import { getLocalStorage } from "@/utils/localStorage";
+import { useEffect, useState } from "react";
 
 interface RegistrationSlipCardProps {
   slip: StudentRegistration;
@@ -23,11 +24,15 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
     (sum, module) => sum + module.nominalHour,
     0
   );
+  const [isActive, setIsActive] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [userMainId, setUserMainId] = useState<string>("");
+  const [currentDate, setCurrentDate] = useState<string>("");
 
   const { user } = useAuthStore();
 
   // Determine if the slip is active based on current date
-  const isActive = (() => {
+  /*   const isActive = (() => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1; 
     const currentYear = currentDate.getFullYear();
@@ -61,7 +66,31 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
     }
 
     return false;
-  })();
+  })(); */
+  useEffect(() => {
+    setMounted(true);
+    const isActive =
+      getLocalStorage("currentStudyingYear") === slip.year &&
+      getLocalStorage("currentStudyingSemester") === slip.semester;
+    setIsActive(isActive);
+    setUserMainId(getLocalStorage("userMainId")?.toString() || "");
+    setCurrentDate(new Date().toLocaleDateString());
+  }, [slip.year, slip.semester]);
+
+  // Prevent hydration mismatch by showing loading state until mounted
+  if (!mounted) {
+    return (
+      <Card className="w-full mb-6">
+        <CardContent className="pt-6">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+            <div className="h-32 bg-gray-200 rounded mb-4"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={`w-full mb-6 ${!isActive ? "opacity-80" : ""}`}>
@@ -103,11 +132,13 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
           <div className="flex justify-between items-center border-b border-black pb-1">
             <div className="flex items-center gap-2">
               <Label className="font-bold">NAME IN BLOCK LETTERS:</Label>
-              <span className="font-semibold">{user?.firstName.toUpperCase()} {user?.lastName.toUpperCase()}</span>
+              <span className="font-semibold">
+                {user?.firstName.toUpperCase()} {user?.lastName.toUpperCase()}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Label className="font-bold">ID NO:</Label>
-              <span className="font-semibold">{getLocalStorage("userMainId")?.toString()}</span>
+              <span className="font-semibold">{mounted ? userMainId : ""}</span>
             </div>
           </div>
 
@@ -214,7 +245,7 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
             <div className="space-y-1">
               <Label className="font-bold">DATE</Label>
               <p className="mt-1 border-b border-black">
-                {new Date().toLocaleDateString()}
+                {mounted ? currentDate : ""}
               </p>
             </div>
             <div className="space-y-1">

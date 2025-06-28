@@ -14,7 +14,7 @@ const RegistrarDashboard = () => {
     <div className="min-h-screen bg-slate-50">
       <SidebarInset className="flex-1">
         {/* Dashboard Header */}
-        <RegistrarDashboardHeader />
+       {/*  <RegistrarDashboardHeader /> */}
 
         <main className="flex-1 p-6 space-y-6">
           {/* Stats Cards */}

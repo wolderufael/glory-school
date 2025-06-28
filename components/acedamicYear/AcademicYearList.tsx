@@ -328,7 +328,7 @@ export default function AcademicCalenderTab() {
               </div>
 
               {/* Important Dates Timeline */}
-{/*               <Card className="mt-8 bg-gradient-to-br from-orange-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden group">
+              {/*               <Card className="mt-8 bg-gradient-to-br from-orange-50 to-white border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-100/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <CardContent className="p-6 relative">
                   <div className="flex items-center gap-3 mb-6">

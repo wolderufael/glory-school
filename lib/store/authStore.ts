@@ -84,7 +84,9 @@ export const useAuthStore = create<AuthState>()(
 
           console.log("user123", user);
 
-          const isRegistered = (await checkStudentRegistration(user.userMainId))
+          //if (user.userType === "Student") { }
+
+        /*   const isRegistered = (await checkStudentRegistration(user.userMainId))
             ? "Yes"
             : "No";
 
@@ -93,7 +95,7 @@ export const useAuthStore = create<AuthState>()(
             academicYear.id?.toString()
           ))
             ? "Yes"
-            : "No";
+            : "No"; */
 
           // Set cookie
           await fetch("/api/auth/login", {
@@ -103,8 +105,8 @@ export const useAuthStore = create<AuthState>()(
             },
             body: JSON.stringify({ token }),
           });
-          console.log("isRegistered", isRegistered);
-          console.log("isAccepted", isAccepted);
+         /*  console.log("isRegistered", isRegistered);
+          console.log("isAccepted", isAccepted); */
           // Store in localStorage
           if (typeof window !== "undefined") {
             localStorage.setItem(
@@ -120,6 +122,20 @@ export const useAuthStore = create<AuthState>()(
               "academicSemesterName",
               academicSemester?.name || ""
             );
+            if (user.userType === "Student") {
+              localStorage.setItem(
+                "currentStudyingYear",
+                user?.student?.currentStudyingYear
+              );
+              localStorage.setItem(
+                "currentStudyingSemester",
+                user?.student?.currentStudyingSemester
+              );
+              localStorage.setItem(
+                "currentStudyingLevel",
+                user?.student?.currentStudyingLevel
+              );
+            }
             localStorage.setItem("currentUserId", user?.id?.toString() || "");
             localStorage.setItem("userType", user?.userType || "");
             localStorage.setItem(
@@ -151,12 +167,12 @@ export const useAuthStore = create<AuthState>()(
               user?.president?.id?.toString() || ""
             );
             localStorage.setItem("userMainId", user?.userMainId || "");
-            localStorage.setItem("isRegistered", isRegistered);
-            localStorage.setItem("isAccepted", isAccepted);
+           /*  localStorage.setItem("isRegistered", isRegistered);
+            localStorage.setItem("isAccepted", isAccepted); */
           }
 
           set({
-            isAccepted,
+            //isAccepted,
             user,
             token,
             isAuthenticated: true,

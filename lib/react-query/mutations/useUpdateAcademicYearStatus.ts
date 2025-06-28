@@ -1,6 +1,8 @@
+"use client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { patch } from "@/lib/utils/api";
 import { toast } from "sonner";
+import { setLocalStorage } from "@/utils/localStorage";
 
 interface UpdateAcademicYearStatusData {
   id: string;
@@ -11,6 +13,13 @@ const updateAcademicYearStatus = async (data: UpdateAcademicYearStatusData) => {
   const response = await patch(`/api/academicyears/${data.id}/status`, {
     status: data.status,
   });
+  if (data.status === "OPEN") {
+    setLocalStorage("academicYearName", response.name);
+    setLocalStorage("academicYearId", response.id);
+  } else {
+    setLocalStorage("academicYearName", "");
+    setLocalStorage("academicYearId", "");
+  }
   return response;
 };
 

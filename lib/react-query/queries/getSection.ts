@@ -23,7 +23,10 @@ export const getSection = async (departmentId: string): Promise<Section[]> => {
       `${process.env.NEXT_PUBLIC_BASE_URL}/sections/by-department/${departmentId}`
     );
 
+
+
     if (!res.ok) throw new Error("Failed to fetch section");
+  
 
     return res.json();
   } catch (error) {

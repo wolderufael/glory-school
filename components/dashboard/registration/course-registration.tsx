@@ -30,9 +30,12 @@ export interface StudentRegistration {
   modules: Module[];
 }
 
-
 export default function CourseRegistration() {
-  const { data: slips, isLoading, error } = useSlip(getLocalStorage("studentId")?.toString() || "");
+  const {
+    data: slips,
+    isLoading,
+    error,
+  } = useSlip(getLocalStorage("studentId")?.toString() || "");
 
   if (isLoading) {
     return <div>Loading...</div>;
