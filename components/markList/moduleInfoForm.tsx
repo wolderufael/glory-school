@@ -15,7 +15,7 @@ interface ModuleInfoFormProps {
 
 
 export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ handleGet }:{handleGet: (id: number) => void}) => {
-  // Fetching the teaching assignment data for the teacher
+ 
   const [teacherId, setTeacherId] = useState<number | null>(null)
    
  useEffect(()=>{
