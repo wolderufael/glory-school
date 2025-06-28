@@ -260,7 +260,7 @@ const ListTable = () => {
                         const theory = local.theory ?? item.theory ?? 0;
                         const totalPractical = practical1 + practical2 + practical3;
                         const totalMark = totalPractical + theory;
-                        const grade = item.gradeInLetter || 'F';
+                        const grade = item.gradeInLetter || '-';
                         const fullName = student?.user?.firstName
                           ? `${student.user.firstName} ${student.user.middleName ?? ''} ${student.user.lastName ?? ''}`
                           : 'Unknown Student';
@@ -315,11 +315,16 @@ const ListTable = () => {
                                 {totalPractical}
                               </span>
                             </TableCell>
-                            <TableCell className="text-center py-4">
+                            <AssessmentCell
+                              value= {theory}
+                              onChange={(value) => updateLocalAssessment(numericStudentId, 'theory', Number(value))}
+                              max={30}
+                            />
+                            {/* <TableCell className="text-center py-4">
                               <span className="font-medium text-gray-900">
                                 {theory}
                               </span>
-                            </TableCell>
+                            </TableCell> */}
                             <AssessmentCell
                               value={theoryStatus}
                               onChange={(value) => updateLocalAssessment(numericStudentId, 'theoryStatus', value ?? '')}
