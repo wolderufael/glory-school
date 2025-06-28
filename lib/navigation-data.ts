@@ -214,16 +214,16 @@ export const departmentNavigationItems = [
     title: "Academic Management",
     items: [
       {
-        title: "Section Assignment",
-        icon: Calendar,
-        url: "/department/section-assignment",
-      },
-      {
         title: "Teacher Assignment",
         icon: BookOpen,
         url: "/department/teacher-assignment",
       },
-      /*    { title: "Grade Approval", icon: Award, url: "#" }, */
+    /*   {
+        title: "Section Assignment",
+        icon: Calendar,
+        url: "/department/section-assignment",
+      },
+         { title: "Grade Approval", icon: Award, url: "#" }, */
     ],
   },
 ];

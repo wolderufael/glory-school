@@ -135,3 +135,21 @@ export async function del(endpoint: string) {
 
   return response.json();
 }
+
+// Helper function for PATCH requests
+export async function patch(endpoint: string, data: any) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
+}

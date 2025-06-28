@@ -1,6 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAcademicCalender } from "../queries/getAcademicCalender";
 
+export interface Semester {
+  id: number;
+  name: string;
+  academicYearId: number;
+  startDate: string;
+  endDate: string;
+  registrationStartDate: string;
+  registrationEndDate: string;
+  status: "OPEN" | "CLOSED" | "UPCOMING";
+  createdAt: string;
+}
+
 export interface AcademicCalender {
   id: number;
   name: string;
@@ -15,6 +27,8 @@ export interface AcademicCalender {
   semeester2RegistrationStartDate: string;
   semeester2RegistrationEndDate: string;
   createdAt: string;
+  status: "OPEN" | "CLOSED";
+  semesters: Semester[];
 }
 
 export const useAcademicCalender = () => {

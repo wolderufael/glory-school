@@ -38,10 +38,10 @@ export default function AcademicYearHome() {
                       View and manage academic years
                     </p>
                   </div>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+        {/*           <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                     <FileText className="h-4 w-4 mr-2" />
                     Download List
-                  </Button>
+                  </Button> */}
                 </div>
                 <AcademicYearList />
               </CardContent>
