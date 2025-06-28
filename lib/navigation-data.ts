@@ -148,12 +148,12 @@ export const registrarNavigationItems = [
     title: "Student Management",
     items: [
       { title: "Enrollment", icon: UserPlus, url: "/registrar/enrollment" },
-      /*       { title: "Student Profiles", icon: User, url: "#" },
       {
         title: "Section Assignment",
         icon: Users,
         url: "/registrar/section-assignment",
-      }, 
+        }, 
+        /*{ title: "Student Profiles", icon: User, url: "#" },
       { title: "Attendance", icon: CheckCircle, url: "#" },
       { title: "Discipline", icon: AlertTriangle, url: "#" }, */
     ],
