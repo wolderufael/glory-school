@@ -125,3 +125,4 @@ export const EmploymentHistory = z.object({
   created_at: z.date().default(() => new Date()), // TIMESTAMP, Not Null
 });
 export type EmploymentHistoryType = z.infer<typeof EmploymentHistory>;
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { Student, StudentSchema } from "@/utils/typeSchema";
 import z from "zod";
 import {
@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getLocalStorage } from "@/utils/localStorage";
+import { Upload } from "lucide-react";
+import * as XLSX from "xlsx";
 
 interface Department {
   id: number;
@@ -61,6 +63,8 @@ export function StudentForm() {
   const [departmentList, setDepartmentList] = useState<Department[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   console.log("Registrar ID:", registrarId);
 
   // Fetch departments from API on mount
@@ -72,6 +76,7 @@ export function StudentForm() {
         );
         if (!res.ok) throw new Error("Failed to fetch departments");
         const data = await res.json();
+        console.log("Departments:", data);
 
         setDepartmentList(data);
       } catch (e) {
@@ -81,26 +86,27 @@ export function StudentForm() {
     fetchDepartments();
   }, []);
 
-  // Fetch students from DB on mount
+  // Fetch students whenever refreshTrigger changes
   useEffect(() => {
-    setLoading(true);
-    async function fetchStudents() {
+    const fetchStudents = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents?academicYearId=${academicYearId}`
         );
         if (!res.ok) throw new Error("Failed to fetch students");
         const data = await res.json();
-        //
         setStudents(data);
       } catch (e) {
         console.error("Error fetching students:", e);
+        toast.error("Failed to fetch students");
       } finally {
         setLoading(false);
       }
-    }
+    };
+
     fetchStudents();
-  }, []);
+  }, [academicYearId, refreshTrigger]); // Add refreshTrigger as dependency
 
   // Add registrar fetching
   useEffect(() => {
@@ -278,132 +284,132 @@ export function StudentForm() {
     }
   };
 
-  console.log("Students:", students);
+  const handleBulkCreate = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const loadingToast = toast.loading("Processing Excel file...");
+
+    try {
+      // Read file as array buffer
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array" });
+
+      // Get the second sheet (index 1)
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+
+      // Convert to JSON with headers
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+        raw: false,
+        defval: "",
+      });
+
+      console.log("Extracted data:", jsonData);
+
+      if (!jsonData || jsonData.length === 0) {
+        toast.error("No data found in Excel file");
+        return;
+      }
+
+      // Prepare the data for API with validation
+      const studentsData = [];
+      const errors = [];
+
+      for (let i = 0; i < jsonData.length; i++) {
+        const row: any = jsonData[i];
+        const rowNumber = i + 2; // +2 because Excel rows start at 1 and we skip header
+
+        const departmentName = row["Department"]?.toString().trim();
+
+        if (!departmentName) {
+          errors.push(`Row ${rowNumber}: Department name is empty`);
+          continue;
+        }
+
+        // Case-insensitive department matching
+        const matchedDepartment = departmentList.find(
+          (dept) => dept.name.toLowerCase() === departmentName.toLowerCase()
+        );
+
+        if (!matchedDepartment) {
+          // Show available department names for reference
+          const availableDepts = departmentList.map((d) => d.name).join(", ");
+          errors.push(
+            `Row ${rowNumber}: Department "${departmentName}" not found. Available departments: ${availableDepts}`
+          );
+          continue;
+        }
+
+        studentsData.push({
+          registerId: registrarId,
+          academicYearId: Number(academicYearId),
+          firstName: row["First Name"]?.toString().trim() || "",
+          middleName: row["Middle Name"]?.toString().trim() || "",
+          lastName: row["Last Name"]?.toString().trim() || "",
+          departmentId: matchedDepartment.id,
+        });
+      }
+
+      // If there are validation errors, show them and stop processing
+      if (errors.length > 0) {
+        const errorMessage = `Found ${errors.length} error(s):\n${errors.join(
+          "\n"
+        )}`;
+        toast.error(errorMessage);
+        console.error("Validation errors:", errors);
+        return;
+      }
+
+      console.log("Processed data for API:", { students: studentsData });
+
+      // Send to API with correct format
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents/bulk-create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ students: studentsData }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to upload students");
+      }
+
+      // Trigger a refresh of the student list
+      setRefreshTrigger((prev) => prev + 1);
+      toast.success("Students uploaded successfully");
+    } catch (error) {
+      console.error("Error processing file:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to process Excel file"
+      );
+    } finally {
+      event.target.value = "";
+      toast.dismiss(loadingToast);
+    }
+  };
 
   return (
-    <div className="flex w-full h-auto p-8 gap-8">
-      {/* Student Table */}
-      <div className="flex-1 bg-white rounded-lg shadow-md p-6 overflow-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Temporary Students Registration
-          </h2>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">
-                Academic Year:
+    <div className="space-y-6 p-4 max-w-[95%] mx-auto">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                First Name
               </label>
               <input
                 type="text"
-                value={
-                  academicYearName || ""
-                  //academicYearName?.toString().replace(/[^0-9]/g, "") || ""
-                }
-                readOnly
-                className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="YYYY"
-              />
-            </div>
-            {students.length > 0 && (
-              <Button
-                onClick={handleGenerateAllIds}
-                className="bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Generate All IDs
-              </Button>
-            )}
-          </div>
-        </div>
-        <Table className="min-w-full">
-          <TableHeader className="bg-gray-50">
-            <TableRow>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
-                ID
-              </TableHead>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
-                First Name
-              </TableHead>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
-                Middle Name
-              </TableHead>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
-                Last Name
-              </TableHead>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
-                Department
-              </TableHead>
-              <TableHead className="p-3 text-sm font-semibold text-gray-600">
-                Generated ID
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center text-sm text-gray-500 py-4"
-                >
-                  Loading students...
-                </TableCell>
-              </TableRow>
-            ) : students.length > 0 ? (
-              students.map((student: TempStudent) => (
-                <TableRow key={student.id} className="hover:bg-gray-50">
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.id}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.firstName}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.middleName}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.lastName}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.department?.name ||
-                      departmentList.find((d) => d.id === student.departmentId)
-                        ?.name ||
-                      "N/A"}
-                  </TableCell>
-                  <TableCell className="p-3 text-sm text-gray-600">
-                    {student.studentMainId || "Not generated"}
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="text-center text-sm text-gray-500 py-4"
-                >
-                  No students registered yet.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Registration Form */}
-      <div className="w-96 bg-white rounded-lg shadow-md p-6 h-fit">
-        <h1 className="text-xl font-semibold text-gray-800 mb-6">
-          Student Registration
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Name *
-              </label>
-              <input
                 name="firstName"
                 value={formData.firstName}
-                required
                 onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter first name"
               />
               {errors.firstName && (
                 <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
@@ -415,26 +421,26 @@ export function StudentForm() {
                 Middle Name
               </label>
               <input
+                type="text"
                 name="middleName"
                 value={formData.middleName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter middle name"
               />
-              {errors.middleName && (
-                <p className="text-red-500 text-xs mt-1">{errors.middleName}</p>
-              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name *
+                Last Name
               </label>
               <input
+                type="text"
                 name="lastName"
-                required
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter last name"
               />
               {errors.lastName && (
                 <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
@@ -443,44 +449,146 @@ export function StudentForm() {
 
             <div className="relative" ref={dropdownRef}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department *
+                Department
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={inputValue}
-                  required
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Search department..."
-                />
-                {filteredDepartments.length > 0 && (
-                  <ul className="absolute z-10 w-full bg-white border rounded-md shadow-lg mt-1 max-h-60 overflow-y-auto">
-                    {filteredDepartments.map((dept) => (
-                      <li
-                        key={dept.id}
-                        onClick={() => handleOptionClick(dept)}
-                        className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-700 transition-colors"
-                      >
-                        {dept.name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Search department"
+              />
               {errors.department && (
                 <p className="text-red-500 text-xs mt-1">{errors.department}</p>
+              )}
+              {filteredDepartments.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+                  {filteredDepartments.map((dept) => (
+                    <div
+                      key={dept.id}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                      onClick={() => handleOptionClick(dept)}
+                    >
+                      {dept.name}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Register Student
-          </button>
+          <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex items-center gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+              onClick={() => document.getElementById("fileUpload")?.click()}
+            >
+              <Upload className="h-4 w-4" />
+              Upload From File
+            </Button>
+            <input
+              id="fileUpload"
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              className="hidden"
+              onChange={handleBulkCreate}
+            />
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Add Student
+            </Button>
+          </div>
         </form>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-800">Student List</h2>
+          <Button
+            onClick={handleGenerateAllIds}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          >
+            Generate All IDs
+          </Button>
+        </div>
+
+        <div className="overflow-auto max-h-[calc(100vh-24rem)]">
+          <Table>
+            <TableHeader className="sticky top-0 bg-gray-50">
+              <TableRow>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  ID
+                </TableHead>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  First Name
+                </TableHead>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  Middle Name
+                </TableHead>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  Last Name
+                </TableHead>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  Department
+                </TableHead>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  Generated ID
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-sm text-gray-500 py-4"
+                  >
+                    Loading students...
+                  </TableCell>
+                </TableRow>
+              ) : students.length > 0 ? (
+                students.map((student: TempStudent) => (
+                  <TableRow key={student.id} className="hover:bg-gray-50">
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.id}
+                    </TableCell>
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.firstName}
+                    </TableCell>
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.middleName}
+                    </TableCell>
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.lastName}
+                    </TableCell>
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.department?.name ||
+                        departmentList.find(
+                          (d) => d.id === student.departmentId
+                        )?.name ||
+                        "N/A"}
+                    </TableCell>
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.studentMainId || "Not generated"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-sm text-gray-500 py-4"
+                  >
+                    No students registered yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
