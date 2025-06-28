@@ -279,7 +279,7 @@ export default function MultiStepForm() {
       console.log("Form submitted successfully");
       toast.success("Registration successful");
       //setStep(1);
-      logout();
+       logout();
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("An error occurred while submitting the form");

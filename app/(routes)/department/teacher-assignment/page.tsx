@@ -5,9 +5,10 @@ import TeacherAssignmentForm from "@/components/department/teacher-assignment/Te
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, BookOpen } from "lucide-react";
 import TeacherSelect from "@/components/department/teacher-assignment/TeacherSelect";
+import { getLocalStorage } from "@/utils/localStorage";
 
-// This would come from your auth context in a real app
-const MOCK_DEPARTMENT_ID = "1"; // Replace with actual department ID from auth
+   const departmentId = getLocalStorage("departmentId");
+
 
 export default function DepartmentPage() {
   return (
@@ -25,7 +26,7 @@ export default function DepartmentPage() {
 
       {/* Main Content */}
       <div className="w-full">
-        <TeacherAssignmentForm departmentId={MOCK_DEPARTMENT_ID} />
+        <TeacherAssignmentForm departmentId={departmentId || ''} />
       </div>
     </div>
   );

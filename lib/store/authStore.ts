@@ -86,7 +86,7 @@ export const useAuthStore = create<AuthState>()(
 
           //if (user.userType === "Student") { }
 
-        /*   const isRegistered = (await checkStudentRegistration(user.userMainId))
+          const isRegistered = (await checkStudentRegistration(user.userMainId))
             ? "Yes"
             : "No";
 
@@ -95,7 +95,8 @@ export const useAuthStore = create<AuthState>()(
             academicYear?.id?.toString()
           ))
             ? "Yes"
-            : "No"; */
+            : "No"; 
+
 
           // Set cookie
           await fetch("/api/auth/login", {
@@ -167,8 +168,8 @@ export const useAuthStore = create<AuthState>()(
               user?.president?.id?.toString() || ""
             );
             localStorage.setItem("userMainId", user?.userMainId || "");
-           /*  localStorage.setItem("isRegistered", isRegistered);
-            localStorage.setItem("isAccepted", isAccepted); */
+             localStorage.setItem("isRegistered", isRegistered);
+            localStorage.setItem("isAccepted", isAccepted); 
           }
 
           set({

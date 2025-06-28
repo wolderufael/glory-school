@@ -94,7 +94,7 @@ export default function PersonalInfoForm({
           admissionTypeId = admissionType.admission_type_id;
         }
 
-        // 2. Fetch department info using studentMainId
+  
         const departmentRes = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id`,
           {
@@ -113,6 +113,7 @@ export default function PersonalInfoForm({
         }
 
         console.log("dn", departmentName);
+
         // 3. Fetch user info (main personal info)
         const userRes = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/users/main-id`,
@@ -128,7 +129,7 @@ export default function PersonalInfoForm({
           ...initialPersonalInfo,
           admission_type_id: admissionTypeId,
           student_temp_id: departmentData.id || "",
-          department_id: departmentName.id || 1,
+          department_id: departmentData.departmentId || 1,
           firstName: userData?.firstName || "",
           fatherName: userData?.middleName || "",
           grandFather_Name: userData?.lastName || "",
