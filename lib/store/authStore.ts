@@ -90,7 +90,7 @@ export const useAuthStore = create<AuthState>()(
 
           const isAccepted = (await isAcceptedStudent(
             user.userMainId,
-            academicYear.id?.toString()
+            academicYear?.id?.toString()
           ))
             ? "Yes"
             : "No";
