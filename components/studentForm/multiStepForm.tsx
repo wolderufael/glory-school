@@ -289,7 +289,7 @@ export default function MultiStepForm() {
   const handleCancel = async () => {
     try {
       logout();
-      //router.push("/auth/login");
+      router.push("/auth/login");
     } catch (error) {
       console.error("Error logging out:", error);
     }
