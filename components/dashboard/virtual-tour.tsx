@@ -33,7 +33,7 @@ export default function VirtualTourPage() {
     {
       name: "Main Campus Building",
       description: "Explore our state-of-the-art administrative building with modern classrooms and faculty offices",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/wsu2.jpg",
       duration: "5 min",
       views: "2.1k",
       icon: Building2,
@@ -44,7 +44,7 @@ export default function VirtualTourPage() {
     {
       name: "Agricultural Research Labs",
       description: "Take a look inside our advanced research laboratories equipped with cutting-edge technology",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/wsu7.jpg",
       duration: "8 min",
       views: "1.8k",
       icon: Microscope,
@@ -55,7 +55,7 @@ export default function VirtualTourPage() {
     {
       name: "Experimental Farm",
       description: "Visit our 50-acre experimental farm where students get hands-on agricultural experience",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/wsu9.jpg",
       duration: "12 min",
       views: "3.2k",
       icon: TreePine,
@@ -66,7 +66,7 @@ export default function VirtualTourPage() {
     {
       name: "Student Cafeteria",
       description: "See our modern dining facilities serving healthy and nutritious meals",
-      image: "/placeholder.svg?height=200&width=300",
+      image: "/wsu4.jpg",
       duration: "3 min",
       views: "950",
       icon: Utensils,
@@ -132,7 +132,7 @@ export default function VirtualTourPage() {
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Virtual Campus Tour</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2"> Campus Tour</h1>
               <p className="text-gray-600">Experience our campus from anywhere with immersive 360° virtual tours</p>
             </div>
             <Camera className="h-8 w-8 text-blue-600" />
