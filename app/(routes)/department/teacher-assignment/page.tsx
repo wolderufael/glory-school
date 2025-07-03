@@ -8,6 +8,7 @@ import TeacherSelect from "@/components/department/teacher-assignment/TeacherSel
 import { getLocalStorage } from "@/utils/localStorage";
 
 const departmentId = getLocalStorage("departmentId");
+console.log("departmentId", departmentId);
 
 export default function DepartmentPage() {
   return (

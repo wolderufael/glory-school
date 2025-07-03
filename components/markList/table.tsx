@@ -14,12 +14,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { useStudent } from "@/lib/react-query/hooks/useStudent";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreateAssessmentRequest } from '@/utils/assessment';
-import { useAssessments } from '@/lib/react-query/hooks/useAssessment';
-import { ModuleInfoForm } from './moduleInfoForm';
-import { AssessmentCell } from './assessmentCell';
-import { useByteachingAssessment } from '@/lib/react-query/hooks/useByteachingAssessment';
-import { GraduationCap, Users, BookOpen, Trophy, Loader2, AlertCircle } from 'lucide-react';
+import { CreateAssessmentRequest } from "@/utils/assessment";
+import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
+import { ModuleInfoForm } from "./moduleInfoForm";
+import { AssessmentCell } from "./assessmentCell";
+import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
+import { useUpdateAssessmentStatus } from "@/lib/react-query/mutations/useAssessmentStatus";
+import {
+  GraduationCap,
+  Users,
+  BookOpen,
+  Trophy,
+  Loader2,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+} from "lucide-react";
 
 interface StudentMark {
   student_main_id: string;
@@ -35,25 +45,33 @@ interface StudentMark {
 }
 
 const ListTable = () => {
-  const { assessments, updateLocalAssessment, submitAssessments, isSubmitting } = useAssessments();
+  const {
+    assessments,
+    updateLocalAssessment,
+    submitAssessments,
+    isSubmitting,
+  } = useAssessments();
+
+  const updateAssessmentStatusMutation = useUpdateAssessmentStatus();
   const [moduleInfo, setModuleInfo] = useState({
-    academicYear: '',
-    department: '',
-    sector: '',
-    module: '',
-    moduleCode: '',
-    program: '',
-    teachingAssignmentId: 1
+    academicYear: "",
+    department: "",
+    sector: "",
+    module: "",
+    moduleCode: "",
+    program: "",
+    teachingAssignmentId: 1,
   });
-  const [selectedTeachingAssignmentId, setSelectedTeachingAssignmentId] = useState<number | null>(null);
-  
+  const [selectedTeachingAssignmentId, setSelectedTeachingAssignmentId] =
+    useState<number | null>(null);
+
   // Fetch assessment data for the selected teaching assignment
   const {
     data: fetchedAssessments,
     isLoading: isAssessmentsLoading,
     isError: isAssessmentsError,
     error: assessmentsError,
-    refetch: refetchAssessments
+    refetch: refetchAssessments,
   } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
 
   // Handle Get button from ModuleInfoForm
@@ -65,54 +83,152 @@ const ListTable = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeachingAssignmentId) {
-      alert('Please select a module and click Get first.');
+      alert("Please select a module and click Get first.");
       return;
     }
     // Only send students whose marks have been updated locally
     const updatedStudentIds = Object.keys(assessments);
     if (updatedStudentIds.length === 0) {
-      alert('No changes to submit.');
+      alert("No changes to submit.");
       return;
     }
-    const assessmentData: CreateAssessmentRequest[] = updatedStudentIds.map((studentId) => {
-      const numericStudentId = Number(studentId);
-      const local = assessments[numericStudentId] || {};
-      // Find the original fetched row for this student
-      const fetched = (fetchedAssessments || []).find((item: any) => (item.student?.id === numericStudentId));
-      const practical1 = local.practical1 ?? fetched?.practical1 ?? 0;
-      const practical2 = local.practical2 ?? fetched?.practical2 ?? 0;
-      const practical3 = local.practical3 ?? fetched?.practical3 ?? 0;
-      const theory = local.theory ?? fetched?.theory ?? 0;
-      const comment = local.comment ?? fetched?.comment ?? '';
-      const practicalStatus = local.practicalStatus ?? fetched?.practicalStatus ?? null;
-      const theoryStatus = local.theoryStatus ?? fetched?.theoryStatus ?? null;
+    const assessmentData: CreateAssessmentRequest[] = updatedStudentIds.map(
+      (studentId) => {
+        const numericStudentId = Number(studentId);
+        const local = assessments[numericStudentId] || {};
+        // Find the original fetched row for this student
+        const fetched = (fetchedAssessments || []).find(
+          (item: any) => item.student?.id === numericStudentId
+        );
+        const practical1 = local.practical1 ?? fetched?.practical1 ?? 0;
+        const practical2 = local.practical2 ?? fetched?.practical2 ?? 0;
+        const practical3 = local.practical3 ?? fetched?.practical3 ?? 0;
+        const theory = local.theory ?? fetched?.theory ?? 0;
+        const comment = local.comment ?? fetched?.comment ?? "";
+        const practicalStatus =
+          local.practicalStatus ?? fetched?.practicalStatus ?? null;
+        const theoryStatus =
+          local.theoryStatus ?? fetched?.theoryStatus ?? null;
 
-      // Calculate totals
-      const totalPractical = practical1 + practical2 + practical3;
-      const totalMark = totalPractical + theory;
-      return {
-        teachingAssignmentId: selectedTeachingAssignmentId,
-        studentId: numericStudentId,
-        practical1,
-        practical2,
-        practical3,
-        totalPractical,
-        practicalStatus,
-        theoryStatus,
-        totalMark,
-        theory,
-        comment,
-        // Optionally include totalPractical and totalMark if backend expects them
-        // totalPractical,
-        // totalMark,
-      };
-    });
+        // Calculate totals
+        const totalPractical = practical1 + practical2 + practical3;
+        const totalMark = totalPractical + theory;
+        return {
+          teachingAssignmentId: selectedTeachingAssignmentId,
+          studentId: numericStudentId,
+          practical1,
+          practical2,
+          practical3,
+          totalPractical,
+          practicalStatus,
+          theoryStatus,
+          totalMark,
+          theory,
+          comment,
+          // Optionally include totalPractical and totalMark if backend expects them
+          // totalPractical,
+          // totalMark,
+        };
+      }
+    );
 
-    console.log('Submitting assessments:', assessmentData);
+    console.log("Submitting assessments:", assessmentData);
     submitAssessments({
       teachingAssignmentId: selectedTeachingAssignmentId,
       assessments: assessmentData,
     });
+  };
+
+  const handleSubmitForApproval = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTeachingAssignmentId) {
+      alert("Please select a module and click Get first.");
+      return;
+    }
+
+    const statusInfo = getAssessmentGroupStatus();
+    if (!statusInfo.assessmentGroupId) {
+      alert("Assessment group ID not found.");
+      return;
+    }
+
+    try {
+      // Change status from DRAFT to SUBMISSION_REQUESTED (or UNDER_REVIEW based on your workflow)
+      await updateAssessmentStatusMutation.mutateAsync({
+        id: statusInfo.assessmentGroupId,
+        status: "UNDER_REVIEW", // Change to SUBMISSION_REQUESTED if you want an intermediate step
+      });
+
+      // Refresh the data to get updated status
+      refetchAssessments();
+    } catch (error) {
+      console.error("Error submitting for approval:", error);
+    }
+  };
+
+  const getAssessmentGroupStatus = () => {
+    if (fetchedAssessments && fetchedAssessments.length > 0) {
+      const firstStudent = fetchedAssessments[0];
+      return {
+        status: firstStudent?.assessmentGroup?.status || "DRAFT",
+        assessmentGroupId: firstStudent?.assessmentGroup?.id,
+      };
+    }
+    return { status: "DRAFT", assessmentGroupId: null };
+  };
+
+  const getButtonConfig = () => {
+    const statusInfo = getAssessmentGroupStatus();
+    const status = statusInfo.status;
+
+    switch (status) {
+      case "DRAFT":
+      case "REJECTED":
+        return {
+          text: "Save",
+          onClick: handleSubmit,
+          disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
+          className:
+            "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
+          icon: "Trophy",
+        };
+      case "SUBMISSION_REQUESTED":
+        return {
+          text: "Submit for Approval",
+          onClick: handleSubmitForApproval,
+          disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
+          className:
+            "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
+          icon: "CheckCircle",
+        };
+      case "UNDER_REVIEW":
+        return {
+          text: "Under Review",
+          onClick: () => {},
+          disabled: true,
+          className:
+            "bg-gradient-to-r from-yellow-400 to-amber-400 text-white px-8 py-3 rounded-lg shadow-lg font-semibold opacity-75 cursor-not-allowed",
+          icon: "Clock",
+        };
+      case "APPROVED":
+        return {
+          text: "Approved",
+          onClick: () => {},
+          disabled: true,
+          className:
+            "bg-gradient-to-r from-green-400 to-emerald-400 text-white px-8 py-3 rounded-lg shadow-lg font-semibold opacity-75 cursor-not-allowed",
+          icon: "CheckCircle",
+        };
+      default:
+        return {
+          text: "Save",
+          onClick: handleSubmit,
+          disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
+          className:
+            "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
+          icon: "Trophy",
+        };
+    }
   };
 
   const getAssessmentValue = (
@@ -140,18 +256,24 @@ const ListTable = () => {
   };
 
   const getGrade = (studentId: string): string => {
-    const numericStudentId = parseInt(studentId.replace('ST', ''));
-    return assessments[numericStudentId]?.gradeInLetter || 'F';
+    const numericStudentId = parseInt(studentId.replace("ST", ""));
+    return assessments[numericStudentId]?.gradeInLetter || "F";
   };
 
   const getGradeColor = (grade: string) => {
-    switch(grade) {
-      case 'A': return 'text-emerald-600 bg-emerald-50 border border-emerald-200';
-      case 'B': return 'text-blue-600 bg-blue-50 border border-blue-200';
-      case 'C': return 'text-amber-600 bg-amber-50 border border-amber-200';
-      case 'D': return 'text-orange-600 bg-orange-50 border border-orange-200';
-      case 'F': return 'text-red-600 bg-red-50 border border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border border-gray-200';
+    switch (grade) {
+      case "A":
+        return "text-emerald-600 bg-emerald-50 border border-emerald-200";
+      case "B":
+        return "text-blue-600 bg-blue-50 border border-blue-200";
+      case "C":
+        return "text-amber-600 bg-amber-50 border border-amber-200";
+      case "D":
+        return "text-orange-600 bg-orange-50 border border-orange-200";
+      case "F":
+        return "text-red-600 bg-red-50 border border-red-200";
+      default:
+        return "text-gray-600 bg-gray-50 border border-gray-200";
     }
   };
 
@@ -169,7 +291,8 @@ const ListTable = () => {
             </h1>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Streamline your assessment process with our comprehensive student grading platform
+            Streamline your assessment process with our comprehensive student
+            grading platform
           </p>
         </div>
 
@@ -187,7 +310,7 @@ const ListTable = () => {
         </Card>
 
         {/* Assessment Form */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
               <CardTitle className="flex items-center justify-between">
@@ -198,7 +321,9 @@ const ListTable = () => {
                 {fetchedAssessments && fetchedAssessments.length > 0 && (
                   <div className="flex items-center space-x-2 text-white/90">
                     <Trophy className="w-4 h-4" />
-                    <span className="text-sm">{fetchedAssessments.length} Students</span>
+                    <span className="text-sm">
+                      {fetchedAssessments.length} Students
+                    </span>
                   </div>
                 )}
               </CardTitle>
@@ -207,15 +332,18 @@ const ListTable = () => {
               {isAssessmentsLoading && (
                 <div className="flex items-center justify-center py-16 space-x-3">
                   <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                  <span className="text-blue-600 font-medium">Loading assessments...</span>
+                  <span className="text-blue-600 font-medium">
+                    Loading assessments...
+                  </span>
                 </div>
               )}
-              
+
               {isAssessmentsError && (
                 <div className="flex items-center justify-center py-16 space-x-3">
                   <AlertCircle className="w-6 h-6 text-red-500" />
                   <span className="text-red-600 font-medium">
-                    Error loading assessments: {assessmentsError?.message || 'Unknown error'}
+                    Error loading assessments:{" "}
+                    {assessmentsError?.message || "Unknown error"}
                   </span>
                 </div>
               )}
@@ -231,84 +359,147 @@ const ListTable = () => {
                     </TableCaption>
                     <TableHeader>
                       <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-                        <TableHead className="font-semibold text-gray-700 py-4">Student ID</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4">Full Name</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4">Sex</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">Practical 1</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">Practical 2</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">Practical 3</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">P. Status</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center bg-blue-50">Total Practical</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">Theory</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">T. Status</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center bg-indigo-50">Total Mark</TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">Grade</TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4">
+                          Student ID
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4">
+                          Full Name
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4">
+                          Sex
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          Practical 1
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          Practical 2
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          Practical 3
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          P. Status
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center bg-blue-50">
+                          Total Practical
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          Theory
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          T. Status
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center bg-indigo-50">
+                          Total Mark
+                        </TableHead>
+                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                          Grade
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(fetchedAssessments && fetchedAssessments.length > 0 ? fetchedAssessments : []).map((item: any, index: number) => {
+                      {(fetchedAssessments && fetchedAssessments.length > 0
+                        ? fetchedAssessments
+                        : []
+                      ).map((item: any, index: number) => {
                         const student = item.student;
                         const studentId = student?.id;
                         const numericStudentId = Number(studentId);
                         // Use local edits if present, else fallback to fetched values
                         const local = assessments[numericStudentId] || {};
-                        const practical1 = local.practical1 ?? item.practical1 ?? 0;
-                        const practical2 = local.practical2 ?? item.practical2 ?? 0;
-                        const practical3 = local.practical3 ?? item.practical3 ?? 0;
+                        const practical1 =
+                          local.practical1 ?? item.practical1 ?? 0;
+                        const practical2 =
+                          local.practical2 ?? item.practical2 ?? 0;
+                        const practical3 =
+                          local.practical3 ?? item.practical3 ?? 0;
                         const practicalStatus = local.practicalStatus || null;
                         const theoryStatus = local.theoryStatus || null;
                         const theory = local.theory ?? item.theory ?? 0;
-                        const totalPractical = practical1 + practical2 + practical3;
+                        const totalPractical =
+                          practical1 + practical2 + practical3;
                         const totalMark = totalPractical + theory;
-                        const grade = item.gradeInLetter || '-';
+                        const grade = item.gradeInLetter || "-";
                         const fullName = student?.user?.firstName
-                          ? `${student.user.firstName} ${student.user.middleName ?? ''} ${student.user.lastName ?? ''}`
-                          : 'Unknown Student';
-                        const sex = student?.user?.gender || 'N/A';
-                        
+                          ? `${student.user.firstName} ${
+                              student.user.middleName ?? ""
+                            } ${student.user.lastName ?? ""}`
+                          : "Unknown Student";
+                        const sex = student?.user?.gender || "N/A";
+
                         return (
-                          <TableRow 
-                            key={studentId} 
+                          <TableRow
+                            key={studentId}
                             className={`hover:bg-blue-50/50 transition-colors duration-200 ${
-                              index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                              index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
                             }`}
                           >
                             <TableCell className="font-medium text-gray-900 py-4">
                               <div className="flex items-center space-x-2">
                                 <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                <span>{student?.user?.userMainId || ''}</span>
+                                <span>{student?.user?.userMainId || ""}</span>
                               </div>
                             </TableCell>
-                            <TableCell className="font-medium text-gray-900 py-4">{fullName}</TableCell>
+                            <TableCell className="font-medium text-gray-900 py-4">
+                              {fullName}
+                            </TableCell>
                             <TableCell className="text-gray-700 py-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                sex === 'Male' ? 'bg-blue-100 text-blue-700' : 
-                                sex === 'Female' ? 'bg-pink-100 text-pink-700' : 
-                                'bg-gray-100 text-gray-700'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  sex === "Male"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : sex === "Female"
+                                    ? "bg-pink-100 text-pink-700"
+                                    : "bg-gray-100 text-gray-700"
+                                }`}
+                              >
                                 {sex}
                               </span>
                             </TableCell>
                             <AssessmentCell
                               value={practical1}
-                              onChange={(value) => updateLocalAssessment(numericStudentId, 'practical1', Number(value))}
+                              onChange={(value) =>
+                                updateLocalAssessment(
+                                  numericStudentId,
+                                  "practical1",
+                                  Number(value)
+                                )
+                              }
                               max={30}
                             />
                             <AssessmentCell
                               value={practical2}
-                              onChange={(value) => updateLocalAssessment(numericStudentId, 'practical2', Number(value))}
+                              onChange={(value) =>
+                                updateLocalAssessment(
+                                  numericStudentId,
+                                  "practical2",
+                                  Number(value)
+                                )
+                              }
                               max={30}
                             />
                             <AssessmentCell
                               value={practical3}
-                              onChange={(value) => updateLocalAssessment(numericStudentId, 'practical3', Number(value))}
+                              onChange={(value) =>
+                                updateLocalAssessment(
+                                  numericStudentId,
+                                  "practical3",
+                                  Number(value)
+                                )
+                              }
                               max={30}
                             />
                             <AssessmentCell
                               value={practicalStatus}
-                              onChange={(value) => updateLocalAssessment(numericStudentId, 'practicalStatus', value ?? '')}
+                              onChange={(value) =>
+                                updateLocalAssessment(
+                                  numericStudentId,
+                                  "practicalStatus",
+                                  value ?? ""
+                                )
+                              }
                               isStatus={true}
-                              placeholder="null"
+                              placeholder=""
                             />
                             <TableCell className="text-center py-4 bg-blue-50/50">
                               <span className="font-bold text-blue-700 text-lg">
@@ -316,8 +507,14 @@ const ListTable = () => {
                               </span>
                             </TableCell>
                             <AssessmentCell
-                              value= {theory}
-                              onChange={(value) => updateLocalAssessment(numericStudentId, 'theory', Number(value))}
+                              value={theory}
+                              onChange={(value) =>
+                                updateLocalAssessment(
+                                  numericStudentId,
+                                  "theory",
+                                  Number(value)
+                                )
+                              }
                               max={30}
                             />
                             {/* <TableCell className="text-center py-4">
@@ -327,9 +524,15 @@ const ListTable = () => {
                             </TableCell> */}
                             <AssessmentCell
                               value={theoryStatus}
-                              onChange={(value) => updateLocalAssessment(numericStudentId, 'theoryStatus', value ?? '')}
+                              onChange={(value) =>
+                                updateLocalAssessment(
+                                  numericStudentId,
+                                  "theoryStatus",
+                                  value ?? ""
+                                )
+                              }
                               isStatus={true}
-                              placeholder="null"
+                              placeholder=""
                             />
                             <TableCell className="text-center py-4 bg-indigo-50/50">
                               <span className="font-bold text-indigo-700 text-lg">
@@ -337,7 +540,11 @@ const ListTable = () => {
                               </span>
                             </TableCell>
                             <TableCell className="text-center py-4">
-                              <span className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(grade)}`}>
+                              <span
+                                className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(
+                                  grade
+                                )}`}
+                              >
                                 {grade}
                               </span>
                             </TableCell>
@@ -349,23 +556,43 @@ const ListTable = () => {
                     <TableFooter>
                       <TableRow className="bg-gradient-to-r from-gray-100 to-gray-200 border-t-2 border-gray-300">
                         <TableCell colSpan={11} className="text-right py-6">
-                          <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold"
-                          >
-                            {isSubmitting ? (
-                              <div className="flex items-center space-x-2">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Submitting...</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center space-x-2">
-                                <Trophy className="w-4 h-4" />
-                                <span>Submit Assessments</span>
-                              </div>
-                            )}
-                          </Button>
+                          {(() => {
+                            const buttonConfig = getButtonConfig();
+                            const IconComponent =
+                              buttonConfig.icon === "Trophy"
+                                ? Trophy
+                                : buttonConfig.icon === "CheckCircle"
+                                ? CheckCircle
+                                : buttonConfig.icon === "Clock"
+                                ? Clock
+                                : Trophy;
+
+                            return (
+                              <Button
+                                type="button"
+                                onClick={buttonConfig.onClick}
+                                disabled={buttonConfig.disabled}
+                                className={buttonConfig.className}
+                              >
+                                {isSubmitting ||
+                                updateAssessmentStatusMutation.isPending ? (
+                                  <div className="flex items-center space-x-2">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>
+                                      {updateAssessmentStatusMutation.isPending
+                                        ? "Updating Status..."
+                                        : "Submitting..."}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center space-x-2">
+                                    <IconComponent className="w-4 h-4" />
+                                    <span>{buttonConfig.text}</span>
+                                  </div>
+                                )}
+                              </Button>
+                            );
+                          })()}
                         </TableCell>
                       </TableRow>
                     </TableFooter>

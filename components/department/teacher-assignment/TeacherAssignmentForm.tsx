@@ -42,14 +42,14 @@ const SECTIONS = [
   { value: "3", label: "Section C" },
 ] as const;
 
-const TeacherAssignmentForm = ({
-  departmentId,
-}: TeacherAssignmentFormProps) => {
+    const TeacherAssignmentForm = ({
+      departmentId,
+    }: TeacherAssignmentFormProps) => {
   const [formData, setFormData] = useState<TeacherAssignmentFormData>({
     courseId: "",
     departmentId,
-    sectionId: "1", // Default to first section
-    level: "I", // Default to first level
+    sectionId: "", // Default to first section
+    level: "", // Default to first level
     academicSemesterId: getLocalStorage("academicSemesterId") || "",
     academicYearId: getLocalStorage("academicYearId") || "",
   });
