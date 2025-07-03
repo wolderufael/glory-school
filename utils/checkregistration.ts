@@ -1,6 +1,5 @@
-export async function checkStudentRegistration(userMainId: string) {
+/* export async function checkStudentRegistration(userMainId: string) {
   try {
-    // fetch user id first
     const Students = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/students`,
       {
@@ -13,7 +12,6 @@ export async function checkStudentRegistration(userMainId: string) {
     const student = studentsData.find(
       (student: any) => student.user.userMainId === userMainId
     );
-    console.log("###########Staus#########", student.maritalStatus);
     if (student) {
       return true;
     } else {
@@ -23,7 +21,21 @@ export async function checkStudentRegistration(userMainId: string) {
     console.error("Failed to check student registration:", error);
     return false;
   }
-}
+} */
+
+  export async function checkStudentRegistration(userdata: any) {
+    try {
+
+      if (userdata.student !== null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error("Failed to check student registration:", error);
+      return false;
+    }
+  }
 
 export async function isAcceptedStudent(
   userMainId: string,

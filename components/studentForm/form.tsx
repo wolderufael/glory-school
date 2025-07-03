@@ -65,7 +65,7 @@ export function StudentForm() {
 
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  console.log("Registrar ID:", registrarId);
+  console.log("Registrar ID1111:", registrarId);
 
   // Fetch departments from API on mount
   useEffect(() => {
@@ -178,6 +178,7 @@ export function StudentForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form data:", formData);
     try {
       // Validate only required fields
       if (

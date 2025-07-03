@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { Calendar, Clock, GraduationCap } from "lucide-react";
 
-
 import { toast } from "sonner";
 import {
   AcademicYearFormData,
@@ -24,6 +23,7 @@ import { z } from "zod";
 import { parseISO, startOfDay, formatISO } from "date-fns";
 import { useRouter } from "next/navigation";
 import { setLocalStorage } from "@/utils/localStorage";
+import ErrorDialog from "./ErrorDialog";
 
 type AcademicYearData = z.infer<typeof academicYearSchema>;
 
@@ -85,6 +85,13 @@ const AcademicYearForm = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+  }>({
+    isOpen: false,
+    message: "",
+  });
   const { mutate, isPending } = useAddAcademicYear();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +100,13 @@ const AcademicYearForm = () => {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
+  };
+
+  const handleCloseErrorDialog = () => {
+    setErrorDialog({
+      isOpen: false,
+      message: "",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,7 +128,7 @@ const AcademicYearForm = () => {
     // Format all dates using the helper function
     const formattedData = formatAcademicYearDates(formData);
     console.log("Submitting data:", JSON.stringify(formattedData, null, 2));
-   
+
     mutate(formattedData, {
       onSuccess: () => {
         setFormData({
@@ -130,8 +144,25 @@ const AcademicYearForm = () => {
           semeester2RegistrationStartDate: "",
           semeester2RegistrationEndDate: "",
         });
-        ;
         router.push("/registrar");
+      },
+      onError: (error: any) => {
+        // Extract error message from the response
+        let errorMessage = "An unexpected error occurred. Please try again.";
+
+        if (error?.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        }
+
+        // Show error dialog
+        setErrorDialog({
+          isOpen: true,
+          message: errorMessage,
+        });
       },
     });
   };
@@ -487,8 +518,17 @@ const AcademicYearForm = () => {
           </form>
         </Card>
       </div>
+
+      {/* Error Dialog */}
+      <ErrorDialog
+        isOpen={errorDialog.isOpen}
+        onClose={handleCloseErrorDialog}
+        title="Academic Year Creation Failed"
+        errorMessage={errorDialog.message}
+      />
     </div>
   );
 };
 
 export default AcademicYearForm;
+export { default as ErrorDialog } from "./ErrorDialog";

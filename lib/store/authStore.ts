@@ -86,16 +86,19 @@ export const useAuthStore = create<AuthState>()(
 
           //if (user.userType === "Student") { }
 
-          const isRegistered = (await checkStudentRegistration(user.userMainId))
+/*           const isRegistered = (await checkStudentRegistration(user.userMainId))
+            ? "Yes"
+            : "No"; */
+          const isRegistered = (await checkStudentRegistration(user))
             ? "Yes"
             : "No";
 
-          const isAccepted = (await isAcceptedStudent(
+/*           const isAccepted = (await isAcceptedStudent(
             user.userMainId,
             academicYear?.id?.toString()
           ))
             ? "Yes"
-            : "No"; 
+            : "No";  */
 
 
           // Set cookie
@@ -106,8 +109,6 @@ export const useAuthStore = create<AuthState>()(
             },
             body: JSON.stringify({ token }),
           });
-         /*  console.log("isRegistered", isRegistered);
-          console.log("isAccepted", isAccepted); */
           // Store in localStorage
           if (typeof window !== "undefined") {
             localStorage.setItem(
@@ -169,7 +170,7 @@ export const useAuthStore = create<AuthState>()(
             );
             localStorage.setItem("userMainId", user?.userMainId || "");
              localStorage.setItem("isRegistered", isRegistered);
-            localStorage.setItem("isAccepted", isAccepted); 
+            //localStorage.setItem("isAccepted", isAccepted); 
           }
 
           set({

@@ -7,8 +7,7 @@ import { Building2, Users, BookOpen } from "lucide-react";
 import TeacherSelect from "@/components/department/teacher-assignment/TeacherSelect";
 import { getLocalStorage } from "@/utils/localStorage";
 
-   const departmentId = getLocalStorage("departmentId");
-
+const departmentId = getLocalStorage("departmentId");
 
 export default function DepartmentPage() {
   return (
@@ -26,7 +25,7 @@ export default function DepartmentPage() {
 
       {/* Main Content */}
       <div className="w-full">
-        <TeacherAssignmentForm departmentId={departmentId || ''} />
+        <TeacherAssignmentForm departmentId={departmentId || ""} />
       </div>
     </div>
   );

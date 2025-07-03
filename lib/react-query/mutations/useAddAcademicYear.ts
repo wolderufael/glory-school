@@ -58,7 +58,7 @@ export const useAddAcademicYear = () => {
         description: "Academic year has been added successfully.",
       });
     },
-    onError: (error: Error) => {
+/*     onError: (error: Error) => {
       toast("Error", {
         description: error.message,
         style: {
@@ -67,6 +67,6 @@ export const useAddAcademicYear = () => {
           borderColor: "#f5c6cb",
         },
       });
-    },
+    }, */
   });
 };

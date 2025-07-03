@@ -45,7 +45,6 @@ const SECTIONS = [
 const TeacherAssignmentForm = ({
   departmentId,
 }: TeacherAssignmentFormProps) => {
-  const { data: sections, isLoading: isSectionsLoading } = useSection(departmentId);
   const [formData, setFormData] = useState<TeacherAssignmentFormData>({
     courseId: "",
     departmentId,
@@ -54,6 +53,7 @@ const TeacherAssignmentForm = ({
     academicSemesterId: getLocalStorage("academicSemesterId") || "",
     academicYearId: getLocalStorage("academicYearId") || "",
   });
+  const { data: sections, isLoading: isSectionsLoading } = useSection(departmentId,formData.level);
 
   const handleLevelChange = (value: string) => {
     setFormData({ ...formData, level: value, courseId: "" });
@@ -73,6 +73,8 @@ const TeacherAssignmentForm = ({
       academicYearId: getLocalStorage("academicYearId") || "",
     });
   };
+
+  
 
   return (
     <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100 min-h-screen py-8">

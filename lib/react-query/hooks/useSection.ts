@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSection, Section } from "../queries/getSection";
 
-export function useSection(departmentId: string) {
+export function useSection(departmentId: string,level:string) {
   return useQuery<Section[], Error>({
-    queryKey: ["section", departmentId],
-    queryFn: () => getSection(departmentId),
+    queryKey: ["section", departmentId,level],
+    queryFn: () => getSection(departmentId,level),
     enabled: !!departmentId,
     staleTime: 1000 * 60 * 30,
     gcTime: 1000 * 60 * 60 * 24,

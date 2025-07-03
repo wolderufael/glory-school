@@ -28,7 +28,7 @@ export default function CourseList({
 }: CourseListProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-
+  console.log("CourseList",departmentId, levelId, sectionId, academicSemesterId);
   const {
     data: courses,
     isLoading,

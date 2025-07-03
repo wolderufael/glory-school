@@ -17,10 +17,10 @@ export interface Section {
   id: string;
   sectionName: string;
 }
-export const getSection = async (departmentId: string): Promise<Section[]> => {
+export const getSection = async (departmentId: string,level:string): Promise<Section[]> => {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/sections/by-department/${departmentId}`
+      `${process.env.NEXT_PUBLIC_BASE_URL}/sections/by-department/${departmentId}/${level}`
     );
 
 

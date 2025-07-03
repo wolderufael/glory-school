@@ -41,5 +41,6 @@ export const getCourses = async (
       },
     }
   );
+  console.log("getCourses", data);
   return data;
 };
