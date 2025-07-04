@@ -18,19 +18,26 @@ import {
   Filter,
 } from "lucide-react";
 import { GradeApprovalRequest } from "./types";
+import { useGradeApprovalRequests } from "@/lib/react-query/hooks/useAssessmentGroups";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface GradeApprovalNotificationsProps {
-  requests: GradeApprovalRequest[];
   onViewRequest: (request: GradeApprovalRequest) => void;
-  loading?: boolean;
 }
 
 export function GradeApprovalNotifications({
-  requests,
   onViewRequest,
-  loading = false,
 }: GradeApprovalNotificationsProps) {
-  const [filter, setFilter] = useState<"all" | "pending" | "urgent">("all");
+  const departmentId = getLocalStorage("departmentId");
+
+  const {
+    data: requests = [],
+    isLoading: loading,
+    error,
+  } = useGradeApprovalRequests(
+    departmentId ? parseInt(departmentId.toString()) : undefined
+  );
+  const [filter, setFilter] = useState<"all" | "pending" | "approved">("all");
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -62,18 +69,9 @@ export function GradeApprovalNotifications({
     }
   };
 
-  const isUrgent = (request: GradeApprovalRequest) => {
-    if (!request.deadline) return false;
-    const deadline = new Date(request.deadline);
-    const now = new Date();
-    const hoursLeft = (deadline.getTime() - now.getTime()) / (1000 * 60 * 60);
-    return hoursLeft <= 24 && hoursLeft > 0;
-  };
-
   const filteredRequests = requests.filter((request) => {
     if (filter === "pending") return request.status === "pending";
-    if (filter === "urgent")
-      return isUrgent(request) && request.status === "pending";
+    if (filter === "approved") return request.status === "approved";
     return true;
   });
 
@@ -131,6 +129,22 @@ export function GradeApprovalNotifications({
     );
   }
 
+  if (error) {
+    return (
+      <Card className="border-red-100">
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+            <p className="text-red-600">
+              Error loading grade approval requests
+            </p>
+            <p className="text-sm text-gray-600 mt-2">{error.message}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="border-blue-100">
       <CardHeader>
@@ -157,17 +171,13 @@ export function GradeApprovalNotifications({
               Pending ({requests.filter((r) => r.status === "pending").length})
             </Button>
             <Button
-              variant={filter === "urgent" ? "default" : "outline"}
+              variant={filter === "approved" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilter("urgent")}
+              onClick={() => setFilter("approved")}
               className="text-xs"
             >
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Urgent (
-              {
-                requests.filter((r) => isUrgent(r) && r.status === "pending")
-                  .length
-              }
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Approved ({requests.filter((r) => r.status === "approved").length}
               )
             </Button>
           </div>
@@ -189,15 +199,16 @@ export function GradeApprovalNotifications({
           <div className="space-y-4">
             {filteredRequests.map((request) => {
               const deadlineInfo = getDeadlineStatus(request.deadline);
-              const urgentRequest = isUrgent(request);
 
               return (
                 <div
                   key={request.id}
-                  className={`p-4 rounded-lg border transition-colors hover:bg-blue-50 ${
-                    urgentRequest
-                      ? "border-orange-200 bg-orange-50"
-                      : "border-blue-100"
+                  className={`p-4 rounded-lg border transition-colors ${
+                    request.status === "pending"
+                      ? "bg-red-50 border-red-200 hover:bg-red-100"
+                      : request.status === "approved"
+                      ? "bg-green-50 border-green-200 hover:bg-green-100"
+                      : "bg-blue-50 border-blue-100 hover:bg-blue-100"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -231,12 +242,6 @@ export function GradeApprovalNotifications({
                               {request.status.replace("_", " ")}
                             </span>
                           </Badge>
-                          {urgentRequest && (
-                            <Badge variant="destructive" className="text-xs">
-                              <AlertCircle className="h-3 w-3 mr-1" />
-                              Urgent
-                            </Badge>
-                          )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm mb-3">

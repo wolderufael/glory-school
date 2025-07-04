@@ -9,6 +9,8 @@ import { GradeReviewModal } from "./grade-review-modal";
 import { GradeApprovalStatsComponent } from "./grade-approval-stats";
 import { useGradeApprovalLogic } from "./grade-approval-logic";
 import { GradeApprovalRequest, ApprovalDecision } from "./types";
+import { getLocalStorage } from "@/utils/localStorage";
+import { DepartmentBulkActions } from "./department-bulk-actions";
 
 export function GradeApprovalPage() {
   const {
@@ -29,6 +31,7 @@ export function GradeApprovalPage() {
     useState<GradeApprovalRequest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const departmentId = getLocalStorage("departmentId");
 
   // Initial data load
   useEffect(() => {
@@ -107,6 +110,9 @@ export function GradeApprovalPage() {
         </Button>
       </div>
 
+      {/* Department Bulk Actions */}
+      <DepartmentBulkActions />
+
       {/* Success Message */}
       {successMessage && (
         <Card className="border-green-200 bg-green-50">
@@ -144,10 +150,10 @@ export function GradeApprovalPage() {
       )}
 
       {/* Statistics Dashboard */}
-      <GradeApprovalStatsComponent stats={stats} loading={loading && !stats} />
+      <GradeApprovalStatsComponent />
 
       {/* Urgent Requests Alert */}
-{/*       {urgentRequests.length > 0 && (
+      {/*       {urgentRequests.length > 0 && (
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
             <CardTitle className="text-lg text-orange-900 flex items-center gap-2">
@@ -184,7 +190,7 @@ export function GradeApprovalPage() {
       )} */}
 
       {/* Quick Actions */}
-  {/*     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/*     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-blue-100">
           <CardHeader>
             <CardTitle className="text-lg text-blue-900">
@@ -293,11 +299,7 @@ export function GradeApprovalPage() {
       </div> */}
 
       {/* Grade Approval Notifications */}
-      <GradeApprovalNotifications
-        requests={requests}
-        onViewRequest={handleViewRequest}
-        loading={loading}
-      />
+      <GradeApprovalNotifications onViewRequest={handleViewRequest} />
 
       {/* Grade Review Modal */}
       <GradeReviewModal

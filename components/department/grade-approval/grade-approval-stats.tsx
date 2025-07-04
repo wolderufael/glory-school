@@ -12,20 +12,33 @@ import {
   Users,
 } from "lucide-react";
 import { GradeApprovalStats } from "./types";
+import { useGradeApprovalRequests } from "@/lib/react-query/hooks/useAssessmentGroups";
+import { getLocalStorage } from "@/utils/localStorage";
 
-interface GradeApprovalStatsProps {
-  stats: GradeApprovalStats | null;
-  loading?: boolean;
-}
+interface GradeApprovalStatsProps {}
 
-export function GradeApprovalStatsComponent({
-  stats,
-  loading = false,
-}: GradeApprovalStatsProps) {
+export function GradeApprovalStatsComponent({}: GradeApprovalStatsProps) {
+  const departmentId = getLocalStorage("departmentId");
+
+  const {
+    data: requests = [],
+    isLoading: loading,
+    error,
+  } = useGradeApprovalRequests(
+    departmentId ? parseInt(departmentId.toString()) : undefined
+  );
+
+  // Calculate stats from the actual data
+  const stats = {
+    totalRequests: requests.length,
+    pendingRequests: requests.filter((r) => r.status === "pending").length,
+    approvedRequests: requests.filter((r) => r.status === "approved").length,
+  };
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        {Array.from({ length: 5 }).map((_, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 3 }).map((_, index) => (
           <Card key={index} className="border-blue-100">
             <CardContent className="p-6">
               <div className="animate-pulse">
@@ -40,13 +53,14 @@ export function GradeApprovalStatsComponent({
     );
   }
 
-  if (!stats) {
+  if (error) {
     return (
-      <Card className="border-blue-100">
+      <Card className="border-red-100">
         <CardContent className="flex items-center justify-center py-12">
           <div className="text-center">
-            <BarChart3 className="h-12 w-12 text-blue-300 mx-auto mb-4" />
-            <p className="text-blue-600">No statistics available</p>
+            <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p className="text-red-600">Error loading statistics</p>
+            <p className="text-sm text-gray-600 mt-2">{error.message}</p>
           </div>
         </CardContent>
       </Card>
@@ -72,27 +86,19 @@ export function GradeApprovalStatsComponent({
       urgent: stats.pendingRequests > 5,
     },
     {
-      title: "Approved Today",
-      value: stats.approvedToday,
+      title: "Approved",
+      value: stats.approvedRequests,
       icon: CheckCircle,
       color: "text-green-600",
       bgColor: "bg-green-50",
       description: "Successfully processed",
     },
-    {
-      title: "Rejected Today",
-      value: stats.rejectedToday,
-      icon: XCircle,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      description: "Returned for revision",
-    }
   ];
 
   return (
     <div className="space-y-6">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat) => (
           <Card
             key={stat.title}
@@ -123,7 +129,7 @@ export function GradeApprovalStatsComponent({
       </div>
 
       {/* Quick Insights */}
-{/*       <Card className="border-blue-100">
+      {/*       <Card className="border-blue-100">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-blue-900 flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />

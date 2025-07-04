@@ -52,6 +52,7 @@ export interface GradeApprovalRequest {
   totalStudents: number;
   submittedGrades: number;
   message?: string;
+  teachingAssignmentId: number;
 }
 
 export interface GradeApprovalStats {

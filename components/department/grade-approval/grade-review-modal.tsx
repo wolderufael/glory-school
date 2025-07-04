@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,8 @@ import {
   ApprovalDecision,
   GradeDistribution,
 } from "./types";
+import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
+import { useUpdateAssessmentGroupStatus } from "@/lib/react-query/mutations/useUpdateAssessmentGroupStatus";
 
 interface GradeReviewModalProps {
   request: GradeApprovalRequest | null;
@@ -57,10 +59,23 @@ export function GradeReviewModal({
   const [feedback, setFeedback] = useState("");
   const [reason, setReason] = useState("");
 
+  // Extract teaching assignment ID from the request
+  const teachingAssignmentId = request?.teachingAssignmentId ?? null;
+
+  // Fetch real student assessment data
+  const {
+    data: studentAssessments = [],
+    isLoading: isLoadingStudents,
+    error: studentsError,
+  } = useByteachingAssessment(teachingAssignmentId ?? 0);
+
+  // Mutation for updating assessment group status
+  const updateStatusMutation = useUpdateAssessmentGroupStatus();
+
   const handleSubmitDecision = () => {
     if (!request) return;
 
-    const approvalDecision: ApprovalDecision = {
+    /*     const approvalDecision: ApprovalDecision = {
       requestId: request.id,
       action: decision,
       reason: reason || undefined,
@@ -68,18 +83,25 @@ export function GradeReviewModal({
       reviewerId: "current-registrar-id", // This should come from auth context
     };
 
-    onDecision(approvalDecision);
+    onDecision(approvalDecision); */
+
+    updateStatusMutation.mutate({
+      id: parseInt(request.id, 10),
+      status: decision === "approve" ? "APPROVED" : "REJECTED",
+      reason: reason || undefined,
+    });
   };
 
   const calculateGradeDistribution = (): GradeDistribution[] => {
-    if (!request) return [];
+    if (!studentAssessments || studentAssessments.length === 0) return [];
 
     const gradeCount: Record<string, number> = {};
-    request.grades.forEach((grade) => {
-      gradeCount[grade.grade] = (gradeCount[grade.grade] || 0) + 1;
+    studentAssessments.forEach((assessment: any) => {
+      const grade = assessment.gradeInLetter || "F";
+      gradeCount[grade] = (gradeCount[grade] || 0) + 1;
     });
 
-    const total = request.grades.length;
+    const total = studentAssessments.length;
     return Object.entries(gradeCount)
       .map(([grade, count]) => ({
         grade,
@@ -247,111 +269,154 @@ export function GradeReviewModal({
                     </tr>
                   </thead>
                   <tbody>
-                    {request.grades.map((grade, index) => {
-                      const getGradeColor = (gradeValue: string) => {
-                        switch (gradeValue) {
-                          case "A":
-                          case "A+":
-                          case "A-":
-                            return "text-emerald-600 bg-emerald-50 border border-emerald-200";
-                          case "B":
-                          case "B+":
-                          case "B-":
-                            return "text-blue-600 bg-blue-50 border border-blue-200";
-                          case "C":
-                          case "C+":
-                          case "C-":
-                            return "text-amber-600 bg-amber-50 border border-amber-200";
-                          case "D":
-                          case "D+":
-                          case "D-":
-                            return "text-orange-600 bg-orange-50 border border-orange-200";
-                          case "F":
-                            return "text-red-600 bg-red-50 border border-red-200";
-                          default:
-                            return "text-gray-600 bg-gray-50 border border-gray-200";
-                        }
-                      };
-
-                      // Mock practical breakdown (since we don't have individual practical scores)
-                      const totalPractical = Math.floor(grade.points * 0.6); // Assume 60% is practical
-                      const theory = grade.points - totalPractical;
-                      const practical1 = Math.floor(totalPractical * 0.33);
-                      const practical2 = Math.floor(totalPractical * 0.33);
-                      const practical3 =
-                        totalPractical - practical1 - practical2;
-
-                      return (
-                        <tr
-                          key={grade.studentId}
-                          className={`hover:bg-blue-50/50 transition-colors duration-200 ${
-                            index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
-                          }`}
+                    {isLoadingStudents ? (
+                      <tr>
+                        <td colSpan={10} className="text-center py-8">
+                          <div className="flex items-center justify-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                            <span className="text-blue-600">
+                              Loading student data...
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : studentsError ? (
+                      <tr>
+                        <td
+                          colSpan={10}
+                          className="text-center py-8 text-red-600"
                         >
-                          <td className="font-medium text-gray-900 py-4 px-4">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                              <span>{grade.studentNumber}</span>
-                            </div>
-                          </td>
-                          <td className="font-medium text-gray-900 py-4 px-4">
-                            {grade.studentName}
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
-                              {practical1}
-                            </div>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
-                              {practical2}
-                            </div>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
-                              {practical3}
-                            </div>
-                          </td>
-                          <td className="text-center py-4 px-4 bg-blue-50/50">
-                            <span className="font-bold text-blue-700 text-lg">
-                              {totalPractical}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
-                              {theory}
-                            </div>
-                          </td>
-                          <td className="text-center py-4 px-4 bg-indigo-50/50">
-                            <span className="font-bold text-indigo-700 text-lg">
-                              {grade.points}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <span
-                              className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(
-                                grade.grade
-                              )}`}
-                            >
-                              {grade.grade}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-4">
-                            <Badge
-                              className={`text-xs ${
-                                grade.status === "pass"
-                                  ? "bg-green-100 text-green-800"
-                                  : grade.status === "fail"
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-yellow-100 text-yellow-800"
+                          Error loading student data: {studentsError.message}
+                        </td>
+                      </tr>
+                    ) : studentAssessments.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={10}
+                          className="text-center py-8 text-gray-500"
+                        >
+                          No student assessment data found
+                        </td>
+                      </tr>
+                    ) : (
+                      studentAssessments.map(
+                        (assessment: any, index: number) => {
+                          const getGradeColor = (gradeValue: string) => {
+                            switch (gradeValue) {
+                              case "A":
+                              case "A+":
+                              case "A-":
+                                return "text-emerald-600 bg-emerald-50 border border-emerald-200";
+                              case "B":
+                              case "B+":
+                              case "B-":
+                                return "text-blue-600 bg-blue-50 border border-blue-200";
+                              case "C":
+                              case "C+":
+                              case "C-":
+                                return "text-amber-600 bg-amber-50 border border-amber-200";
+                              case "D":
+                              case "D+":
+                              case "D-":
+                                return "text-orange-600 bg-orange-50 border border-orange-200";
+                              case "F":
+                                return "text-red-600 bg-red-50 border border-red-200";
+                              default:
+                                return "text-gray-600 bg-gray-50 border border-gray-200";
+                            }
+                          };
+
+                          // Get data from real student assessment
+                          const student = assessment.student;
+                          const practical1 = assessment.practical1 || 0;
+                          const practical2 = assessment.practical2 || 0;
+                          const practical3 = assessment.practical3 || 0;
+                          const totalPractical =
+                            practical1 + practical2 + practical3;
+                          const theory = assessment.theory || 0;
+                          const totalMark = totalPractical + theory;
+                          const grade = assessment.gradeInLetter || "F";
+
+                          const fullName = student?.user?.firstName
+                            ? `${student.user.firstName} ${
+                                student.user.middleName ?? ""
+                              } ${student.user.lastName ?? ""}`.trim()
+                            : "Unknown Student";
+
+                          return (
+                            <tr
+                              key={student?.id || index}
+                              className={`hover:bg-blue-50/50 transition-colors duration-200 ${
+                                index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
                               }`}
                             >
-                              {grade.status}
-                            </Badge>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                              <td className="font-medium text-gray-900 py-4 px-4">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                  <span>
+                                    {student?.user?.userMainId ||
+                                      `ST${student?.id || index}`}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="font-medium text-gray-900 py-4 px-4">
+                                {fullName}
+                              </td>
+                              <td className="text-center py-4 px-4">
+                                <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
+                                  {practical1}
+                                </div>
+                              </td>
+                              <td className="text-center py-4 px-4">
+                                <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
+                                  {practical2}
+                                </div>
+                              </td>
+                              <td className="text-center py-4 px-4">
+                                <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
+                                  {practical3}
+                                </div>
+                              </td>
+                              <td className="text-center py-4 px-4 bg-blue-50/50">
+                                <span className="font-bold text-blue-700 text-lg">
+                                  {totalPractical}
+                                </span>
+                              </td>
+                              <td className="text-center py-4 px-4">
+                                <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-1 text-sm font-medium text-gray-700">
+                                  {theory}
+                                </div>
+                              </td>
+                              <td className="text-center py-4 px-4 bg-indigo-50/50">
+                                <span className="font-bold text-indigo-700 text-lg">
+                                  {totalMark}
+                                </span>
+                              </td>
+                              <td className="text-center py-4 px-4">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(
+                                    grade
+                                  )}`}
+                                >
+                                  {grade}
+                                </span>
+                              </td>
+                              <td className="text-center py-4 px-4">
+                                <Badge
+                                  className={`text-xs ${
+                                    totalMark >= 50
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-red-100 text-red-800"
+                                  }`}
+                                >
+                                  {totalMark >= 50 ? "Pass" : "Fail"}
+                                </Badge>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -390,17 +455,11 @@ export function GradeReviewModal({
                         Reject Submission
                       </div>
                     </SelectItem>
-                    <SelectItem value="request_revision">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                        Request Revision
-                      </div>
-                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {(decision === "reject" || decision === "request_revision") && (
+              {decision === "reject" && (
                 <div>
                   <Label htmlFor="reason" className="text-blue-900 font-medium">
                     Reason{" "}
@@ -420,20 +479,6 @@ export function GradeReviewModal({
                   />
                 </div>
               )}
-
-              <div>
-                <Label htmlFor="feedback" className="text-blue-900 font-medium">
-                  Additional Feedback (Optional)
-                </Label>
-                <Textarea
-                  id="feedback"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  placeholder="Any additional comments or feedback for the teacher..."
-                  className="border-blue-200 focus:border-blue-400"
-                  rows={3}
-                />
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -464,14 +509,11 @@ export function GradeReviewModal({
                   <CheckCircle className="h-4 w-4 mr-2" />
                 )}
                 {decision === "reject" && <XCircle className="h-4 w-4 mr-2" />}
-                {decision === "request_revision" && (
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                )}
                 {decision === "approve"
                   ? "Approve Grades"
                   : decision === "reject"
                   ? "Reject Submission"
-                  : "Request Revision"}
+                  : "Approve Grades"}
               </>
             )}
           </Button>

@@ -24,7 +24,7 @@ const updateAssessmentStatus = async ({
   status,
 }: UpdateAssessmentStatusRequest): Promise<UpdateAssessmentStatusResponse> => {
   const response = await fetch(
-    `http://168.231.80.15/api/assessmentgroups/${id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups/${id}`,
     {
       method: "PUT",
       headers: {

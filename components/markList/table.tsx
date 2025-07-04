@@ -181,19 +181,39 @@ const ListTable = () => {
     const statusInfo = getAssessmentGroupStatus();
     const status = statusInfo.status;
 
-    switch (status) {
-      case "DRAFT":
-      case "REJECTED":
-        return {
+    // For APPROVED and UNDER_REVIEW, return no buttons
+    if (status === "APPROVED" || status === "UNDER_REVIEW") {
+      return [];
+    }
+
+    // For DRAFT/REJECTED, return only one Save button
+    if (status === "DRAFT" || status === "REJECTED") {
+      return [
+        {
           text: "Save",
           onClick: handleSubmit,
           disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
           className:
             "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
           icon: "Trophy",
-        };
+        },
+      ];
+    }
+
+    // For all other statuses, return two buttons
+    const saveButton = {
+      text: "Save",
+      onClick: handleSubmit,
+      disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
+      className:
+        "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
+      icon: "Trophy",
+    };
+
+    let secondButton;
+    switch (status) {
       case "SUBMISSION_REQUESTED":
-        return {
+        secondButton = {
           text: "Submit for Approval",
           onClick: handleSubmitForApproval,
           disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
@@ -201,8 +221,9 @@ const ListTable = () => {
             "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
           icon: "CheckCircle",
         };
-      case "UNDER_REVIEW":
-        return {
+        break;
+      /*       case "UNDER_REVIEW":
+        secondButton = {
           text: "Under Review",
           onClick: () => {},
           disabled: true,
@@ -210,17 +231,9 @@ const ListTable = () => {
             "bg-gradient-to-r from-yellow-400 to-amber-400 text-white px-8 py-3 rounded-lg shadow-lg font-semibold opacity-75 cursor-not-allowed",
           icon: "Clock",
         };
-      case "APPROVED":
-        return {
-          text: "Approved",
-          onClick: () => {},
-          disabled: true,
-          className:
-            "bg-gradient-to-r from-green-400 to-emerald-400 text-white px-8 py-3 rounded-lg shadow-lg font-semibold opacity-75 cursor-not-allowed",
-          icon: "CheckCircle",
-        };
+        break; */
       default:
-        return {
+        secondButton = {
           text: "Save",
           onClick: handleSubmit,
           disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
@@ -228,7 +241,10 @@ const ListTable = () => {
             "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold",
           icon: "Trophy",
         };
+        break;
     }
+
+    return [saveButton, secondButton];
   };
 
   const getAssessmentValue = (
@@ -316,7 +332,87 @@ const ListTable = () => {
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Users className="w-5 h-5" />
-                  <span>Student Assessments</span>
+                  <div className="flex flex-col">
+                    <span>Student Assessments</span>
+                    {fetchedAssessments && fetchedAssessments.length > 0 && (
+                      <div className="flex items-center space-x-3 mt-2">
+                        {(() => {
+                          const statusInfo = getAssessmentGroupStatus();
+                          const status = statusInfo.status;
+                          const statusMeanings = {
+                            DRAFT: {
+                              text: "Draft",
+                              meaning: "You can edit and save changes",
+                              bgColor: "bg-gray-100/90",
+                              textColor: "text-gray-800",
+                              icon: "📝",
+                              dotColor: "bg-gray-400",
+                            },
+                            SUBMISSION_REQUESTED: {
+                              text: "Submission Requested",
+                              meaning: "Ready to submit for approval",
+                              bgColor: "bg-blue-100/90",
+                              textColor: "text-blue-800",
+                              icon: "📤",
+                              dotColor: "bg-blue-400",
+                            },
+                            UNDER_REVIEW: {
+                              text: "Under Review",
+                              meaning:
+                                "Being reviewed by department no more changes allowed",
+                              bgColor: "bg-yellow-100/90",
+                              textColor: "text-yellow-800",
+                              icon: "👁️",
+                              dotColor: "bg-yellow-400",
+                            },
+                            APPROVED: {
+                              text: "Approved",
+                              meaning: "Finalized - no more changes allowed",
+                              bgColor: "bg-green-100/90",
+                              textColor: "text-green-800",
+                              icon: "✅",
+                              dotColor: "bg-green-400",
+                            },
+                            REJECTED: {
+                              text: "Rejected",
+                              meaning: "Needs revision - you can edit",
+                              bgColor: "bg-red-100/90",
+                              textColor: "text-red-800",
+                              icon: "❌",
+                              dotColor: "bg-red-400",
+                            },
+                          };
+                          const statusConfig =
+                            statusMeanings[
+                              status as keyof typeof statusMeanings
+                            ] || statusMeanings.DRAFT;
+
+                          return (
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className={`flex items-center space-x-2 px-3 py-1.5 rounded-full ${statusConfig.bgColor} backdrop-blur-sm`}
+                              >
+                                <div
+                                  className={`w-2 h-2 rounded-full ${statusConfig.dotColor} animate-pulse`}
+                                ></div>
+                                <span className="text-xs font-medium">
+                                  {statusConfig.icon}
+                                </span>
+                                <span
+                                  className={`text-xs font-semibold ${statusConfig.textColor}`}
+                                >
+                                  {statusConfig.text}
+                                </span>
+                              </div>
+                              <div className="text-white/90 text-xs font-light italic max-w-xs">
+                                {statusConfig.meaning}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {fetchedAssessments && fetchedAssessments.length > 0 && (
                   <div className="flex items-center space-x-2 text-white/90">
@@ -556,43 +652,51 @@ const ListTable = () => {
                     <TableFooter>
                       <TableRow className="bg-gradient-to-r from-gray-100 to-gray-200 border-t-2 border-gray-300">
                         <TableCell colSpan={11} className="text-right py-6">
-                          {(() => {
-                            const buttonConfig = getButtonConfig();
-                            const IconComponent =
-                              buttonConfig.icon === "Trophy"
-                                ? Trophy
-                                : buttonConfig.icon === "CheckCircle"
-                                ? CheckCircle
-                                : buttonConfig.icon === "Clock"
-                                ? Clock
-                                : Trophy;
+                          <div className="flex justify-end space-x-4">
+                            {(() => {
+                              const buttonConfigs = getButtonConfig();
 
-                            return (
-                              <Button
-                                type="button"
-                                onClick={buttonConfig.onClick}
-                                disabled={buttonConfig.disabled}
-                                className={buttonConfig.className}
-                              >
-                                {isSubmitting ||
-                                updateAssessmentStatusMutation.isPending ? (
-                                  <div className="flex items-center space-x-2">
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>
-                                      {updateAssessmentStatusMutation.isPending
-                                        ? "Updating Status..."
-                                        : "Submitting..."}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center space-x-2">
-                                    <IconComponent className="w-4 h-4" />
-                                    <span>{buttonConfig.text}</span>
-                                  </div>
-                                )}
-                              </Button>
-                            );
-                          })()}
+                              return buttonConfigs.map(
+                                (buttonConfig, index) => {
+                                  const IconComponent =
+                                    buttonConfig.icon === "Trophy"
+                                      ? Trophy
+                                      : buttonConfig.icon === "CheckCircle"
+                                      ? CheckCircle
+                                      : buttonConfig.icon === "Clock"
+                                      ? Clock
+                                      : Trophy;
+
+                                  return (
+                                    <Button
+                                      key={index}
+                                      type="button"
+                                      onClick={buttonConfig.onClick}
+                                      disabled={buttonConfig.disabled}
+                                      className={buttonConfig.className}
+                                    >
+                                      {isSubmitting ||
+                                      updateAssessmentStatusMutation.isPending ? (
+                                        <div className="flex items-center space-x-2">
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                          <span>
+                                            {updateAssessmentStatusMutation.isPending
+                                              ? "Updating Status..."
+                                              : "Submitting..."}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center space-x-2">
+                                          <IconComponent className="w-4 h-4" />
+                                          <span>{buttonConfig.text}</span>
+                                        </div>
+                                      )}
+                                    </Button>
+                                  );
+                                }
+                              );
+                            })()}
+                          </div>
                         </TableCell>
                       </TableRow>
                     </TableFooter>
