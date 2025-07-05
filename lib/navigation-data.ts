@@ -64,11 +64,12 @@ export const navigationItems = [
         icon: BookOpen,
         url: "/student/dashboard/assesment",
       },
-      /*  {
-        title: "Academic Records",
+      {
+        title: "Grade Report",
         icon: FileText,
-        url: "/student/dashboard/academic-records",
+        url: "/student/dashboard/grade-report",
       },
+       /* 
       {
         title: "Grades & Transcripts",
         icon: Award,
