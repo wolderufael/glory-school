@@ -1,14 +1,34 @@
+'use client';
+
 import { StudentData } from "./types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, FileText, GraduationCap, Calendar, Eye } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Download,
+  FileText,
+  GraduationCap,
+  Calendar,
+  Eye,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+
+// Client-safe check for File instances
+const isBrowserFile = (file: unknown): file is File =>
+  typeof File !== "undefined" && file instanceof File;
 
 const renderDownloadableFile = (
   file: File | string | null | undefined,
   label: string
 ) => {
   if (!file) return null;
+
+  const isFile = isBrowserFile(file);
+  const url = isFile ? URL.createObjectURL(file) : file;
 
   return (
     <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-100 hover:border-indigo-200 transition-colors max-sm:flex-col max-sm:items-start max-sm:gap-3">
@@ -28,15 +48,16 @@ const renderDownloadableFile = (
           size="sm"
           className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
           onClick={() => {
-            const url = file instanceof File ? URL.createObjectURL(file) : file;
-            window.open(url, "_blank");
+            if (typeof window !== "undefined") {
+              window.open(url, "_blank");
+            }
           }}
         >
           <Eye className="h-4 w-4" />
           <span className="ml-1">View</span>
         </Button>
         <a
-          href={file instanceof File ? URL.createObjectURL(file) : file}
+          href={url}
           download
           className="p-2 hover:bg-indigo-50 rounded-full transition-colors"
         >
@@ -55,9 +76,8 @@ export function EducationalBackground({
   const transcriptFiles = studentData?.transcript;
   const pastSecondaryData = studentData?.pastSecondary;
 
-  // Format date to a readable string
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -66,7 +86,6 @@ export function EducationalBackground({
 
   return (
     <div className="space-y-6 max-sm:px-4">
-      {/* Main Educational Background Card */}
       <Card className="border-indigo-100">
         <CardHeader className="space-y-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white max-sm:p-4">
           <div className="flex items-center gap-2">
@@ -79,34 +98,19 @@ export function EducationalBackground({
           </div>
         </CardHeader>
         <CardContent className="pt-6 max-sm:p-4">
-          {/* Secondary School Transcripts */}
           <div className="space-y-6">
+            {/* Transcripts */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FileText className="h-5 w-5 text-indigo-600" />
                 Secondary School Transcripts
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-sm:grid-cols-1">
-                {renderDownloadableFile(
-                  transcriptFiles?.grade9FilePath,
-                  "Grade 9 Transcript"
-                )}
-                {renderDownloadableFile(
-                  transcriptFiles?.grade10FilePath,
-                  "Grade 10 Transcript"
-                )}
-                {renderDownloadableFile(
-                  transcriptFiles?.grade11FilePath,
-                  "Grade 11 Transcript"
-                )}
-                {renderDownloadableFile(
-                  transcriptFiles?.grade12FilePath,
-                  "Grade 12 Transcript"
-                )}
-                {renderDownloadableFile(
-                  transcriptFiles?.examFilePath,
-                  "Entrance Exam Results"
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {renderDownloadableFile(transcriptFiles?.grade9FilePath, "Grade 9 Transcript")}
+                {renderDownloadableFile(transcriptFiles?.grade10FilePath, "Grade 10 Transcript")}
+                {renderDownloadableFile(transcriptFiles?.grade11FilePath, "Grade 11 Transcript")}
+                {renderDownloadableFile(transcriptFiles?.grade12FilePath, "Grade 12 Transcript")}
+                {renderDownloadableFile(transcriptFiles?.examFilePath, "Entrance Exam Results")}
               </div>
             </div>
 
@@ -114,9 +118,7 @@ export function EducationalBackground({
 
             {/* Academic Performance */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Academic Performance
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Academic Performance</h3>
               <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
                 <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-indigo-100">
                   <p className="text-sm text-gray-600 mb-1">English Grade</p>
@@ -125,9 +127,7 @@ export function EducationalBackground({
                   </p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-indigo-100">
-                  <p className="text-sm text-gray-600 mb-1">
-                    Mathematics Grade
-                  </p>
+                  <p className="text-sm text-gray-600 mb-1">Mathematics Grade</p>
                   <p className="text-2xl font-bold text-indigo-700">
                     {transcriptFiles?.mathsGrade ?? "N/A"}
                   </p>
@@ -135,7 +135,7 @@ export function EducationalBackground({
               </div>
             </div>
 
-            {/* Post-Secondary Education */}
+            {/* Post-Secondary */}
             {pastSecondaryData && (
               <>
                 <Separator className="my-6" />
@@ -145,7 +145,7 @@ export function EducationalBackground({
                     Post-Secondary Education
                   </h3>
                   <div className="bg-white rounded-lg border border-indigo-100 p-4">
-                    <div className="flex items-center gap-2 mb-3 max-sm:flex-wrap">
+                    <div className="flex items-center gap-2 mb-3">
                       <Calendar className="h-4 w-4 text-indigo-600" />
                       <span className="text-sm text-gray-600">
                         Added on {formatDate(pastSecondaryData.createdAt)}
@@ -153,13 +153,10 @@ export function EducationalBackground({
                     </div>
                     <div className="space-y-3">
                       {pastSecondaryData.filePaths
-                        .split(",")
-                        .map((filePath: string, index: number) => (
+                        ?.split(",")
+                        .map((path: string, index: number) => (
                           <div key={`${pastSecondaryData.id}-${index}`}>
-                            {renderDownloadableFile(
-                              filePath.trim(),
-                              `Post-Secondary Document ${index + 1}`
-                            )}
+                            {renderDownloadableFile(path.trim(), `Post-Secondary Document ${index + 1}`)}
                           </div>
                         ))}
                     </div>

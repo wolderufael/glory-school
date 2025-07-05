@@ -105,10 +105,12 @@ export default function MultiStepForm() {
       // Create FormData instance
       const formData = new FormData();
 
-      // Add profile picture if it exists
-      if (personalInfo.profilePicture instanceof File) {
+      if (typeof File !== "undefined" && personalInfo.profilePicture instanceof File) {
         formData.append("profilePicture", personalInfo.profilePicture);
       }
+
+
+      
 
       // Add all personal info fields
       formData.append("userId", currentUserId?.toString() || "0");
@@ -197,31 +199,31 @@ export default function MultiStepForm() {
       });
 
       // Add transcript files
-      if (academicInfo.transcript.grade_9_file_path instanceof File) {
+      if (typeof File !== "undefined" &&  academicInfo.transcript.grade_9_file_path instanceof File) {
         formData.append(
           "nineTranscript",
           academicInfo.transcript.grade_9_file_path
         );
       }
-      if (academicInfo.transcript.grade_10_file_path instanceof File) {
+      if (typeof File !== "undefined" && academicInfo.transcript.grade_10_file_path instanceof File) {
         formData.append(
           "tenTranscript",
           academicInfo.transcript.grade_10_file_path
         );
       }
-      if (academicInfo.transcript.grade_11_file_path instanceof File) {
+      if (typeof File !== "undefined" && academicInfo.transcript.grade_11_file_path instanceof File) {
         formData.append(
           "elevenTranscript",
           academicInfo.transcript.grade_11_file_path
         );
       }
-      if (academicInfo.transcript.grade_12_file_path instanceof File) {
+      if (typeof File !== "undefined" &&  academicInfo.transcript.grade_12_file_path instanceof File) {
         formData.append(
           "twelveTranscript",
           academicInfo.transcript.grade_12_file_path
         );
       }
-      if (academicInfo.transcript.exam_file_path instanceof File) {
+      if (typeof File !== "undefined" &&  academicInfo.transcript.exam_file_path instanceof File) {
         formData.append("entranceExam", academicInfo.transcript.exam_file_path);
       }
 
@@ -246,7 +248,7 @@ export default function MultiStepForm() {
       );
 
       academicInfo.pastSchools.forEach((school) => {
-        if (school.file_paths instanceof File) {
+        if (typeof File !== "undefined" &&  school.file_paths instanceof File) {
           formData.append("postSecondary", school.file_paths);
         }
       });
@@ -257,7 +259,7 @@ export default function MultiStepForm() {
         console.log(
           pair[0],
           ":",
-          pair[1] instanceof File ? pair[1].name : pair[1]
+         typeof File !== "undefined" &&  pair[1] instanceof File ? pair[1].name : pair[1]
         );
       }
       

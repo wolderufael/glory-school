@@ -4,12 +4,11 @@ import MultiStepForm from "@/components/studentForm/multiStepForm"
 
 
 const Registration=()=>{
-    console.log("window", typeof window);
-    console.log("File exists?", typeof File);
-
-    return(
+   return(
         <MultiStepForm   />
     )
 }
 
 export default Registration
+
+export const dynamic = "force-dynamic";

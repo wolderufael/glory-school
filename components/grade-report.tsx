@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Accordion,
   AccordionContent,
@@ -13,9 +15,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { results } from "@/app/(routes)/student/dashboard/grades-transcripts/mock-data";
+import { useEffect, useState } from "react";
+
+// Grade point mapping
+const GRADE_POINTS: Record<string, number> = {
+  "A": 4.0,
+  "A-": 3.75,
+  "B+": 3.5,
+  "B": 3.0,
+  "B-": 2.75,
+  "C+": 2.5,
+  "C": 2.0,
+  "C-": 1.75,
+  "D": 1.5,
+  "D-": 1.0,
+  "F": 0.0,
+};
 
 export function Results() {
+  const [results, setResults] = useState<any[]>([]);
+
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case "A":
@@ -33,6 +52,39 @@ export function Results() {
     }
   };
 
+  const calculateCreditHours = (course: any) => {
+    // Calculate credit hours based on total contact hours
+    return Math.round(course.totalNhrs / 15);
+  };
+
+  const calculatePoints = (course: any) => {
+    const gradePoint = GRADE_POINTS[course.gradeInLetter] || 0;
+    const creditHours = calculateCreditHours(course);
+    return gradePoint * creditHours;
+  };
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      const studentId = localStorage.getItem("studentId");
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/assessments/gpa/${studentId}`
+        );
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        if (!data || !Array.isArray(data)) throw new Error('Invalid data format');
+        
+        setResults(data);
+      } catch (error) {
+        console.error("Error fetching results:", error);
+      }
+    };
+
+    fetchResults();
+  }, []);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -47,7 +99,10 @@ export function Results() {
                   <div className="flex justify-between items-center w-full pr-4">
                     <div>
                       <p className="font-semibold">
-                        {semester.semester} - {semester.academicYear}
+                        {semester.semester.name} - {semester.academicYear.name} (Level {semester.level})
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Section: {semester.section.sectionName}
                       </p>
                     </div>
                     <div className="text-right">
@@ -62,59 +117,71 @@ export function Results() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Course Index</TableHead>
+                        <TableHead>#</TableHead>
                         <TableHead>Course Code</TableHead>
                         <TableHead>Course Name</TableHead>
-                        <TableHead>Credit Hours</TableHead>
-                        <TableHead>Result(100%)</TableHead>
+                        <TableHead>Credit Hrs</TableHead>
+                        <TableHead>Score</TableHead>
                         <TableHead>Grade</TableHead>
                         <TableHead>Points</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {semester.courses.map((course, courseIndex) => (
-                        <>
-                        <TableRow key={courseIndex}>
-                           <TableCell>{courseIndex + 1}</TableCell>
-                          <TableCell className="font-medium">
-                            {course.courseCode}
-                          </TableCell>
-                          <TableCell>{course.courseName}</TableCell>
-                          <TableCell>{course.creditHours}</TableCell>
-                          <TableCell>{course.result}</TableCell>
-                          <TableCell>
-                            <span
-                              className={`font-semibold ${getGradeColor(
-                                course.grade
-                              )}`}
-                            >
-                              {course.grade}
-                            </span>
-                          </TableCell>
-                          <TableCell>{course.points.toFixed(2)}</TableCell>
-                        </TableRow>
+                      {semester.courses.map((course: any, courseIndex: number) => {
+                        const creditHours = calculateCreditHours(course);
+                        const points = calculatePoints(course);
                         
-            </>
-                      ))}
+                        return (
+                          <TableRow key={courseIndex}>
+                            <TableCell>{courseIndex + 1}</TableCell>
+                            <TableCell className="font-medium">
+                              {course.courseCode}
+                            </TableCell>
+                            <TableCell>{course.title}</TableCell>
+                            <TableCell>{creditHours}</TableCell>
+                            <TableCell>{course.totalMark}</TableCell>
+                            <TableCell>
+                              <span
+                                className={`font-semibold ${getGradeColor(
+                                  course.gradeInLetter
+                                )}`}
+                              >
+                                {course.gradeInLetter}
+                              </span>
+                            </TableCell>
+                            <TableCell>{points.toFixed(2)}</TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
-            <div className="flex justify-end items-end top-22 my-12  flex-col">
-              <p className="text-sm gap-6 my-4 mx-12 text-gray-500 font-semibold">
-                Total Grade Point <span className="font-semibold px-5">3.71</span>
-              </p>
-               <p className="text-sm text-gray-500  gap-6 my-4 mx-12 font-semibold">
-               Average Grade Point(GPA) <span className="font-semibold px-5">3.71</span>
-              </p>
-               <p className="text-sm text-gray-500 gap-6 my-4 mx-12 font-semibold">
-                Cumulative Average Grade Point(CGPA) <span className="font-semibold px-5">3.71</span>
-              </p>
-
-            </div>
+                  <div className="flex justify-end items-end my-6 flex-col">
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-right mt-8">
+                      <p className="text-sm text-gray-500 font-semibold">
+                        Total Credit Hours:
+                      </p>
+                      <p className="font-semibold">
+                        {semester.totalCredits}
+                      </p>
+                      
+                      <p className="text-sm text-gray-500 font-semibold">
+                        Semester GPA:
+                      </p>
+                      <p className="font-semibold">
+                        {semester.gpa.toFixed(2)}
+                      </p>
+                      
+                      <p className="text-sm text-gray-500 font-semibold">
+                        Cumulative GPA (CGPA):
+                      </p>
+                      <p className="font-semibold">
+                        {semester.cgpa.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
-
-            
           </Accordion>
         </CardContent>
       </Card>
