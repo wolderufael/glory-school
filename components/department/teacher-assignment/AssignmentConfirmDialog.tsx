@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 interface AssignmentConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   courseTitle: string;
   courseId: string;
   departmentId: string;
@@ -34,6 +35,7 @@ interface SelectedTeacher {
 export function AssignmentConfirmDialog({
   isOpen,
   onClose,
+  onSuccess,
   courseTitle,
   courseId,
   departmentId,
@@ -57,8 +59,12 @@ export function AssignmentConfirmDialog({
   useEffect(() => {
     if (isSuccess) {
       handleClose();
+      // Call onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     }
-  }, [isSuccess]);
+  }, [isSuccess, onSuccess]);
 
   const handleTeacherSelect = (teacherId: string, fullName: string) => {
     setSelectedTeacher({ id: teacherId, fullName });

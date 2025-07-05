@@ -37,7 +37,7 @@ export function GradeApprovalNotifications({
   } = useGradeApprovalRequests(
     departmentId ? parseInt(departmentId.toString()) : undefined
   );
-  const [filter, setFilter] = useState<"all" | "pending" | "approved">("all");
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "revision_requested">("all");
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -72,6 +72,7 @@ export function GradeApprovalNotifications({
   const filteredRequests = requests.filter((request) => {
     if (filter === "pending") return request.status === "pending";
     if (filter === "approved") return request.status === "approved";
+    if (filter === "rejected") return request.status === "rejected";
     return true;
   });
 
@@ -142,7 +143,7 @@ export function GradeApprovalNotifications({
           </div>
         </CardContent>
       </Card>
-    );
+    );    
   }
 
   return (
@@ -180,8 +181,17 @@ export function GradeApprovalNotifications({
               Approved ({requests.filter((r) => r.status === "approved").length}
               )
             </Button>
+            <Button
+              variant={filter === "rejected" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("rejected")}
+              className="text-xs"
+            >
+              Rejected ({requests.filter((r) => r.status === "rejected").length}
+              )
+            </Button>
           </div>
-        </div>
+          </div>
         <p className="text-blue-600 text-sm">
           Review and approve teacher-submitted grades
         </p>
@@ -297,14 +307,14 @@ export function GradeApprovalNotifications({
                     </div>
 
                     {/* Action Button */}
-                    <Button
+                    {(request.status === "pending" && <Button
                       onClick={() => onViewRequest(request)}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                       size="sm"
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       Review
-                    </Button>
+                    </Button>)}
                   </div>
                 </div>
               );

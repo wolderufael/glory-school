@@ -28,12 +28,26 @@ export default function CourseList({
 }: CourseListProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  console.log("CourseList",departmentId, levelId, sectionId, academicSemesterId);
+  console.log(
+    "CourseList",
+    departmentId,
+    levelId,
+    sectionId,
+    academicSemesterId
+  );
   const {
     data: courses,
     isLoading,
     error,
+    refetch,
   } = useCourses({ departmentId, levelId, sectionId, academicSemesterId });
+
+  const handleAssignmentSuccess = () => {
+    // Refetch the courses data to get updated assignment status
+    refetch();
+    setDialogOpen(false);
+    setSelectedCourse(null);
+  };
 
   if (!levelId || !sectionId) {
     return (
@@ -103,7 +117,9 @@ export default function CourseList({
                     <h3 className="font-xl flex items-center justify-center  text-gray-900">
                       {course.title}
                     </h3>
-                    <p className="text-sm flex items-center justify-center text-gray-500">{course.courseCode}</p>
+                    <p className="text-sm flex items-center justify-center text-gray-500">
+                      {course.courseCode}
+                    </p>
                     <div className="mt-2 flex items-center justify-center pt-2 border-t border-gray-100">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -159,6 +175,7 @@ export default function CourseList({
             setDialogOpen(false);
             setSelectedCourse(null);
           }}
+          onSuccess={handleAssignmentSuccess}
           courseTitle={selectedCourse.title}
           courseId={selectedCourse.id.toString()}
           departmentId={departmentId}
