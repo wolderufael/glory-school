@@ -94,7 +94,10 @@ const transformToGradeApprovalRequests = (
 ): GradeApprovalRequest[] => {
   return assessmentGroups
     .filter(
-      (group) => group.status === "UNDER_REVIEW" || group.status === "APPROVED"
+      (group) =>
+        group.status === "UNDER_REVIEW" ||
+        group.status === "APPROVED" ||
+        group.status === "REJECTED"
     )
     .map((group) => ({
       id: group.id.toString(),
@@ -132,6 +135,8 @@ const transformToGradeApprovalRequests = (
           ? ("pending" as const)
           : group.status === "APPROVED"
           ? ("approved" as const)
+          : group.status === "REJECTED"
+          ? ("rejected" as const)
           : ("pending" as const),
       totalStudents: 25, // Would need student count from API
       submittedGrades: 25, // Would need submitted grade count from API

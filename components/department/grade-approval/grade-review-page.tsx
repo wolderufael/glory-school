@@ -72,6 +72,8 @@ export default function GradeReviewPage({
       status: decision === "approve" ? "APPROVED" : "REJECTED",
       reason: reason || undefined,
     });
+    resetForm();
+    onClose();
   };
 
   const calculateGradeDistribution = (): GradeDistribution[] => {
@@ -245,7 +247,7 @@ export default function GradeReviewPage({
                 <div className="flex items-center space-x-2 text-white/90">
                   <BarChart3 className="w-4 h-4" />
                   <span className="text-sm">
-                    {request.grades.length} Students
+                    {studentAssessments.length} Students
                   </span>
                 </div>
               </CardTitle>
@@ -334,10 +336,6 @@ export default function GradeReviewPage({
                               case "C+":
                               case "C-":
                                 return "text-amber-600 bg-amber-50 border border-amber-200";
-                              case "D":
-                              case "D+":
-                              case "D-":
-                                return "text-orange-600 bg-orange-50 border border-orange-200";
                               case "F":
                                 return "text-red-600 bg-red-50 border border-red-200";
                               default:
@@ -438,6 +436,134 @@ export default function GradeReviewPage({
                     )}
                   </tbody>
                 </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Grade Statistics */}
+          <Card className="border-green-100">
+            <CardHeader>
+              <CardTitle className="text-lg text-green-900 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Grade Distribution Statistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {(() => {
+                  const gradeStats: Record<string, number> = {};
+                  const allGrades = [
+                    "A+",
+                    "A",
+                    "A-",
+                    "B+",
+                    "B",
+                    "B-",
+                    "C+",
+                    "C",
+                    "C-",
+                    "F",
+                  ];
+
+                  // Initialize all grades with 0
+                  allGrades.forEach((grade) => {
+                    gradeStats[grade] = 0;
+                  });
+
+                  // Count actual grades from student assessments
+                  studentAssessments.forEach((assessment: any) => {
+                    const grade = assessment.gradeInLetter || "F";
+                    if (gradeStats.hasOwnProperty(grade)) {
+                      gradeStats[grade]++;
+                    }
+                  });
+
+                  const getGradeColor = (grade: string) => {
+                    switch (grade) {
+                      case "A+":
+                      case "A":
+                      case "A-":
+                        return "bg-emerald-100 text-emerald-800 border-emerald-200";
+                      case "B+":
+                      case "B":
+                      case "B-":
+                        return "bg-blue-100 text-blue-800 border-blue-200";
+                      case "C+":
+                      case "C":
+                      case "C-":
+                        return "bg-amber-100 text-amber-800 border-amber-200";
+                      case "F":
+                        return "bg-red-100 text-red-800 border-red-200";
+                      default:
+                        return "bg-gray-100 text-gray-800 border-gray-200";
+                    }
+                  };
+
+                  return allGrades.map((grade) => (
+                    <div
+                      key={grade}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${getGradeColor(
+                        grade
+                      )}`}
+                    >
+                      <span className="font-bold">{gradeStats[grade]}</span>
+                      <span>{grade}</span>
+                      <span className="text-xs opacity-75">
+                        (
+                        {studentAssessments.length > 0
+                          ? `${Math.round(
+                              (gradeStats[grade] / studentAssessments.length) *
+                                100
+                            )}%`
+                          : "0%"}
+                        )
+                      </span>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              {/* Summary Stats */}
+              <div className="mt-4 flex flex-wrap gap-4 pt-3 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">
+                    A Grades:{" "}
+                    <span className="font-bold text-emerald-600">
+                      {
+                        studentAssessments.filter((a: any) =>
+                          ["A+", "A", "A-"].includes(a.gradeInLetter || "F")
+                        ).length
+                      }
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">
+                    B Grades:{" "}
+                    <span className="font-bold text-blue-600">
+                      {
+                        studentAssessments.filter((a: any) =>
+                          ["B+", "B", "B-"].includes(a.gradeInLetter || "F")
+                        ).length
+                      }
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-700">
+                    F Grades:{" "}
+                    <span className="font-bold text-red-600">
+                      {
+                        studentAssessments.filter(
+                          (a: any) => a.gradeInLetter === "F"
+                        ).length
+                      }
+                    </span>
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
