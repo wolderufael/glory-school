@@ -131,6 +131,7 @@ export const results = [
         courseName: "Software Engineering",
         creditHours: 3,
         grade: "A",
+         result: 80,
         points: 4.0,
       },
       {
@@ -138,9 +139,11 @@ export const results = [
         courseName: "Database Systems",
         creditHours: 4,
         grade: "B+",
+         result: 90,
         points: 3.5,
       },
     ],
+   
     gpa: 3.71,
   },
   {
@@ -152,6 +155,7 @@ export const results = [
         courseName: "Software Testing",
         creditHours: 3,
         grade: "A-",
+         result: 98,
         points: 3.75,
       },
       {
@@ -159,9 +163,11 @@ export const results = [
         courseName: "Operating Systems",
         creditHours: 4,
         grade: "B",
+         result: 86,
         points: 3.0,
       },
     ],
+    result: 75,
     gpa: 3.33,
   },
 ];
