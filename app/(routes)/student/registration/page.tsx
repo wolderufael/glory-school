@@ -1,6 +1,10 @@
 'use client'
+import dynamic from 'next/dynamic';
 
-import MultiStepForm from "@/components/studentForm/multiStepForm"
+const MultiStepForm = dynamic(
+  () => import("@/components/studentForm/multiStepForm"),
+  { ssr: false }
+);
 
 
 const Registration=()=>{
@@ -11,4 +15,4 @@ const Registration=()=>{
 
 export default Registration
 
-export const dynamic = "force-dynamic";
+export const dynamicSetting = "force-dynamic";
