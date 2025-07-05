@@ -1,107 +1,125 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
-import { userSchema } from '@/utils/userType';
-import {useDebounce} from 'use-debounce';
-
-
+import { userSchema } from "@/utils/userType";
+import { useDebounce } from "use-debounce";
 
 const Register = () => {
   const router = useRouter();
- 
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [userMainId, setUserMainId] = useState<string>('');
+  const [userMainId, setUserMainId] = useState<string>("");
   const [debouncedserMainId] = useDebounce(userMainId, 500);
 
- const [formData, setFormData] = useState({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    password: '',
-    confirmPassword: '',
-    userType: 'Student' as 'Student' | 'Registrar' | 'Teacher' | 'Department' | 'President',
-    gender: 'M' as 'M' | 'F',
-    nationality: '',
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
+    userType: "Student" as
+      | "Student"
+      | "Registrar"
+      | "Teacher"
+      | "Department"
+      | "President",
+    gender: "M" as "M" | "F",
+    nationality: "",
     userMainId: debouncedserMainId, // Use debounced value for userMainId
   });
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   // Update the fetchStudent function to handle errors properly
-const fetchStudent = async (debouncedserMainId: string) => {
-  if (!debouncedserMainId) return;
-  try {
-    setIsLoading(true);
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id/`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentMainId: debouncedserMainId }),
-    });
+  const fetchStudent = async (debouncedserMainId: string) => {
+    if (!debouncedserMainId) return;
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ studentMainId: debouncedserMainId }),
+        }
+      );
 
-    if (!response.ok) {
-      setErrors(prev => ({ ...prev, userMainId: 'User Main ID not found' }));
-      return;
+      if (!response.ok) {
+        setErrors((prev) => ({
+          ...prev,
+          userMainId: "User Main ID not found",
+        }));
+        return;
+      }
+      const data = await response.json();
+      setFormData((prev) => ({
+        ...prev,
+        firstName: data.firstName,
+        middleName: data.middleName || "",
+        lastName: data.lastName,
+        userMainId: data.userMainId || debouncedserMainId, // always set userMainId
+      }));
+      setErrors((prev) => ({ ...prev, userMainId: "" })); // clear userMainId error after success
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        userMainId: "Failed to fetch student data",
+      }));
+    } finally {
+      setIsLoading(false);
     }
-    const data = await response.json();
-    setFormData(prev => ({
-      ...prev,
-      firstName: data.firstName,
-      middleName: data.middleName || '',
-      lastName: data.lastName,
-      userMainId: data.userMainId || debouncedserMainId, // always set userMainId
-    }));
-    setErrors(prev => ({ ...prev, userMainId: '' })); // clear userMainId error after success
-  } catch (error) {
-    setErrors(prev => ({ ...prev, userMainId: 'Failed to fetch student data' }));
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   useEffect(() => {
-  if (debouncedserMainId) {
-    fetchStudent(debouncedserMainId);
-  }
-}, [debouncedserMainId]);
-
-
+    if (debouncedserMainId) {
+      fetchStudent(debouncedserMainId);
+    }
+  }, [debouncedserMainId]);
 
   const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUserMainId(value);
-    setFormData(prev => ({ ...prev, userMainId: value }));
+    setFormData((prev) => ({ ...prev, userMainId: value }));
     if (errors.userMainId) {
-      setErrors(prev => ({ ...prev, userMainId: '' }));
+      setErrors((prev) => ({ ...prev, userMainId: "" }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const parsed = userSchema.safeParse(formData);
     if (!parsed.success) {
       const filledErrors: Record<string, string> = {};
-      parsed.error.errors.forEach(error => {
+      parsed.error.errors.forEach((error) => {
         filledErrors[error.path[0] as string] = error.message;
       });
       setErrors(filledErrors);
@@ -110,43 +128,49 @@ const fetchStudent = async (debouncedserMainId: string) => {
 
     // Confirm password check (frontend only)
     if (formData.password !== formData.confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }));
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Passwords do not match",
+      }));
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       // Exclude confirmPassword from API payload
-      const { confirmPassword,  ...apiData } = formData;
+      const { confirmPassword, ...apiData } = formData;
 
       console.log(apiData);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(apiData),
-      });
-        if (!response.ok) {
-            throw new Error('Registration failed');
-            }
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/users`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(apiData),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Registration failed");
+      }
 
-        const responseData = await response.json();
-        console.log(responseData);
-      toast("Registration Successful",{
+      const responseData = await response.json();
+      console.log(responseData);
+      toast("Registration Successful", {
         description: "Your account has been created successfully!",
       });
-      
-      router.push('/auth/login');
+
+      router.push("/auth/login");
     } catch (error) {
       toast("Registration Failed", {
         description: "Something went wrong. Please try again.",
         style: {
-            backgroundColor: '#f8d7da',
-            color: '#721c24',
-        }
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+        },
       });
     } finally {
       setIsLoading(false);
@@ -178,27 +202,35 @@ const fetchStudent = async (debouncedserMainId: string) => {
               </Label>
               <div className="relative">
                 <Input
-                 name='userMainId'
+                  name="userMainId"
                   type="text"
                   placeholder="Enter your Unique ID"
                   value={userMainId}
                   onChange={handleIdChange}
-                  className={`${isLoading ? "rounded-full" : "w-full h-10 px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500"}`}
+                  className={`${
+                    isLoading
+                      ? "rounded-full"
+                      : "w-full h-10 px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500"
+                  }`}
                 />
                 {errors.uniqueId && (
                   <p className="text-red-500 text-sm absolute top-full left-0 mt-1">
                     {errors.uniqueId}
                   </p>
                 )}
-                
               </div>
             </div>
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Basic Information</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                Basic Information
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm font-medium flex items-center gap-2">
+                  <Label
+                    htmlFor="firstName"
+                    className="text-sm font-medium flex items-center gap-2"
+                  >
                     <User className="w-4 h-4" />
                     First Name <span className="text-red-500">*</span>
                   </Label>
@@ -260,7 +292,9 @@ const fetchStudent = async (debouncedserMainId: string) => {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className={`w-full h-10 px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 ${errors.gender ? "border-red-500" : "border-input"}`}
+                    className={`w-full h-10 px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 ${
+                      errors.gender ? "border-red-500" : "border-input"
+                    }`}
                   >
                     <option value="M">Male</option>
                     <option value="F">Female</option>
@@ -292,11 +326,16 @@ const fetchStudent = async (debouncedserMainId: string) => {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Contact Information</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                Contact Information
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-medium flex items-center gap-2"
+                  >
                     <Mail className="w-4 h-4" />
                     Email Address <span className="text-red-500">*</span>
                   </Label>
@@ -315,7 +354,10 @@ const fetchStudent = async (debouncedserMainId: string) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phoneNumber" className="text-sm font-medium flex items-center gap-2">
+                  <Label
+                    htmlFor="phoneNumber"
+                    className="text-sm font-medium flex items-center gap-2"
+                  >
                     <Phone className="w-4 h-4" />
                     Phone Number <span className="text-red-500">*</span>
                   </Label>
@@ -335,15 +377,18 @@ const fetchStudent = async (debouncedserMainId: string) => {
               </div>
             </div>
 
-           
-
             {/* Security Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Security Information</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                Security Information
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-medium flex items-center gap-2"
+                  >
                     <Lock className="w-4 h-4" />
                     Password <span className="text-red-500">*</span>
                   </Label>
@@ -362,7 +407,11 @@ const fetchStudent = async (debouncedserMainId: string) => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                   {errors.password && (
@@ -371,7 +420,10 @@ const fetchStudent = async (debouncedserMainId: string) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium flex items-center gap-2">
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-medium flex items-center gap-2"
+                  >
                     <Lock className="w-4 h-4" />
                     Confirm Password <span className="text-red-500">*</span>
                   </Label>
@@ -387,14 +439,22 @@ const fetchStudent = async (debouncedserMainId: string) => {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     >
-                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                    <p className="text-red-500 text-sm">
+                      {errors.confirmPassword}
+                    </p>
                   )}
                 </div>
               </div>
@@ -402,19 +462,15 @@ const fetchStudent = async (debouncedserMainId: string) => {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-12">
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
-            
+
             <div className="text-center">
               <span className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link 
-                  href="/auth/login" 
+                Already have an account?{" "}
+                <Link
+                  href="/auth/login"
                   className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
                 >
                   Sign In

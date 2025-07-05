@@ -1,56 +1,74 @@
-
-import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { Assessment, AssessmentSubmission, CreateAssessmentRequest, UpdateAssessmentRequest } from '@/utils/assessment';
-
-
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  Assessment,
+  AssessmentSubmission,
+  CreateAssessmentRequest,
+  UpdateAssessmentRequest,
+} from "@/utils/assessment";
 
 export const useAssessments = () => {
-  const [assessments, setAssessments] = useState<Record<number, Partial<Assessment>>>({});
+  const [assessments, setAssessments] = useState<
+    Record<number, Partial<Assessment>>
+  >({});
   const queryClient = useQueryClient();
-
 
   const createAssessmentMutation = useMutation({
     mutationFn: async (data: CreateAssessmentRequest): Promise<Assessment> => {
-      console.log('Creating assessment:', data);
+      console.log("Creating assessment:", data);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/assessments/bulk-update`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/assessments/bulk-update`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (!res.ok) {
-        throw new Error('Failed to create assessment');
+        throw new Error("Failed to create assessment");
       }
 
       const newAssessment: Assessment = {
         id: Math.floor(Math.random() * 10000),
         ...data,
-        totalPractical: (data.practical1 || 0) + (data.practical2 || 0) + (data.practical3 || 0),
-        totalMark: ((data.practical1 || 0) + (data.practical2 || 0) + (data.practical3 || 0)) + (data.theory || 0),
-        gradeInLetter: calculateGrade(((data.practical1 || 0) + (data.practical2 || 0) + (data.practical3 || 0)) + (data.theory || 0)),
-        practicalStatus: 'submitted',
-        theoryStatus: 'submitted',
+        totalPractical:
+          (data.practical1 || 0) +
+          (data.practical2 || 0) +
+          (data.practical3 || 0),
+        totalMark:
+          (data.practical1 || 0) +
+          (data.practical2 || 0) +
+          (data.practical3 || 0) +
+          (data.theory || 0),
+        gradeInLetter: calculateGrade(
+          (data.practical1 || 0) +
+            (data.practical2 || 0) +
+            (data.practical3 || 0) +
+            (data.theory || 0)
+        ),
+        practicalStatus: "submitted",
+        theoryStatus: "submitted",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       return newAssessment;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assessments'] });
-      toast( "Success",{
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      toast("Success", {
         description: "Assessment created successfully",
       });
     },
     onError: () => {
-      toast( "Error",{
+      toast("Error", {
         description: "Failed to create assessment",
-         style: { backgroundColor: 'red', color: 'white' },
+        style: { backgroundColor: "red", color: "white" },
       });
     },
   });
@@ -58,10 +76,10 @@ export const useAssessments = () => {
   // Update assessment mutation
   const updateAssessmentMutation = useMutation({
     mutationFn: async (data: UpdateAssessmentRequest): Promise<Assessment> => {
-      console.log('Updating assessment:', data);
+      console.log("Updating assessment:", data);
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const updatedAssessment: Assessment = {
         id: data.id,
         teachingAssignmentId: data.teachingAssignmentId || 0,
@@ -69,29 +87,41 @@ export const useAssessments = () => {
         practical1: data.practical1,
         practical2: data.practical2,
         practical3: data.practical3,
-        totalPractical: (data.practical1 || 0) + (data.practical2 || 0) + (data.practical3 || 0),
+        totalPractical:
+          (data.practical1 || 0) +
+          (data.practical2 || 0) +
+          (data.practical3 || 0),
         theory: data.theory,
-        totalMark: ((data.practical1 || 0) + (data.practical2 || 0) + (data.practical3 || 0)) + (data.theory || 0),
-        gradeInLetter: calculateGrade(((data.practical1 || 0) + (data.practical2 || 0) + (data.practical3 || 0)) + (data.theory || 0)),
-        practicalStatus: 'submitted',
-        theoryStatus: 'submitted',
+        totalMark:
+          (data.practical1 || 0) +
+          (data.practical2 || 0) +
+          (data.practical3 || 0) +
+          (data.theory || 0),
+        gradeInLetter: calculateGrade(
+          (data.practical1 || 0) +
+            (data.practical2 || 0) +
+            (data.practical3 || 0) +
+            (data.theory || 0)
+        ),
+        practicalStatus: "submitted",
+        theoryStatus: "submitted",
         comment: data.comment,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       return updatedAssessment;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['assessments'] });
-      toast("Success",{ 
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      toast("Success", {
         description: "Assessment updated successfully",
       });
     },
     onError: () => {
-      toast( "Error",{
+      toast("Error", {
         description: "Failed to update assessment",
-        style: { backgroundColor: 'red', color: 'white' },
+        style: { backgroundColor: "red", color: "white" },
       });
     },
   });
@@ -99,84 +129,109 @@ export const useAssessments = () => {
   // Bulk submit assessments mutation
   const submitAssessmentsMutation = useMutation({
     mutationFn: async (data: AssessmentSubmission): Promise<Assessment[]> => {
-      console.log('Submitting assessments:', data);
+      console.log("Submitting assessments:", data);
       // Simulate API call
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/assessments/bulk-update`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/assessments/bulk-update`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (!res.ok) {
-        throw new Error('Failed to submit assessments');
+        throw new Error("Failed to submit assessments");
       }
-
 
       return data.assessments.map((assessment, index) => ({
         id: Math.floor(Math.random() * 10000) + index,
         ...assessment,
-        totalPractical: (assessment.practical1 || 0) + (assessment.practical2 || 0) + (assessment.practical3 || 0),
-        totalMark: ((assessment.practical1 || 0) + (assessment.practical2 || 0) + (assessment.practical3 || 0)) + (assessment.theory || 0),
-        gradeInLetter: calculateGrade(((assessment.practical1 || 0) + (assessment.practical2 || 0) + (assessment.practical3 || 0)) + (assessment.theory || 0)),
-        practicalStatus: 'submitted' as string,
-        theoryStatus: 'submitted' as string,
+        totalPractical:
+          (assessment.practical1 || 0) +
+          (assessment.practical2 || 0) +
+          (assessment.practical3 || 0),
+        totalMark:
+          (assessment.practical1 || 0) +
+          (assessment.practical2 || 0) +
+          (assessment.practical3 || 0) +
+          (assessment.theory || 0),
+        gradeInLetter: calculateGrade(
+          (assessment.practical1 || 0) +
+            (assessment.practical2 || 0) +
+            (assessment.practical3 || 0) +
+            (assessment.theory || 0)
+        ),
+        practicalStatus: "submitted" as string,
+        theoryStatus: "submitted" as string,
         createdAt: new Date(),
         updatedAt: new Date(),
       }));
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['assessments'] });
-      toast("Success",{
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      toast("Success", {
         description: `Successfully submitted ${data.length} assessments`,
       });
     },
     onError: () => {
-      toast("Error",{
+      toast("Error", {
         description: "Failed to submit assessments",
-        style: { backgroundColor: 'red', color: 'white' },
+        style: { backgroundColor: "red", color: "white" },
       });
     },
   });
 
-  const updateLocalAssessment = (studentId: number, field: keyof Assessment, value: number | string) => {
-    setAssessments(prev => {
+  const updateLocalAssessment = (
+    studentId: number,
+    field: keyof Assessment,
+    value: number | string
+  ) => {
+    setAssessments((prev) => {
       const current = prev[studentId] || { studentId };
       const updated = { ...current, [field]: value };
-      
+
       // Auto-calculate totals
-      if (field === 'practical1' || field === 'practical2' || field === 'practical3') {
-        const practical1 = field === 'practical1' ? Number(value) : (updated.practical1 || 0);
-        const practical2 = field === 'practical2' ? Number(value) : (updated.practical2 || 0);
-        const practical3 = field === 'practical3' ? Number(value) : (updated.practical3 || 0);
+      if (
+        field === "practical1" ||
+        field === "practical2" ||
+        field === "practical3"
+      ) {
+        const practical1 =
+          field === "practical1" ? Number(value) : updated.practical1 || 0;
+        const practical2 =
+          field === "practical2" ? Number(value) : updated.practical2 || 0;
+        const practical3 =
+          field === "practical3" ? Number(value) : updated.practical3 || 0;
         updated.totalPractical = practical1 + practical2 + practical3;
         updated.totalMark = updated.totalPractical + (updated.theory || 0);
         updated.gradeInLetter = calculateGrade(updated.totalMark);
       }
-      
-      if (field === 'theory') {
+
+      if (field === "theory") {
         updated.totalMark = (updated.totalPractical || 0) + Number(value);
         updated.gradeInLetter = calculateGrade(updated.totalMark);
       }
-      
+
       return { ...prev, [studentId]: updated };
     });
   };
 
   const calculateGrade = (total: number): string => {
-    if (total >= 90) return 'A+';
-    if (total >= 85) return 'A';
-    if (total >= 80) return 'A-';
-    if (total >= 75) return 'B+';
-    if (total >= 70) return 'B';
-    if (total >= 65) return 'B-';
-    if (total >= 60) return 'C+';
-    if (total >= 55) return 'C';
-    if (total >= 50) return 'C-';
-    if (total >= 45) return 'D';
-    return 'F';
+    if (total >= 90) return "A+";
+    if (total >= 85) return "A";
+    if (total >= 80) return "A-";
+    if (total >= 75) return "B+";
+    if (total >= 70) return "B";
+    if (total >= 65) return "B-";
+    if (total >= 60) return "C+";
+    if (total >= 55) return "C";
+    if (total >= 50) return "C-";
+    if (total >= 45) return "D";
+    return "F";
   };
 
   return {

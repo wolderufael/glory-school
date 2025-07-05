@@ -100,19 +100,33 @@ const ListTable = () => {
         const fetched = (fetchedAssessments || []).find(
           (item: any) => item.student?.id === numericStudentId
         );
-        const practical1 = local.practical1 ?? fetched?.practical1 ?? 0;
-        const practical2 = local.practical2 ?? fetched?.practical2 ?? 0;
-        const practical3 = local.practical3 ?? fetched?.practical3 ?? 0;
-        const theory = local.theory ?? fetched?.theory ?? 0;
+        const practical1 = local.practical1 ?? fetched?.practical1 ?? null;
+        const practical2 = local.practical2 ?? fetched?.practical2 ?? null;
+        const practical3 = local.practical3 ?? fetched?.practical3 ?? null;
+        const theory = local.theory ?? fetched?.theory ?? null;
         const comment = local.comment ?? fetched?.comment ?? "";
-        const practicalStatus =
-          local.practicalStatus ?? fetched?.practicalStatus ?? null;
-        const theoryStatus =
-          local.theoryStatus ?? fetched?.theoryStatus ?? null;
 
-        // Calculate totals
-        const totalPractical = practical1 + practical2 + practical3;
-        const totalMark = totalPractical + theory;
+        // Auto-calculate status fields based on new logic
+        const practicalStatus =
+          practical1 === null || practical2 === null || practical3 === null
+            ? "NA"
+            : "OK";
+        const theoryStatus = theory === null ? "NA" : "OK";
+
+        // Calculate totals with null handling
+        const totalPractical =
+          (practical1 ?? 0) + (practical2 ?? 0) + (practical3 ?? 0);
+        const totalMark = totalPractical + (theory ?? 0);
+
+        // Calculate grade with null check
+        const gradeInLetter =
+          practical1 === null ||
+          practical2 === null ||
+          practical3 === null ||
+          theory === null
+            ? "NG"
+            : calculateGrade(totalMark);
+
         return {
           teachingAssignmentId: selectedTeachingAssignmentId,
           studentId: numericStudentId,
@@ -124,10 +138,8 @@ const ListTable = () => {
           theoryStatus,
           totalMark,
           theory,
+          gradeInLetter,
           comment,
-          // Optionally include totalPractical and totalMark if backend expects them
-          // totalPractical,
-          // totalMark,
         };
       }
     );
@@ -135,6 +147,7 @@ const ListTable = () => {
     console.log("Submitting assessments:", assessmentData);
     submitAssessments({
       teachingAssignmentId: selectedTeachingAssignmentId,
+      assessmentGroupId: fetchedAssessments[0]?.assessmentGroup?.id ?? 0,
       assessments: assessmentData,
     });
   };
@@ -172,9 +185,10 @@ const ListTable = () => {
       return {
         status: firstStudent?.assessmentGroup?.status || "DRAFT",
         assessmentGroupId: firstStudent?.assessmentGroup?.id,
+        rejectionReason: firstStudent?.assessmentGroup?.reason || null,
       };
     }
-    return { status: "DRAFT", assessmentGroupId: null };
+    return { status: "DRAFT", assessmentGroupId: null, rejectionReason: null };
   };
 
   const getButtonConfig = () => {
@@ -276,18 +290,43 @@ const ListTable = () => {
     return assessments[numericStudentId]?.gradeInLetter || "F";
   };
 
+  const calculateGrade = (total: number): string => {
+    if (total > 100) return "Error";
+    if (total >= 95) return "A+";
+    if (total >= 92) return "A";
+    if (total >= 89) return "A-";
+    if (total >= 86) return "B+";
+    if (total >= 83) return "B";
+    if (total >= 80) return "B-";
+    if (total >= 77) return "C+";
+    if (total >= 74) return "C";
+    if (total === 0) return "NA";
+    return "F";
+  };
+
   const getGradeColor = (grade: string) => {
     switch (grade) {
+      case "A+":
       case "A":
+      case "A-":
         return "text-emerald-600 bg-emerald-50 border border-emerald-200";
+      case "B+":
       case "B":
+      case "B-":
         return "text-blue-600 bg-blue-50 border border-blue-200";
+      case "C+":
       case "C":
         return "text-amber-600 bg-amber-50 border border-amber-200";
       case "D":
         return "text-orange-600 bg-orange-50 border border-orange-200";
       case "F":
         return "text-red-600 bg-red-50 border border-red-200";
+      case "Error":
+        return "text-purple-600 bg-purple-50 border border-purple-200";
+      case "NA":
+        return "text-gray-500 bg-gray-100 border border-gray-300";
+      case "NG":
+        return "text-orange-600 bg-orange-50 border border-orange-200";
       default:
         return "text-gray-600 bg-gray-50 border border-gray-200";
     }
@@ -388,9 +427,10 @@ const ListTable = () => {
                             ] || statusMeanings.DRAFT;
 
                           return (
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-3 flex-wrap">
+                              {/* Status Indicator */}
                               <div
-                                className={`flex items-center space-x-2 px-3 py-1.5 rounded-full ${statusConfig.bgColor} backdrop-blur-sm`}
+                                className={`flex items-center space-x-2 px-3 py-2 rounded-full ${statusConfig.bgColor} backdrop-blur-sm h-8 min-w-fit`}
                               >
                                 <div
                                   className={`w-2 h-2 rounded-full ${statusConfig.dotColor} animate-pulse`}
@@ -404,9 +444,25 @@ const ListTable = () => {
                                   {statusConfig.text}
                                 </span>
                               </div>
-                              <div className="text-white/90 text-xs font-light italic max-w-xs">
+
+                              {/* Status Meaning */}
+                              <div className="text-white/90 text-xs font-light italic max-w-xs h-8 flex items-center">
                                 {statusConfig.meaning}
                               </div>
+
+                              {/* Rejection Reason Display - Inline */}
+                              {status === "REJECTED" &&
+                                statusInfo.rejectionReason && (
+                                  <div className="bg-red-50/95 border border-red-200 rounded-full px-4 py-2 backdrop-blur-sm h-8 flex items-center space-x-2 max-w-md shadow-sm">
+                                    <AlertCircle className="w-3 h-3 text-red-500 flex-shrink-0" />
+                                    <span className="text-xs font-semibold text-red-800">
+                                      Reason:
+                                    </span>
+                                    <span className="text-xs text-red-700 truncate font-medium">
+                                      {statusInfo.rejectionReason}
+                                    </span>
+                                  </div>
+                                )}
                             </div>
                           );
                         })()}
@@ -504,18 +560,37 @@ const ListTable = () => {
                         // Use local edits if present, else fallback to fetched values
                         const local = assessments[numericStudentId] || {};
                         const practical1 =
-                          local.practical1 ?? item.practical1 ?? 0;
+                          local.practical1 ?? item.practical1 ?? null;
                         const practical2 =
-                          local.practical2 ?? item.practical2 ?? 0;
+                          local.practical2 ?? item.practical2 ?? null;
                         const practical3 =
-                          local.practical3 ?? item.practical3 ?? 0;
-                        const practicalStatus = local.practicalStatus || null;
-                        const theoryStatus = local.theoryStatus || null;
-                        const theory = local.theory ?? item.theory ?? 0;
+                          local.practical3 ?? item.practical3 ?? null;
+                        const theory = local.theory ?? item.theory ?? null;
+
+                        // Auto-calculate status fields
+                        const practicalStatus =
+                          practical1 === null ||
+                          practical2 === null ||
+                          practical3 === null
+                            ? "NA"
+                            : "OK";
+                        const theoryStatus = theory === null ? "NA" : "OK";
+
+                        // Calculate totals with null handling
                         const totalPractical =
-                          practical1 + practical2 + practical3;
-                        const totalMark = totalPractical + theory;
-                        const grade = item.gradeInLetter || "-";
+                          (practical1 ?? 0) +
+                          (practical2 ?? 0) +
+                          (practical3 ?? 0);
+                        const totalMark = totalPractical + (theory ?? 0);
+
+                        // Calculate grade with null check
+                        const grade =
+                          practical1 === null ||
+                          practical2 === null ||
+                          practical3 === null ||
+                          theory === null
+                            ? "NG"
+                            : calculateGrade(totalMark);
                         const fullName = student?.user?.firstName
                           ? `${student.user.firstName} ${
                               student.user.middleName ?? ""
@@ -587,15 +662,8 @@ const ListTable = () => {
                             />
                             <AssessmentCell
                               value={practicalStatus}
-                              onChange={(value) =>
-                                updateLocalAssessment(
-                                  numericStudentId,
-                                  "practicalStatus",
-                                  value ?? ""
-                                )
-                              }
                               isStatus={true}
-                              placeholder=""
+                              readOnly={true}
                             />
                             <TableCell className="text-center py-4 bg-blue-50/50">
                               <span className="font-bold text-blue-700 text-lg">
@@ -620,15 +688,8 @@ const ListTable = () => {
                             </TableCell> */}
                             <AssessmentCell
                               value={theoryStatus}
-                              onChange={(value) =>
-                                updateLocalAssessment(
-                                  numericStudentId,
-                                  "theoryStatus",
-                                  value ?? ""
-                                )
-                              }
                               isStatus={true}
-                              placeholder=""
+                              readOnly={true}
                             />
                             <TableCell className="text-center py-4 bg-indigo-50/50">
                               <span className="font-bold text-indigo-700 text-lg">
