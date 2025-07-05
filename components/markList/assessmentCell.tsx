@@ -1,15 +1,16 @@
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { TableCell } from '@/components/ui/table';
+import React from "react";
+import { Input } from "@/components/ui/input";
+import { TableCell } from "@/components/ui/table";
 
 interface AssessmentCellProps {
   value: number | string | null | undefined;
-  onChange: (value: number | string | null) => void;
+  onChange?: (value: number | string | null) => void;
   max?: number;
   placeholder?: string;
   disabled?: boolean;
   label?: string;
   isStatus?: boolean;
+  readOnly?: boolean;
 }
 
 export const AssessmentCell: React.FC<AssessmentCellProps> = ({
@@ -19,16 +20,22 @@ export const AssessmentCell: React.FC<AssessmentCellProps> = ({
   placeholder = "0",
   disabled = false,
   label,
-  isStatus = false
+  isStatus = false,
+  readOnly = false,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isStatus) {
-      const val = e.target.value.trim();
-      // Allow empty string (null), 'N/A', or any custom status
-      onChange(val === '' ? null : val);
-    } else {
-      const newValue = Math.min(Math.max(0, Number(e.target.value) || 0), max);
-      onChange(newValue);
+    if (onChange) {
+      if (isStatus) {
+        const val = e.target.value.trim();
+        // Allow empty string (null), 'N/A', or any custom status
+        onChange(val === "" ? null : val);
+      } else {
+        const newValue = Math.min(
+          Math.max(0, Number(e.target.value) || 0),
+          max
+        );
+        onChange(newValue);
+      }
     }
   };
 
@@ -36,18 +43,32 @@ export const AssessmentCell: React.FC<AssessmentCellProps> = ({
     <TableCell>
       <div className="space-y-1">
         {label && <div className="text-xs text-gray-500">{label}</div>}
-        <Input
-          type={isStatus ? "text" : "number"}
-          value={isStatus 
-            ? (value === null || value === undefined ? '' : String(value))
-            : (value || '')}
-          onChange={handleChange}
-          placeholder={placeholder}
-          min={isStatus ? undefined : "0"}
-          max={isStatus ? undefined : max}
-          disabled={disabled}
-          className={`w-20 text-center ${isStatus ? 'min-w-[100px]' : ''}`}
-        />
+        {isStatus ? (
+          <div className="w-20 text-center min-w-[100px] px-3 py-2 bg-gray-50 border border-gray-200 rounded-md">
+            <span
+              className={`text-sm font-medium ${
+                value === "NA"
+                  ? "text-gray-600"
+                  : value === "NG"
+                  ? "text-red-600"
+                  : "text-gray-800"
+              }`}
+            >
+              {value || "-"}
+            </span>
+          </div>
+        ) : (
+          <Input
+            type="number"
+            value={value || ""}
+            onChange={handleChange}
+            placeholder={placeholder}
+            min="0"
+            max={max}
+            disabled={disabled}
+            className="w-20 text-center"
+          />
+        )}
       </div>
     </TableCell>
   );
