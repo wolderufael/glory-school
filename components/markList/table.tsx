@@ -30,6 +30,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useTeachingAssignment } from "@/lib/react-query/hooks/useTeachingAssignment";
+import { toast } from "sonner";
 
 interface StudentMark {
   student_main_id: string;
@@ -54,13 +55,18 @@ const ListTable = () => {
 
   const updateAssessmentStatusMutation = useUpdateAssessmentStatus();
   const [teacherId, setTeacherId] = useState<number | null>(null);
-  
+
   useEffect(() => {
-    const id = localStorage.getItem('teacherId');
+    const id = localStorage.getItem("teacherId");
     setTeacherId(Number(id));
   }, []);
 
-  const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId ?? 1);
+  const {
+    data: assessmentData,
+    isLoading,
+    isError,
+    error,
+  } = useTeachingAssignment(teacherId ?? 1);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const currentTableref = useRef<HTMLDivElement>(null);
@@ -76,11 +82,15 @@ const ListTable = () => {
   } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
 
   useEffect(() => {
-    if (fetchedAssessments && fetchedAssessments.length > 0 && tableRef.current) {
+    if (
+      fetchedAssessments &&
+      fetchedAssessments.length > 0 &&
+      tableRef.current
+    ) {
       setTimeout(() => {
         tableRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
+          behavior: "smooth",
+          block: "start",
         });
       }, 100);
     }
@@ -95,16 +105,40 @@ const ListTable = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeachingAssignmentId) {
-      alert("Please select a module and click Get first.");
+      toast.error("Please select a module and click Get first.");
       return;
     }
-    
+
     const updatedStudentIds = Object.keys(assessments);
     if (updatedStudentIds.length === 0) {
-      alert("No changes to submit.");
+      toast.info("No changes to submit.");
       return;
     }
-    
+
+    // Validate practical marks sum
+    for (const studentId of updatedStudentIds) {
+      const numericStudentId = Number(studentId);
+      const local = assessments[numericStudentId] || {};
+      const fetched = (fetchedAssessments || []).find(
+        (item: any) => item.student?.id === numericStudentId
+      );
+
+      const practical1 = local.practical1 ?? fetched?.practical1 ?? null;
+      const practical2 = local.practical2 ?? fetched?.practical2 ?? null;
+      const practical3 = local.practical3 ?? fetched?.practical3 ?? null;
+
+      // Only validate if all practical marks are provided
+      if (practical1 !== null && practical2 !== null && practical3 !== null) {
+        const totalPractical = practical1 + practical2 + practical3;
+        if (totalPractical > 70) {
+          toast.error(
+            `Total practical marks (${totalPractical}) cannot exceed 70. Please adjust the marks.`
+          );
+          return;
+        }
+      }
+    }
+
     const assessmentInfo: CreateAssessmentRequest[] = updatedStudentIds.map(
       (studentId) => {
         const numericStudentId = Number(studentId);
@@ -112,6 +146,7 @@ const ListTable = () => {
         const fetched = (fetchedAssessments || []).find(
           (item: any) => item.student?.id === numericStudentId
         );
+
         const practical1 = local.practical1 ?? fetched?.practical1 ?? null;
         const practical2 = local.practical2 ?? fetched?.practical2 ?? null;
         const practical3 = local.practical3 ?? fetched?.practical3 ?? null;
@@ -120,6 +155,25 @@ const ListTable = () => {
 
         // Auto-calculate status fields based on new logic
         const practicalStatus =
+          practical1 === null || practical2 === null || practical3 === null
+            ? "NA"
+            : "OK";
+        const theoryStatus = theory === null ? "NA" : "OK";
+
+        // Calculate totals with null handling
+        const totalPractical =
+          (practical1 ?? 0) + (practical2 ?? 0) + (practical3 ?? 0);
+        const totalMark = totalPractical + (theory ?? 0);
+
+        // Calculate grade with null check
+        const gradeInLetter =
+          practical1 === null ||
+          practical2 === null ||
+          practical3 === null ||
+          theory === null
+            ? "NG"
+            : calculateGrade(totalMark);
+
           practical1 === null || practical2 === null || practical3 === null
             ? "NA"
             : "OK";
@@ -150,7 +204,7 @@ const ListTable = () => {
           theoryStatus,
           totalMark,
           theory,
-          //gradeInLetter,
+          gradeInLetter,
           comment,
         };
       }
@@ -158,21 +212,21 @@ const ListTable = () => {
 
     submitAssessments({
       teachingAssignmentId: selectedTeachingAssignmentId,
+      assessmentGroupId: fetchedAssessments[0]?.assessmentGroup?.id ?? 0,
       assessments: assessmentInfo,
-      assessmentGroupId: selectedTeachingAssignmentId,
     });
   };
 
   const handleSubmitForApproval = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeachingAssignmentId) {
-      alert("Please select a module and click Get first.");
+      toast.error("Please select a module and click Get first.");
       return;
     }
 
     const statusInfo = getAssessmentGroupStatus();
     if (!statusInfo.assessmentGroupId) {
-      alert("Assessment group ID not found.");
+      toast.error("Assessment group ID not found.");
       return;
     }
 
@@ -256,35 +310,6 @@ const ListTable = () => {
     return [saveButton, secondButton];
   };
 
-  const getAssessmentValue = (
-    studentId: string,
-    field: keyof (typeof assessments)[number]
-  ): number => {
-    const numericStudentId = parseInt(studentId.replace("ST", ""));
-    return (assessments[numericStudentId]?.[field] as number) || 0;
-  };
-
-  const getTotalPractical = (studentId: string): number => {
-    const numericStudentId = parseInt(studentId.replace("ST", ""));
-    const assessment = assessments[numericStudentId];
-    return (
-      (assessment?.practical1 || 0) +
-      (assessment?.practical2 || 0) +
-      (assessment?.practical3 || 0)
-    );
-  };
-
-  const getTotalMark = (studentId: string): number => {
-    const numericStudentId = parseInt(studentId.replace("ST", ""));
-    const assessment = assessments[numericStudentId];
-    return getTotalPractical(studentId) + (assessment?.theory || 0);
-  };
-
-  const getGrade = (studentId: string): string => {
-    const numericStudentId = parseInt(studentId.replace("ST", ""));
-    return assessments[numericStudentId]?.gradeInLetter || "F";
-  };
-
   const calculateGrade = (total: number): string => {
     if (total > 100) return "Error";
     if (total >= 95) return "A+";
@@ -297,6 +322,42 @@ const ListTable = () => {
     if (total >= 74) return "C";
     if (total === 0) return "NA";
     return "F";
+  };
+
+  const validatePracticalMarks = (
+    studentId: number,
+    field: string,
+    newValue: number
+  ): boolean => {
+    const local = assessments[studentId] || {};
+    const fetched = (fetchedAssessments || []).find(
+      (item: any) => item.student?.id === studentId
+    );
+
+    const practical1 =
+      field === "practical1"
+        ? newValue
+        : local.practical1 ?? fetched?.practical1 ?? null;
+    const practical2 =
+      field === "practical2"
+        ? newValue
+        : local.practical2 ?? fetched?.practical2 ?? null;
+    const practical3 =
+      field === "practical3"
+        ? newValue
+        : local.practical3 ?? fetched?.practical3 ?? null;
+
+    // Only validate if all practical marks are provided
+    if (practical1 !== null && practical2 !== null && practical3 !== null) {
+      const totalPractical = practical1 + practical2 + practical3;
+      if (totalPractical > 70) {
+        toast.warning(
+          `Total practical marks (${totalPractical}) exceeds the maximum of 70. Please adjust the marks.`
+        );
+        return false;
+      }
+    }
+    return true;
   };
 
   const getGradeColor = (grade: string) => {
@@ -328,9 +389,10 @@ const ListTable = () => {
   };
 
   // Extract module info from first assessment
-  const moduleInfo = fetchedAssessments && fetchedAssessments.length > 0 
-    ? fetchedAssessments[0] 
-    : null;
+  const moduleInfo =
+    fetchedAssessments && fetchedAssessments.length > 0
+      ? fetchedAssessments[0]
+      : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -373,7 +435,7 @@ const ListTable = () => {
         {/* Assessment Form */}
         <form onSubmit={(e) => e.preventDefault()}>
           <Card
-             ref={tableRef}
+            ref={tableRef}
             className="shadow-xl border-0 bg-white/80 backdrop-blur-sm"
           >
             <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
@@ -509,215 +571,261 @@ const ListTable = () => {
                 </div>
               )}
 
-              {!isAssessmentsLoading && !isAssessmentsError && (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableCaption className="text-gray-600 py-4 bg-gray-50/50">
-                      <div className="flex items-center justify-center space-x-2">
-                        <BookOpen className="w-4 h-4" />
-                        <span>Edit marks and submit your assessments</span>
+              {!isAssessmentsLoading && !isAssessmentsError && moduleInfo && (
+                <>
+                  {/* Module Information Header */}
+                  <div className="bg-indigo-700/20 p-4">
+                    <div className="flex flex-wrap gap-4 text-sm text-indigo-900">
+                      <div>
+                        <span className="font-semibold">Academic Year:</span>{" "}
+                        {moduleInfo.teachingAssignment?.academicYear?.name}
                       </div>
-                    </TableCaption>
-                    <TableHeader>
-                      <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
-                        <TableHead className="font-semibold text-gray-700 py-4">
-                          Student ID
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4">
-                          Full Name
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4">
-                          Sex
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          Practical 1
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          Practical 2
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          Practical 3
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          P. Status
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center bg-blue-50">
-                          Total Practical
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          Theory
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          T. Status
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center bg-indigo-50">
-                          Total Mark
-                        </TableHead>
-                        <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                          Grade
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {(fetchedAssessments && fetchedAssessments.length > 0
-                        ? fetchedAssessments
-                        : []
-                      ).map((item: any, index: number) => {
-                        const student = item.student;
-                        const studentId = student?.id;
-                        const numericStudentId = Number(studentId);
-                        // Use local edits if present, else fallback to fetched values
-                        const local = assessments[numericStudentId] || {};
-                        const practical1 =
-                          local.practical1 ?? item.practical1 ?? null;
-                        const practical2 =
-                          local.practical2 ?? item.practical2 ?? null;
-                        const practical3 =
-                          local.practical3 ?? item.practical3 ?? null;
-                        const theory = local.theory ?? item.theory ?? null;
+                      <div>
+                        <span className="font-semibold">Section:</span>{" "}
+                        {moduleInfo.teachingAssignment?.section?.sectionName}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Semester:</span>{" "}
+                        {moduleInfo.teachingAssignment?.academicSemester?.name}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Course:</span>{" "}
+                        {moduleInfo.teachingAssignment?.course?.courseCode}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Credit:</span>{" "}
+                        {moduleInfo.teachingAssignment?.course?.theoryNhrs} hrs
+                      </div>
+                    </div>
+                  </div>
 
-                        // Auto-calculate status fields
-                        const practicalStatus =
-                          practical1 === null ||
-                          practical2 === null ||
-                          practical3 === null
-                            ? "NA"
-                            : "OK";
-                        const theoryStatus = theory === null ? "NA" : "OK";
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableCaption className="text-gray-600 py-4 bg-gray-50/50">
+                        <div className="flex items-center justify-center space-x-2">
+                          <BookOpen className="w-4 h-4" />
+                          <span>Edit marks and submit your assessments</span>
+                        </div>
+                      </TableCaption>
+                      <TableHeader>
+                        <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                          <TableHead className="font-semibold text-gray-700 py-4">
+                            Student ID
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4">
+                            Full Name
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4">
+                            Sex
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            Practical 1
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            Practical 2
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            Practical 3
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            P. Status
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center bg-blue-50">
+                            Total Practical
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            Theory
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            T. Status
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center bg-indigo-50">
+                            Total Mark
+                          </TableHead>
+                          <TableHead className="font-semibold text-gray-700 py-4 text-center">
+                            Grade
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {fetchedAssessments.map((item: any, index: number) => {
+                          const student = item.student;
+                          const studentId = student?.id;
+                          const numericStudentId = Number(studentId);
+                          // Use local edits if present, else fallback to fetched values
+                          const local = assessments[numericStudentId] || {};
+                          const practical1 =
+                            local.practical1 ?? item.practical1 ?? null;
+                          const practical2 =
+                            local.practical2 ?? item.practical2 ?? null;
+                          const practical3 =
+                            local.practical3 ?? item.practical3 ?? null;
+                          const theory = local.theory ?? item.theory ?? null;
 
-                        // Calculate totals with null handling
-                        const totalPractical =
-                          (practical1 ?? 0) +
-                          (practical2 ?? 0) +
-                          (practical3 ?? 0);
-                        const totalMark = totalPractical + (theory ?? 0);
+                          // Auto-calculate status fields
+                          const practicalStatus =
+                            practical1 === null ||
+                            practical2 === null ||
+                            practical3 === null
+                              ? "NA"
+                              : "OK";
+                          const theoryStatus = theory === null ? "NA" : "OK";
 
-                        // Calculate grade with null check
-                        const grade =
-                          practical1 === null ||
-                          practical2 === null ||
-                          practical3 === null ||
-                          theory === null
-                            ? "NG"
-                            : calculateGrade(totalMark);
-                        const fullName = student?.user?.firstName
-                          ? `${student.user.firstName} ${
-                              student.user.middleName ?? ""
-                            } ${student.user.lastName ?? ""}`
-                          : "Unknown Student";
-                        const sex = student?.user?.gender || "N/A";
+                          // Calculate totals with null handling
+                          const totalPractical =
+                            (practical1 ?? 0) +
+                            (practical2 ?? 0) +
+                            (practical3 ?? 0);
+                          const totalMark = totalPractical + (theory ?? 0);
 
-                        return (
-                          <TableRow
-                            key={studentId}
-                            className={`hover:bg-blue-50/50 transition-colors duration-200 ${
-                              index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
-                            }`}
-                          >
-                            <TableCell className="font-medium text-gray-900 py-4">
-                              <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                                <span>{student?.user?.userMainId || ""}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="font-medium text-gray-900 py-4">
-                              {fullName}
-                            </TableCell>
-                            <TableCell className="text-gray-700 py-4">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  sex === "Male"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : sex === "Female"
-                                    ? "bg-pink-100 text-pink-700"
-                                    : "bg-gray-100 text-gray-700"
-                                }`}
-                              >
-                                {sex}
-                              </span>
-                            </TableCell>
-                            <AssessmentCell
-                              value={practical1}
-                              onChange={(value) =>
-                                updateLocalAssessment(
-                                  numericStudentId,
-                                  "practical1",
-                                  Number(value)
-                                )
-                              }
-                              max={30}
-                            />
-                            <AssessmentCell
-                              value={practical2}
-                              onChange={(value) =>
-                                updateLocalAssessment(
-                                  numericStudentId,
-                                  "practical2",
-                                  Number(value)
-                                )
-                              }
-                              max={30}
-                            />
-                            <AssessmentCell
-                              value={practical3}
-                              onChange={(value) =>
-                                updateLocalAssessment(
-                                  numericStudentId,
-                                  "practical3",
-                                  Number(value)
-                                )
-                              }
-                              max={30}
-                            />
-                            <AssessmentCell
-                              value={practicalStatus}
-                              isStatus={true}
-                              readOnly={true}
-                            />
-                            <TableCell className="text-center py-4 bg-blue-50/50">
-                              <span className="font-bold text-blue-700 text-lg">
-                                {totalPractical}
-                              </span>
-                            </TableCell>
-                            <AssessmentCell
-                              value={theory}
-                              onChange={(value) =>
-                                updateLocalAssessment(
-                                  numericStudentId,
-                                  "theory",
-                                  Number(value)
-                                )
-                              }
-                              max={30}
-                            />
-                            {/* <TableCell className="text-center py-4">
-                              <span className="font-medium text-gray-900">
-                                {theory}
-                              </span>
-                            </TableCell> */}
-                            <AssessmentCell
-                              value={theoryStatus}
-                              isStatus={true}
-                              readOnly={true}
-                            />
-                            <TableCell className="text-center py-4 bg-indigo-50/50">
-                              <span className="font-bold text-indigo-700 text-lg">
-                                {totalMark}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-center py-4">
-                              <span
-                                className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(
-                                  grade
-                                )}`}
-                              >
-                                {grade}
-                              </span>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
+                          // Calculate grade with null check
+                          const grade =
+                            practical1 === null ||
+                            practical2 === null ||
+                            practical3 === null ||
+                            theory === null
+                              ? "NG"
+                              : calculateGrade(totalMark);
+                          const fullName = student?.user?.firstName
+                            ? `${student.user.firstName} ${
+                                student.user.middleName ?? ""
+                              } ${student.user.lastName ?? ""}`
+                            : "Unknown Student";
+                          const sex = student?.user?.gender || "N/A";
+
+                          return (
+                            <TableRow
+                              key={studentId}
+                              className={`hover:bg-blue-50/50 transition-colors duration-200 ${
+                                index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+                              }`}
+                            >
+                              <TableCell className="font-medium text-gray-900 py-4">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                  <span>{student?.user?.userMainId || ""}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium text-gray-900 py-4">
+                                {fullName}
+                              </TableCell>
+                              <TableCell className="text-gray-700 py-4">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    sex === "Male"
+                                      ? "bg-blue-100 text-blue-700"
+                                      : sex === "Female"
+                                      ? "bg-pink-100 text-pink-700"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {sex}
+                                </span>
+                              </TableCell>
+                              <AssessmentCell
+                                value={practical1}
+                                onChange={(value) => {
+                                  const numValue = Number(value);
+                                  if (
+                                    validatePracticalMarks(
+                                      numericStudentId,
+                                      "practical1",
+                                      numValue
+                                    )
+                                  ) {
+                                    updateLocalAssessment(
+                                      numericStudentId,
+                                      "practical1",
+                                      numValue
+                                    );
+                                  }
+                                }}
+                                max={30}
+                              />
+                              <AssessmentCell
+                                value={practical2}
+                                onChange={(value) => {
+                                  const numValue = Number(value);
+                                  if (
+                                    validatePracticalMarks(
+                                      numericStudentId,
+                                      "practical2",
+                                      numValue
+                                    )
+                                  ) {
+                                    updateLocalAssessment(
+                                      numericStudentId,
+                                      "practical2",
+                                      numValue
+                                    );
+                                  }
+                                }}
+                                max={30}
+                              />
+                              <AssessmentCell
+                                value={practical3}
+                                onChange={(value) => {
+                                  const numValue = Number(value);
+                                  if (
+                                    validatePracticalMarks(
+                                      numericStudentId,
+                                      "practical3",
+                                      numValue
+                                    )
+                                  ) {
+                                    updateLocalAssessment(
+                                      numericStudentId,
+                                      "practical3",
+                                      numValue
+                                    );
+                                  }
+                                }}
+                                max={30}
+                              />
+                              <AssessmentCell
+                                value={practicalStatus}
+                                isStatus={true}
+                                readOnly={true}
+                              />
+                              <TableCell className="text-center py-4 bg-blue-50/50">
+                                <span className="font-bold text-blue-700 text-lg">
+                                  {totalPractical}
+                                </span>
+                              </TableCell>
+                              <AssessmentCell
+                                value={theory}
+                                onChange={(value) =>
+                                  updateLocalAssessment(
+                                    numericStudentId,
+                                    "theory",
+                                    Number(value)
+                                  )
+                                }
+                                max={30}
+                              />
+                              <AssessmentCell
+                                value={theoryStatus}
+                                isStatus={true}
+                                readOnly={true}
+                              />
+                              <TableCell className="text-center py-4 bg-indigo-50/50">
+                                <span className="font-bold text-indigo-700 text-lg">
+                                  {totalMark}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-center py-4">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(
+                                    grade
+                                  )}`}
+                                >
+                                  {grade}
+                                </span>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
 
                       <TableFooter>
                         <TableRow className="bg-gradient-to-r from-gray-100 to-gray-200 border-t-2 border-gray-300">
