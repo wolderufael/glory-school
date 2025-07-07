@@ -27,7 +27,6 @@ jobs:
       - name: Build Next.js app
         run: npm run build
         env:
-          # Add environment variables if needed for the build
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
       - name: Set up SSH
@@ -39,15 +38,17 @@ jobs:
 
       - name: Deploy to VPS
         run: |
-          rsync -avz --delete --exclude '.git' --exclude '.env*' -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=accept-new" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DESTINATION_PATH }}
+          rsync -avz --delete --exclude '.git' --exclude '.env*' -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=accept-new" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_DESTINATION_PATH }} || { echo "rsync failed"; exit 1; }
           ssh -i ~/.ssh/id_rsa ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd ${{ secrets.VPS_DESTINATION_PATH }}
-            npm ci --production
-            npm run build
+            npm ci --production || { echo "npm ci failed"; exit 1; }
             if pm2 list | grep -q "next-app"; then
-              pm2 restart next-app
+              pm2 restart next-app || { echo "pm2 restart failed"; exit 1; }
             else
-              pm2 start npm --name "next-app" -- run start
+              pm2 start npm --name "next-app" -- run start || { echo "pm2 start failed"; exit 1; }
             fi
             pm2 save
           EOF
+
+      - name: Clean up SSH key
+        run: rm -f ~/.ssh/id_rsa
