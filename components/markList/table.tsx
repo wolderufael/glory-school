@@ -30,6 +30,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useTeachingAssignment } from "@/lib/react-query/hooks/useTeachingAssignment";
+import { toast } from "sonner";
 
 interface StudentMark {
   student_main_id: string;
@@ -54,13 +55,18 @@ const ListTable = () => {
 
   const updateAssessmentStatusMutation = useUpdateAssessmentStatus();
   const [teacherId, setTeacherId] = useState<number | null>(null);
-  
+
   useEffect(() => {
-    const id = localStorage.getItem('teacherId');
+    const id = localStorage.getItem("teacherId");
     setTeacherId(Number(id));
   }, []);
 
-  const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId ?? 1);
+  const {
+    data: assessmentData,
+    isLoading,
+    isError,
+    error,
+  } = useTeachingAssignment(teacherId ?? 1);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const currentTableref = useRef<HTMLDivElement>(null);
@@ -76,11 +82,15 @@ const ListTable = () => {
   } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
 
   useEffect(() => {
-    if (fetchedAssessments && fetchedAssessments.length > 0 && tableRef.current) {
+    if (
+      fetchedAssessments &&
+      fetchedAssessments.length > 0 &&
+      tableRef.current
+    ) {
       setTimeout(() => {
         tableRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
+          behavior: "smooth",
+          block: "start",
         });
       }, 100);
     }
@@ -95,16 +105,40 @@ const ListTable = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeachingAssignmentId) {
-      alert("Please select a module and click Get first.");
+      toast.error("Please select a module and click Get first.");
       return;
     }
-    
+
     const updatedStudentIds = Object.keys(assessments);
     if (updatedStudentIds.length === 0) {
-      alert("No changes to submit.");
+      toast.info("No changes to submit.");
       return;
     }
-    
+
+    // Validate practical marks sum
+    for (const studentId of updatedStudentIds) {
+      const numericStudentId = Number(studentId);
+      const local = assessments[numericStudentId] || {};
+      const fetched = (fetchedAssessments || []).find(
+        (item: any) => item.student?.id === numericStudentId
+      );
+
+      const practical1 = local.practical1 ?? fetched?.practical1 ?? null;
+      const practical2 = local.practical2 ?? fetched?.practical2 ?? null;
+      const practical3 = local.practical3 ?? fetched?.practical3 ?? null;
+
+      // Only validate if all practical marks are provided
+      if (practical1 !== null && practical2 !== null && practical3 !== null) {
+        const totalPractical = practical1 + practical2 + practical3;
+        if (totalPractical > 70) {
+          toast.error(
+            `Total practical marks (${totalPractical}) cannot exceed 70. Please adjust the marks.`
+          );
+          return;
+        }
+      }
+    }
+
     const assessmentInfo: CreateAssessmentRequest[] = updatedStudentIds.map(
       (studentId) => {
         const numericStudentId = Number(studentId);
@@ -112,21 +146,34 @@ const ListTable = () => {
         const fetched = (fetchedAssessments || []).find(
           (item: any) => item.student?.id === numericStudentId
         );
-        
-        const practical1 = local.practical1 ?? fetched?.practical1 ?? 0;
-        const practical2 = local.practical2 ?? fetched?.practical2 ?? 0;
-        const practical3 = local.practical3 ?? fetched?.practical3 ?? 0;
-        const theory = local.theory ?? fetched?.theory ?? 0;
+
+        const practical1 = local.practical1 ?? fetched?.practical1 ?? null;
+        const practical2 = local.practical2 ?? fetched?.practical2 ?? null;
+        const practical3 = local.practical3 ?? fetched?.practical3 ?? null;
+        const theory = local.theory ?? fetched?.theory ?? null;
         const comment = local.comment ?? fetched?.comment ?? "";
 
         // Auto-calculate status fields based on new logic
         const practicalStatus =
-          local.practicalStatus ?? fetched?.practicalStatus ?? null;
-        const theoryStatus =
-          local.theoryStatus ?? fetched?.theoryStatus ?? null;
-        const totalPractical = practical1 + practical2 + practical3;
-        const totalMark = totalPractical + theory;
-        
+          practical1 === null || practical2 === null || practical3 === null
+            ? "NA"
+            : "OK";
+        const theoryStatus = theory === null ? "NA" : "OK";
+
+        // Calculate totals with null handling
+        const totalPractical =
+          (practical1 ?? 0) + (practical2 ?? 0) + (practical3 ?? 0);
+        const totalMark = totalPractical + (theory ?? 0);
+
+        // Calculate grade with null check
+        const gradeInLetter =
+          practical1 === null ||
+          practical2 === null ||
+          practical3 === null ||
+          theory === null
+            ? "NG"
+            : calculateGrade(totalMark);
+
         return {
           teachingAssignmentId: selectedTeachingAssignmentId,
           studentId: numericStudentId,
@@ -138,7 +185,7 @@ const ListTable = () => {
           theoryStatus,
           totalMark,
           theory,
-          //gradeInLetter,
+          gradeInLetter,
           comment,
         };
       }
@@ -146,21 +193,21 @@ const ListTable = () => {
 
     submitAssessments({
       teachingAssignmentId: selectedTeachingAssignmentId,
+      assessmentGroupId: fetchedAssessments[0]?.assessmentGroup?.id ?? 0,
       assessments: assessmentInfo,
-      assessmentGroupId: selectedTeachingAssignmentId,
     });
   };
 
   const handleSubmitForApproval = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeachingAssignmentId) {
-      alert("Please select a module and click Get first.");
+      toast.error("Please select a module and click Get first.");
       return;
     }
 
     const statusInfo = getAssessmentGroupStatus();
     if (!statusInfo.assessmentGroupId) {
-      alert("Assessment group ID not found.");
+      toast.error("Assessment group ID not found.");
       return;
     }
 
@@ -244,6 +291,56 @@ const ListTable = () => {
     return [saveButton, secondButton];
   };
 
+  const calculateGrade = (total: number): string => {
+    if (total > 100) return "Error";
+    if (total >= 95) return "A+";
+    if (total >= 92) return "A";
+    if (total >= 89) return "A-";
+    if (total >= 86) return "B+";
+    if (total >= 83) return "B";
+    if (total >= 80) return "B-";
+    if (total >= 77) return "C+";
+    if (total >= 74) return "C";
+    if (total === 0) return "NA";
+    return "F";
+  };
+
+  const validatePracticalMarks = (
+    studentId: number,
+    field: string,
+    newValue: number
+  ): boolean => {
+    const local = assessments[studentId] || {};
+    const fetched = (fetchedAssessments || []).find(
+      (item: any) => item.student?.id === studentId
+    );
+
+    const practical1 =
+      field === "practical1"
+        ? newValue
+        : local.practical1 ?? fetched?.practical1 ?? null;
+    const practical2 =
+      field === "practical2"
+        ? newValue
+        : local.practical2 ?? fetched?.practical2 ?? null;
+    const practical3 =
+      field === "practical3"
+        ? newValue
+        : local.practical3 ?? fetched?.practical3 ?? null;
+
+    // Only validate if all practical marks are provided
+    if (practical1 !== null && practical2 !== null && practical3 !== null) {
+      const totalPractical = practical1 + practical2 + practical3;
+      if (totalPractical > 70) {
+        toast.warning(
+          `Total practical marks (${totalPractical}) exceeds the maximum of 70. Please adjust the marks.`
+        );
+        return false;
+      }
+    }
+    return true;
+  };
+
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case "A+":
@@ -273,9 +370,10 @@ const ListTable = () => {
   };
 
   // Extract module info from first assessment
-  const moduleInfo = fetchedAssessments && fetchedAssessments.length > 0 
-    ? fetchedAssessments[0] 
-    : null;
+  const moduleInfo =
+    fetchedAssessments && fetchedAssessments.length > 0
+      ? fetchedAssessments[0]
+      : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -318,7 +416,7 @@ const ListTable = () => {
         {/* Assessment Form */}
         <form onSubmit={(e) => e.preventDefault()}>
           <Card
-             ref={tableRef}
+            ref={tableRef}
             className="shadow-xl border-0 bg-white/80 backdrop-blur-sm"
           >
             <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
@@ -535,19 +633,40 @@ const ListTable = () => {
                           const student = item.student;
                           const studentId = student?.id;
                           const numericStudentId = Number(studentId);
+                          // Use local edits if present, else fallback to fetched values
                           const local = assessments[numericStudentId] || {};
                           const practical1 =
-                            local.practical1 ?? item.practical1 ?? 0;
+                            local.practical1 ?? item.practical1 ?? null;
                           const practical2 =
-                            local.practical2 ?? item.practical2 ?? 0;
+                            local.practical2 ?? item.practical2 ?? null;
                           const practical3 =
-                            local.practical3 ?? item.practical3 ?? 0;
-                          const practicalStatus = local.practicalStatus ?? item.practicalStatus;
-                          const theoryStatus = local.theoryStatus ?? item.theoryStatus;
-                          const theory = local.theory ?? item.theory ?? 0;
-                          const totalPractical = practical1 + practical2 + practical3;
-                          const totalMark = totalPractical + theory;
-                          const grade = item.gradeInLetter || "-";
+                            local.practical3 ?? item.practical3 ?? null;
+                          const theory = local.theory ?? item.theory ?? null;
+
+                          // Auto-calculate status fields
+                          const practicalStatus =
+                            practical1 === null ||
+                            practical2 === null ||
+                            practical3 === null
+                              ? "NA"
+                              : "OK";
+                          const theoryStatus = theory === null ? "NA" : "OK";
+
+                          // Calculate totals with null handling
+                          const totalPractical =
+                            (practical1 ?? 0) +
+                            (practical2 ?? 0) +
+                            (practical3 ?? 0);
+                          const totalMark = totalPractical + (theory ?? 0);
+
+                          // Calculate grade with null check
+                          const grade =
+                            practical1 === null ||
+                            practical2 === null ||
+                            practical3 === null ||
+                            theory === null
+                              ? "NG"
+                              : calculateGrade(totalMark);
                           const fullName = student?.user?.firstName
                             ? `${student.user.firstName} ${
                                 student.user.middleName ?? ""
@@ -586,48 +705,68 @@ const ListTable = () => {
                               </TableCell>
                               <AssessmentCell
                                 value={practical1}
-                                onChange={(value) =>
-                                  updateLocalAssessment(
-                                    numericStudentId,
-                                    "practical1",
-                                    Number(value)
-                                  )
-                                }
+                                onChange={(value) => {
+                                  const numValue = Number(value);
+                                  if (
+                                    validatePracticalMarks(
+                                      numericStudentId,
+                                      "practical1",
+                                      numValue
+                                    )
+                                  ) {
+                                    updateLocalAssessment(
+                                      numericStudentId,
+                                      "practical1",
+                                      numValue
+                                    );
+                                  }
+                                }}
                                 max={30}
                               />
                               <AssessmentCell
                                 value={practical2}
-                                onChange={(value) =>
-                                  updateLocalAssessment(
-                                    numericStudentId,
-                                    "practical2",
-                                    Number(value)
-                                  )
-                                }
+                                onChange={(value) => {
+                                  const numValue = Number(value);
+                                  if (
+                                    validatePracticalMarks(
+                                      numericStudentId,
+                                      "practical2",
+                                      numValue
+                                    )
+                                  ) {
+                                    updateLocalAssessment(
+                                      numericStudentId,
+                                      "practical2",
+                                      numValue
+                                    );
+                                  }
+                                }}
                                 max={30}
                               />
                               <AssessmentCell
                                 value={practical3}
-                                onChange={(value) =>
-                                  updateLocalAssessment(
-                                    numericStudentId,
-                                    "practical3",
-                                    Number(value)
-                                  )
-                                }
+                                onChange={(value) => {
+                                  const numValue = Number(value);
+                                  if (
+                                    validatePracticalMarks(
+                                      numericStudentId,
+                                      "practical3",
+                                      numValue
+                                    )
+                                  ) {
+                                    updateLocalAssessment(
+                                      numericStudentId,
+                                      "practical3",
+                                      numValue
+                                    );
+                                  }
+                                }}
                                 max={30}
                               />
                               <AssessmentCell
                                 value={practicalStatus}
-                                onChange={(value) =>
-                                  updateLocalAssessment(
-                                    numericStudentId,
-                                    "practicalStatus",
-                                    value ?? ""
-                                  )
-                                }
                                 isStatus={true}
-                                placeholder=""
+                                readOnly={true}
                               />
                               <TableCell className="text-center py-4 bg-blue-50/50">
                                 <span className="font-bold text-blue-700 text-lg">
@@ -647,15 +786,8 @@ const ListTable = () => {
                               />
                               <AssessmentCell
                                 value={theoryStatus}
-                                onChange={(value) =>
-                                  updateLocalAssessment(
-                                    numericStudentId,
-                                    "theoryStatus",
-                                    value ?? ""
-                                  )
-                                }
                                 isStatus={true}
-                                placeholder=""
+                                readOnly={true}
                               />
                               <TableCell className="text-center py-4 bg-indigo-50/50">
                                 <span className="font-bold text-indigo-700 text-lg">
