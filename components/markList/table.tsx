@@ -150,7 +150,7 @@ const ListTable = () => {
           theoryStatus,
           totalMark,
           theory,
-          gradeInLetter,
+          //gradeInLetter,
           comment,
         };
       }
@@ -158,8 +158,8 @@ const ListTable = () => {
 
     submitAssessments({
       teachingAssignmentId: selectedTeachingAssignmentId,
-      assessmentGroupId: fetchedAssessments[0]?.assessmentGroup?.id ?? 0,
-      assessments: assessmentData,
+      assessments: assessmentInfo,
+      assessmentGroupId: selectedTeachingAssignmentId,
     });
   };
 
