@@ -92,8 +92,8 @@ export default function SchoolPortal() {
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
             <motion.div className="flex items-center space-x-3" whileHover={{ scale: 1.05 }}>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-                <School className="h-7 w-7 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                <Image src='/wol1.jpg' alt="Logo" width={78} height={78} className="rounded-full" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">WOLAITA SODO</h1>

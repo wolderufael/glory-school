@@ -9,21 +9,22 @@ import { AssessmentInfoResponse } from '@/utils/assessment';
 
 interface ModuleInfoFormProps {
   handleGet: (id: number) => void;
+  isLoading: boolean;
+  assessmentData: any ;
+  isError: boolean;
+  error: Error | null;
 }
 
+export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({isLoading,assessmentData, isError, error, handleGet }:ModuleInfoFormProps) => {
 
-
-
-export const ModuleInfoForm: React.FC<ModuleInfoFormProps> = ({ handleGet }:{handleGet: (id: number) => void}) => {
- 
-  const [teacherId, setTeacherId] = useState<number | null>(null)
+//   const [teacherId, setTeacherId] = useState<number | null>(null)
    
- useEffect(()=>{
-    const id = localStorage.getItem('teacherId')
-    setTeacherId(Number(id))
- },[])
+//  useEffect(()=>{
+//     const id = localStorage.getItem('teacherId')
+//     setTeacherId(Number(id))
+//  },[])
 
-  const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId ?? 1);
+//   const { data: assessmentData, isLoading, isError, error } = useTeachingAssignment(teacherId ?? 1);
 
 
   return (
