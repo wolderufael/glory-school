@@ -225,7 +225,7 @@ const ListTable = () => {
           theoryStatus,
           totalMark,
           theory,
-          gradeInLetter,
+          //gradeInLetter,
           comment,
         };
       }
