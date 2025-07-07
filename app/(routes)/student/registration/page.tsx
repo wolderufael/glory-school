@@ -1,6 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic';
 
+
 const MultiStepForm = dynamic(
   () => import("@/components/studentForm/multiStepForm"),
   { ssr: false }

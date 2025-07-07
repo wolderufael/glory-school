@@ -337,7 +337,7 @@ const Register = () => {
                     className="text-sm font-medium flex items-center gap-2"
                   >
                     <Mail className="w-4 h-4" />
-                    Email Address <span className="text-red-500">*</span>
+                    Email Address 
                   </Label>
                   <Input
                     id="email"
@@ -348,9 +348,9 @@ const Register = () => {
                     onChange={handleChange}
                     className={errors.email ? "border-red-500" : ""}
                   />
-                  {errors.email && (
+              {/*     {errors.email && (
                     <p className="text-red-500 text-sm">{errors.email}</p>
-                  )}
+                  )} */}
                 </div>
 
                 <div className="space-y-2">
