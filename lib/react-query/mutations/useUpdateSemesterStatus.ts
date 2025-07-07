@@ -11,7 +11,7 @@ interface UpdateSemesterStatusData {
 
 const updateSemesterStatus = async (data: UpdateSemesterStatusData) => {
   const response = await patch(
-    `/api/academicyears/semester/${data.id}/status`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/academicyears/semester/${data.id}/status`,
     {
       status: data.status,
     }

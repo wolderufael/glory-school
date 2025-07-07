@@ -10,7 +10,7 @@ interface UpdateAcademicYearStatusData {
 }
 
 const updateAcademicYearStatus = async (data: UpdateAcademicYearStatusData) => {
-  const response = await patch(`/api/academicyears/${data.id}/status`, {
+  const response = await patch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/academicyears/${data.id}/status`, {
     status: data.status,
   });
   if (data.status === "OPEN") {
