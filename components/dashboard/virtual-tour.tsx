@@ -73,7 +73,7 @@ export default function VirtualTourPage() {
       color: "text-orange-600",
       bg: "bg-orange-50",
     },
-    {
+   /*  {
       name: "Central Library",
       description: "Discover our comprehensive library with digital resources and study spaces",
       image: "/placeholder.svg?height=200&width=300",
@@ -112,7 +112,7 @@ export default function VirtualTourPage() {
       icon: Car,
       color: "text-gray-600",
       bg: "bg-gray-50",
-    },
+    }, */
   ]
 
   const tourStats = [
@@ -304,7 +304,7 @@ export default function VirtualTourPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button className="bg-white text-blue-600 hover:bg-blue-50">Schedule Campus Visit</Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button variant="outline" className="border-white text-blue-600 hover:bg-white/10">
                   Contact Admissions
                 </Button>
               </div>

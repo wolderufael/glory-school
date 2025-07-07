@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthStore} from "@/lib/store/authStore";
 
 interface TopNavProps {
   title?: string;
@@ -26,6 +27,7 @@ export function TopNav({
   title = props.title,
   studentId = props.studentId,
 }: TopNavProps) {
+  const { user, logout } = useAuthStore();
   return (
     <header className="h-16  bg-white border-b border-slate-200 flex  justify-between px-4">
       <div className="flex items-center gap-4">
@@ -72,14 +74,14 @@ export function TopNav({
 
             <DropdownMenuContent className="w-45   md:w-70">
               <DropdownMenuLabel className="text-slate-800">
-                John Doe
+                {user?.firstName} {user?.lastName}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+{/*               <DropdownMenuItem>
                 <User className="w-4 h-4 mr-2" />
                 Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              </DropdownMenuItem> */}
+{/*               <DropdownMenuItem>
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
                 <Badge className="ml-auto bg-red-100 text-red-700">3</Badge>
@@ -88,8 +90,8 @@ export function TopNav({
                 <Printer className="w-4 h-4 mr-2" />
                 Print Transcript
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuSeparator /> */}
+              <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

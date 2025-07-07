@@ -1,20 +1,26 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  
+  output: "standalone",
+  env: {
+    PORT: process.env.PORT || "3001",
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images:{
-  remotePatterns:[
-    {
-      hostname:'images.unsplash.com',
-    }
-  ]
+  images: {
+    remotePatterns: [
+      {
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
+  // Set the port for the development server
+  experimental: {
+    serverComponentsExternalPackages: [],
   },
   // async rewrites() {
   //   const env = process.env.NODE_ENV;
