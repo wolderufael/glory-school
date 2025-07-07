@@ -6,7 +6,11 @@ export const userSchema = z
     firstName: z.string().min(1, "First name is required"),
     middleName: z.string().optional(),
     lastName: z.string().min(1, "Last name is required"),
-    email: z.string().email("Invalid email address"),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .optional()
+      .or(z.literal("")),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
     userMainId: z.string().min(1, "Unique ID is required"),
     password: z

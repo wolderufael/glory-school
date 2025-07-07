@@ -104,6 +104,7 @@ export async function middleware(req: NextRequest) {
   let isAuthenticated = false;
   let userRole: UserEnumTypes = "Student";
   let userId: string | null = null;
+  let isRegisteredStudent = false;
 
   const buildUrl = (route: string) => new URL(route, BASE_URL).toString();
 
@@ -123,6 +124,7 @@ export async function middleware(req: NextRequest) {
           isAuthenticated = true;
           userRole = user.userType;
           userId = user.userId;
+          isRegisteredStudent = user.isRegisteredStudent;
           console.log("User authenticated:", { userRole, userId });
         } else {
           return NextResponse.redirect(buildUrl("/auth/login"));
@@ -152,9 +154,10 @@ export async function middleware(req: NextRequest) {
   if (isAuthenticated && userRole === "Student" && userId) {
     console.log("Checking student registration status");
     //await delay(60000);
-    const isRegistered = await checkStudentRegistration(userId);
+    //const isRegistered = await checkStudentRegistration(userId);
     //const isRegistered = false;
-    console.log("Registration check result:", isRegistered);
+    const isRegistered = isRegisteredStudent;
+    console.log("Registration check result:", isRegistered)
 
     // If student is not registered
     if (!isRegistered) {
