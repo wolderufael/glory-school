@@ -19,8 +19,8 @@ export interface UseGradeApprovalLogicReturn {
   error: string | null;
 
   // Actions
-  fetchRequests: () => Promise<void>;
-  fetchStats: () => Promise<void>;
+  /* fetchRequests: () => Promise<void>;
+  fetchStats: () => Promise<void>; */
   submitDecision: (decision: ApprovalDecision) => Promise<boolean>;
   refreshData: () => Promise<void>;
 
@@ -39,39 +39,7 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
   const [submittingDecision, setSubmittingDecision] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRequests = useCallback(async () => {
-    setLoading(true);
-    setError(null);
 
-    try {
-      const response = await gradeApprovalApiService.getGradeApprovalRequests();
-
-      if (response.success && response.data) {
-        setRequests(response.data);
-      } else {
-        setError(response.error || "Failed to fetch grade approval requests");
-      }
-    } catch (err) {
-      setError("Network error while fetching requests");
-      console.error("Error fetching grade approval requests:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchStats = useCallback(async () => {
-    try {
-      const response = await gradeApprovalApiService.getGradeApprovalStats();
-
-      if (response.success && response.data) {
-        setStats(response.data);
-      } else {
-        console.error("Failed to fetch stats:", response.error);
-      }
-    } catch (err) {
-      console.error("Error fetching grade approval stats:", err);
-    }
-  }, []);
 
   const submitDecision = useCallback(
     async (decision: ApprovalDecision): Promise<boolean> => {
@@ -105,7 +73,7 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
           );
 
           // Refresh stats after successful decision
-          await fetchStats();
+          //await fetchStats();
 
           return true;
         } else {
@@ -120,12 +88,9 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
         setSubmittingDecision(false);
       }
     },
-    [fetchStats]
+    []
   );
 
-  const refreshData = useCallback(async () => {
-    await Promise.all([fetchRequests(), fetchStats()]);
-  }, [fetchRequests, fetchStats]);
 
   // Helper functions
   const getUrgentRequests = useCallback(() => {
@@ -207,10 +172,10 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
     error,
 
     // Actions
-    fetchRequests,
-    fetchStats,
+   /*  fetchRequests,
+    fetchStats, */
     submitDecision,
-    refreshData,
+    /* refreshData, */
 
     // Helpers
     getUrgentRequests,

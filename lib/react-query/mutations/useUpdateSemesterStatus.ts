@@ -10,15 +10,20 @@ interface UpdateSemesterStatusData {
 }
 
 const updateSemesterStatus = async (data: UpdateSemesterStatusData) => {
-  const response = await patch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/academicyears/semester/${data.id}/status`,
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/semester/${data.id}/status`,
     {
-      status: data.status,
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: data.status })
     }
   );
+  const responseData = await response.json();
   if (data.status === "OPEN") {
-    setLocalStorage("academicSemesterName", response.name);
-    setLocalStorage("academicSemesterId", response.id);
+    setLocalStorage("academicSemesterName", responseData.name);
+    setLocalStorage("academicSemesterId", responseData.id);
   } else {
     setLocalStorage("academicSemesterName", "");
     setLocalStorage("academicSemesterId", "");

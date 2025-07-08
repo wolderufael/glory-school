@@ -102,6 +102,44 @@ const ListTable = () => {
     refetchAssessments();
   };
 
+  // Effect to populate local assessments when fetched data changes
+  useEffect(() => {
+    if (fetchedAssessments && fetchedAssessments.length > 0) {
+      // Clear existing local assessments
+      Object.keys(assessments).forEach((studentId) => {
+        updateLocalAssessment(Number(studentId), "practical1", 0);
+        updateLocalAssessment(Number(studentId), "practical2", 0);
+        updateLocalAssessment(Number(studentId), "practical3", 0);
+        updateLocalAssessment(Number(studentId), "theory", 0);
+        updateLocalAssessment(Number(studentId), "comment", "");
+      });
+
+      // Populate local assessments with fetched data
+      fetchedAssessments.forEach((item: any) => {
+        const studentId = item.student?.id;
+        if (studentId) {
+          updateLocalAssessment(
+            studentId,
+            "practical1",
+            item.practical1 ?? null
+          );
+          updateLocalAssessment(
+            studentId,
+            "practical2",
+            item.practical2 ?? null
+          );
+          updateLocalAssessment(
+            studentId,
+            "practical3",
+            item.practical3 ?? null
+          );
+          updateLocalAssessment(studentId, "theory", item.theory ?? null);
+          updateLocalAssessment(studentId, "comment", item.comment ?? "");
+        }
+      });
+    }
+  }, [fetchedAssessments]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTeachingAssignmentId) {
@@ -224,6 +262,8 @@ const ListTable = () => {
       return;
     }
 
+    handleSubmit(e);
+
     const statusInfo = getAssessmentGroupStatus();
     if (!statusInfo.assessmentGroupId) {
       toast.error("Assessment group ID not found.");
@@ -261,10 +301,10 @@ const ListTable = () => {
       return [];
     }
 
-    if (status === "DRAFT" || status === "REJECTED") {
+    if (status === "DRAFT") {
       return [
         {
-          text: "Save",
+          text: "Save1",
           onClick: handleSubmit,
           disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
           className:
@@ -286,6 +326,7 @@ const ListTable = () => {
     let secondButton;
     switch (status) {
       case "SUBMISSION_REQUESTED":
+      case "REJECTED":
         secondButton = {
           text: "Submit for Approval",
           onClick: handleSubmitForApproval,
@@ -320,7 +361,7 @@ const ListTable = () => {
     if (total >= 80) return "B-";
     if (total >= 77) return "C+";
     if (total >= 74) return "C";
-    if (total === 0) return "NA";
+
     return "F";
   };
 
@@ -853,22 +894,42 @@ const ListTable = () => {
                                         disabled={buttonConfig.disabled}
                                         className={buttonConfig.className}
                                       >
-                                        {isSubmitting ||
-                                        updateAssessmentStatusMutation.isPending ? (
-                                          <div className="flex items-center space-x-2">
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>
-                                              {updateAssessmentStatusMutation.isPending
-                                                ? "Updating Status..."
-                                                : "Submitting..."}
-                                            </span>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center space-x-2">
-                                            <IconComponent className="w-4 h-4" />
-                                            <span>{buttonConfig.text}</span>
-                                          </div>
-                                        )}
+                                        {(() => {
+                                          // Determine which loading state to show based on button type
+                                          const isSaveButton =
+                                            buttonConfig.text === "Save";
+                                          const isSubmitButton =
+                                            buttonConfig.text ===
+                                            "Submit for Approval";
+
+                                          if (isSaveButton && isSubmitting) {
+                                            return (
+                                              <div className="flex items-center space-x-2">
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Submitting...</span>
+                                              </div>
+                                            );
+                                          }
+
+                                          if (
+                                            isSubmitButton &&
+                                            updateAssessmentStatusMutation.isPending
+                                          ) {
+                                            return (
+                                              <div className="flex items-center space-x-2">
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Updating Status...</span>
+                                              </div>
+                                            );
+                                          }
+
+                                          return (
+                                            <div className="flex items-center space-x-2">
+                                              <IconComponent className="w-4 h-4" />
+                                              <span>{buttonConfig.text}</span>
+                                            </div>
+                                          );
+                                        })()}
                                       </Button>
                                     );
                                   }

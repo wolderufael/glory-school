@@ -188,7 +188,7 @@ export const useAssessments = () => {
   const updateLocalAssessment = (
     studentId: number,
     field: keyof Assessment,
-    value: number | string
+    value: number | string | null
   ) => {
     setAssessments((prev) => {
       const current = prev[studentId] || { studentId };
@@ -201,18 +201,31 @@ export const useAssessments = () => {
         field === "practical3"
       ) {
         const practical1 =
-          field === "practical1" ? Number(value) : updated.practical1 || 0;
+          field === "practical1"
+            ? value === null
+              ? 0
+              : Number(value)
+            : updated.practical1 || 0;
         const practical2 =
-          field === "practical2" ? Number(value) : updated.practical2 || 0;
+          field === "practical2"
+            ? value === null
+              ? 0
+              : Number(value)
+            : updated.practical2 || 0;
         const practical3 =
-          field === "practical3" ? Number(value) : updated.practical3 || 0;
+          field === "practical3"
+            ? value === null
+              ? 0
+              : Number(value)
+            : updated.practical3 || 0;
         updated.totalPractical = practical1 + practical2 + practical3;
         updated.totalMark = updated.totalPractical + (updated.theory || 0);
         updated.gradeInLetter = calculateGrade(updated.totalMark);
       }
 
       if (field === "theory") {
-        updated.totalMark = (updated.totalPractical || 0) + Number(value);
+        updated.totalMark =
+          (updated.totalPractical || 0) + (value === null ? 0 : Number(value));
         updated.gradeInLetter = calculateGrade(updated.totalMark);
       }
 

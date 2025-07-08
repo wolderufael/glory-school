@@ -40,10 +40,10 @@ export function TopNav({
 
       <div className="flex items-center gap-4">
         <div className="md:flex hidden items-center gap-2">
-          <Button variant="ghost" size="sm" className="text-slate-600">
+       {/*    <Button variant="ghost" size="sm" className="text-slate-600">
             <MessageSquare className="w-4 h-4 mr-1" />
             Messages
-          </Button>
+          </Button> */}
           {/* <Button variant="ghost" size="sm" className="text-slate-600">
             <Printer className="w-4 h-4 mr-1" />
             Print

@@ -8,7 +8,8 @@ const MultiStepForm = dynamic(
 );
 
 
-const Registration=()=>{
+const Registration = () => {
+  console.log("TEST1111111111111111111111111")
    return(
         <MultiStepForm   />
     )

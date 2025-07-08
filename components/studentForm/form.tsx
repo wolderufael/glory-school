@@ -47,7 +47,7 @@ export function StudentForm() {
   const academicYearName = getLocalStorage("academicYearName");
 
   const [formData, setFormData] = useState({
-    registerId: 0,
+    registerId: Number(getLocalStorage("currentUserId")),
     academicYearId: Number(academicYearId),
     firstName: "",
     middleName: "",
@@ -298,6 +298,7 @@ export function StudentForm() {
 
       // Get the second sheet (index 1)
       const sheetName = workbook.SheetNames[0];
+      console.log("Sheet name:", sheetName);
       const worksheet = workbook.Sheets[sheetName];
 
       // Convert to JSON with headers
@@ -343,7 +344,7 @@ export function StudentForm() {
         }
 
         studentsData.push({
-          registerId: registrarId,
+          registerId: Number(getLocalStorage("registrarId")),
           academicYearId: Number(academicYearId),
           firstName: row["First Name"]?.toString().trim() || "",
           middleName: row["Middle Name"]?.toString().trim() || "",
