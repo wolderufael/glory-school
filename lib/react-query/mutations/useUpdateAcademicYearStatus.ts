@@ -10,12 +10,20 @@ interface UpdateAcademicYearStatusData {
 }
 
 const updateAcademicYearStatus = async (data: UpdateAcademicYearStatusData) => {
-  const response = await patch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/academicyears/${data.id}/status`, {
-    status: data.status,
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/${data.id}/status`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: data.status })
+    }
+  );
+  const responseData = await response.json();
   if (data.status === "OPEN") {
-    setLocalStorage("academicYearName", response.name);
-    setLocalStorage("academicYearId", response.id);
+    setLocalStorage("academicYearName", responseData.name); 
+    setLocalStorage("academicYearId", responseData.id);
   } else {
     setLocalStorage("academicYearName", "");
     setLocalStorage("academicYearId", "");

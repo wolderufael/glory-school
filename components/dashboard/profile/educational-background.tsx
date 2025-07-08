@@ -1,19 +1,9 @@
-'use client';
+"use client";
 
 import { StudentData } from "./types";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Download,
-  FileText,
-  GraduationCap,
-  Calendar,
-  Eye,
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getBackendFileUrl } from "@/lib/utils";
+import { Download, FileText, GraduationCap, Calendar, Eye } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 
@@ -28,7 +18,9 @@ const renderDownloadableFile = (
   if (!file) return null;
 
   const isFile = isBrowserFile(file);
-  const url = isFile ? URL.createObjectURL(file) : file;
+  const url = isFile
+    ? URL.createObjectURL(file)
+    : getBackendFileUrl(file as string);
 
   return (
     <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-100 hover:border-indigo-200 transition-colors max-sm:flex-col max-sm:items-start max-sm:gap-3">
@@ -106,11 +98,26 @@ export function EducationalBackground({
                 Secondary School Transcripts
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {renderDownloadableFile(transcriptFiles?.grade9FilePath, "Grade 9 Transcript")}
-                {renderDownloadableFile(transcriptFiles?.grade10FilePath, "Grade 10 Transcript")}
-                {renderDownloadableFile(transcriptFiles?.grade11FilePath, "Grade 11 Transcript")}
-                {renderDownloadableFile(transcriptFiles?.grade12FilePath, "Grade 12 Transcript")}
-                {renderDownloadableFile(transcriptFiles?.examFilePath, "Entrance Exam Results")}
+                {renderDownloadableFile(
+                  transcriptFiles?.grade9FilePath,
+                  "Grade 9 Transcript"
+                )}
+                {renderDownloadableFile(
+                  transcriptFiles?.grade10FilePath,
+                  "Grade 10 Transcript"
+                )}
+                {renderDownloadableFile(
+                  transcriptFiles?.grade11FilePath,
+                  "Grade 11 Transcript"
+                )}
+                {renderDownloadableFile(
+                  transcriptFiles?.grade12FilePath,
+                  "Grade 12 Transcript"
+                )}
+                {renderDownloadableFile(
+                  transcriptFiles?.examFilePath,
+                  "Entrance Exam Results"
+                )}
               </div>
             </div>
 
@@ -118,7 +125,9 @@ export function EducationalBackground({
 
             {/* Academic Performance */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Academic Performance</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Academic Performance
+              </h3>
               <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
                 <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-indigo-100">
                   <p className="text-sm text-gray-600 mb-1">English Grade</p>
@@ -127,7 +136,9 @@ export function EducationalBackground({
                   </p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-indigo-100">
-                  <p className="text-sm text-gray-600 mb-1">Mathematics Grade</p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Mathematics Grade
+                  </p>
                   <p className="text-2xl font-bold text-indigo-700">
                     {transcriptFiles?.mathsGrade ?? "N/A"}
                   </p>
@@ -156,7 +167,10 @@ export function EducationalBackground({
                         ?.split(",")
                         .map((path: string, index: number) => (
                           <div key={`${pastSecondaryData.id}-${index}`}>
-                            {renderDownloadableFile(path.trim(), `Post-Secondary Document ${index + 1}`)}
+                            {renderDownloadableFile(
+                              path.trim(),
+                              `Post-Secondary Document ${index + 1}`
+                            )}
                           </div>
                         ))}
                     </div>

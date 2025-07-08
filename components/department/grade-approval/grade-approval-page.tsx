@@ -17,17 +17,11 @@ import GradeReviewPage from "./grade-review-page";
 
 export function GradeApprovalPage() {
   const {
-    requests,
-    stats,
     loading,
     submittingDecision,
     error,
-    fetchRequests,
-    fetchStats,
     submitDecision,
     refreshData,
-    getUrgentRequests,
-    getPendingRequests,
   } = useGradeApprovalLogic();
 
   const [selectedRequest, setSelectedRequest] =
@@ -37,12 +31,12 @@ export function GradeApprovalPage() {
   const departmentId = getLocalStorage("departmentId");
 
   // Initial data load
-  useEffect(() => {
+/*   useEffect(() => {
     refreshData();
-  }, [refreshData]);
+  }, [refreshData]); */
 
   // Auto-refresh every 5 minutes
-  useEffect(() => {
+  /* useEffect(() => {
     const interval = setInterval(() => {
       if (!submittingDecision && !isModalOpen) {
         fetchRequests();
@@ -51,7 +45,7 @@ export function GradeApprovalPage() {
     }, 5 * 60 * 1000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, [fetchRequests, fetchStats, submittingDecision, isModalOpen]);
+  }, [fetchRequests, fetchStats, submittingDecision, isModalOpen]); */
 
   const handleViewRequest = (request: GradeApprovalRequest) => {
     setSelectedRequest(request);
@@ -88,8 +82,6 @@ export function GradeApprovalPage() {
     refreshData();
   };
 
-  const urgentRequests = getUrgentRequests();
-  const pendingRequests = getPendingRequests();
 
   return (
     <>

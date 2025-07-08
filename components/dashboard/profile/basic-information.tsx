@@ -11,7 +11,8 @@ import {
   HeartIcon,
   ChatBubbleIcon,
 } from "@radix-ui/react-icons";
-import {  GraduationCap,BookOpen } from "lucide-react";
+import { GraduationCap, BookOpen } from "lucide-react";
+import { getBackendFileUrl } from "@/lib/utils";
 
 interface BasicInformationProps {
   studentData: StudentData;
@@ -71,7 +72,10 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
           <div className="flex flex-col items-center text-center">
             <div className="w-40 h-40 rounded-full overflow-hidden ring-4 ring-indigo-100 mb-6">
               <img
-                src={studentData?.profilePicture || "/default-avatar.png"}
+                src={
+                  getBackendFileUrl(studentData?.profilePicture) ||
+                  "/default-avatar.png"
+                }
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -88,7 +92,7 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
                 </p>
                 <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
                   <IdCardIcon className="h-4 w-4 text-indigo-600" />
-                 {studentData?.user?.userMainId}
+                  {studentData?.user?.userMainId}
                 </p>
                 <p className="text-sm text-gray-600 flex items-center justify-center gap-2">
                   <GraduationCap className="h-4 w-4 text-indigo-600" />

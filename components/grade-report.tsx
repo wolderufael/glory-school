@@ -54,7 +54,7 @@ export function Results() {
 
   const calculateCreditHours = (course: any) => {
     // Calculate credit hours based on total contact hours
-    return Math.round(course.totalNhrs / 15);
+    return course.totalNhrs;
   };
 
   const calculatePoints = (course: any) => {
@@ -120,7 +120,7 @@ export function Results() {
                         <TableHead>#</TableHead>
                         <TableHead>Course Code</TableHead>
                         <TableHead>Course Name</TableHead>
-                        <TableHead>Credit Hrs</TableHead>
+                        <TableHead>Nominal Hrs</TableHead>
                         <TableHead>Score</TableHead>
                         <TableHead>Grade</TableHead>
                         <TableHead>Points</TableHead>

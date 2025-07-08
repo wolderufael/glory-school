@@ -199,7 +199,7 @@ const generateMockGrades = (count: number): StudentGrade[] => {
   });
 };
 
-let mockRequests: GradeApprovalRequest[] = [
+/* let mockRequests: GradeApprovalRequest[] = [
   {
     id: "GA001",
     teacher: mockTeachers[0],
@@ -256,7 +256,7 @@ let mockRequests: GradeApprovalRequest[] = [
     submittedGrades: 41,
     message: "Continuous assessment grades compilation for the semester.",
   },
-];
+]; */
 
 class GradeApprovalApiService {
   // Simulate API delay
@@ -272,18 +272,18 @@ class GradeApprovalApiService {
     try {
       return {
         success: true,
-        data: mockRequests,
+        data: [],
         message: "Grade approval requests retrieved successfully",
       };
     } catch (error) {
       return {
         success: false,
-        error: "Failed to fetch grade approval requests",
+        error: "Failed to fetch grade approval requests111",
       };
     }
   }
 
-  async getGradeApprovalStats(): Promise<ApiResponse<GradeApprovalStats>> {
+ /*  async getGradeApprovalStats(): Promise<ApiResponse<GradeApprovalStats>> {
     await this.delay(500);
 
     try {
@@ -404,7 +404,7 @@ class GradeApprovalApiService {
         error: "Failed to fetch grade approval request",
       };
     }
-  }
+  } */
 
   // Real API integration points - replace mock implementations with actual API calls
   /*

@@ -37,6 +37,7 @@ interface Department {
 
 export function CreateSection() {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [numberOfStudents, setNumberOfStudents] = useState<number>(0);
   const [numberOfSection, setNumberOfSection] = useState<number>(1);
   const [sections, setSections] = useState<sectionSchema[]>([]);
   const [filteredDepartments, setFilteredDepartments] = useState<Department[]>(
@@ -55,8 +56,11 @@ export function CreateSection() {
     numberOfSection: numberOfSection,
   });
 
-  const { data: studentCount, isLoading: isStudentCountLoading } =
-    useDepartment(Number(formData.departmentId || 0));
+  const {
+    data: studentCount,
+    isLoading: isStudentCountLoading,
+    refetch: refetchStudentCount,
+  } = useDepartment(Number(formData.departmentId || 0));
 
   const { mutate: createSectionMutation, isPending: isCreatingSection } =
     useCreateSection();
@@ -186,6 +190,8 @@ export function CreateSection() {
       onSuccess: () => {
         setNumberOfSection(1);
         setSections([]);
+        // Refetch student count after section is created
+        refetchStudentCount();
       },
     });
   };
@@ -399,7 +405,7 @@ export function CreateSection() {
               <div className="flex justify-end gap-4 pt-6">
                 <Button
                   type="submit"
-                  disabled={isCreatingSection}
+                  disabled={isCreatingSection || studentCount === 0}
                   className="w-full sm:w-auto min-w-[120px]"
                 >
                   {isCreatingSection ? "Creating..." : "Create Section"}

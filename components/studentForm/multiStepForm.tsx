@@ -24,6 +24,7 @@ const steps = [
 ];
 
 export default function MultiStepForm() {
+  console.log("TEST2222222222222222222222222")
   const [step, setStep] = useState(1);
   const [isAcceptedStatus, setIsAcceptedStatus] = useState<string | null>(null);
   const router = useRouter();
@@ -55,9 +56,9 @@ export default function MultiStepForm() {
   };
 
   // Show nothing during initial render to prevent flash
-  if (isAcceptedStatus === null) {
+/*   if (isAcceptedStatus === null) {
     return null;
-  }
+  } */
 
   // Show Not Listed message if not accepted
   if (isAcceptedStatus === "No") {

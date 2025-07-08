@@ -2,9 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  env: {
-    PORT: process.env.PORT || "3001",
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -18,10 +15,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Set the port for the development server
-  experimental: {
-    serverComponentsExternalPackages: [],
-  },
+
   // async rewrites() {
   //   const env = process.env.NODE_ENV;
   //   return [
