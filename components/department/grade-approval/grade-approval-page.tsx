@@ -20,8 +20,8 @@ export function GradeApprovalPage() {
     loading,
     submittingDecision,
     error,
-    submitDecision,
-    refreshData,
+    //submitDecision,
+    //refreshData,
   } = useGradeApprovalLogic();
 
   const [selectedRequest, setSelectedRequest] =
@@ -57,7 +57,7 @@ export function GradeApprovalPage() {
     setSelectedRequest(null);
   };
 
-  const handleDecision = async (decision: ApprovalDecision) => {
+/*   const handleDecision = async (decision: ApprovalDecision) => {
     const success = await submitDecision(decision);
 
     if (success) {
@@ -76,11 +76,11 @@ export function GradeApprovalPage() {
 
       handleCloseModal();
     }
-  };
+  }; */
 
-  const handleRefresh = () => {
-    refreshData();
-  };
+  //const handleRefresh = () => {
+    //refreshData();
+  //};
 
 
   return (
@@ -89,7 +89,7 @@ export function GradeApprovalPage() {
         <GradeReviewPage
           request={selectedRequest}
           onClose={handleCloseModal}
-          onDecision={handleDecision}
+          //onDecision={handleDecision}
           loading={submittingDecision}
         />
       )}
@@ -102,7 +102,7 @@ export function GradeApprovalPage() {
               Review and approve teacher-submitted grades
             </p>
           </div>
-          <Button
+{/*           <Button
             onClick={handleRefresh}
             disabled={loading}
             className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -111,7 +111,7 @@ export function GradeApprovalPage() {
               className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
             />
             Refresh
-          </Button>
+          </Button> */}
         </div>
 
         {/* Department Bulk Actions */}

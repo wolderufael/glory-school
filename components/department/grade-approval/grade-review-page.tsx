@@ -34,14 +34,14 @@ import { useUpdateAssessmentGroupStatus } from "@/lib/react-query/mutations/useU
 
 interface GradeReviewPageProps {
   request: GradeApprovalRequest | null;
-  onDecision: (decision: ApprovalDecision) => void;
+  //onDecision: (decision: ApprovalDecision) => void;
   onClose: () => void;
   loading?: boolean;
 }
 
 export default function GradeReviewPage({
   request,
-  onDecision,
+  /*   onDecision, */
   onClose,
   loading = false,
 }: GradeReviewPageProps) {

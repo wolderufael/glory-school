@@ -21,8 +21,8 @@ export interface UseGradeApprovalLogicReturn {
   // Actions
   /* fetchRequests: () => Promise<void>;
   fetchStats: () => Promise<void>; */
-  submitDecision: (decision: ApprovalDecision) => Promise<boolean>;
-  refreshData: () => Promise<void>;
+  //submitDecision: (decision: ApprovalDecision) => Promise<boolean>;
+  //refreshData: () => Promise<void>;
 
   // Helpers
   getUrgentRequests: () => GradeApprovalRequest[];
@@ -41,7 +41,7 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
 
 
 
-  const submitDecision = useCallback(
+ /*  const submitDecision = useCallback(
     async (decision: ApprovalDecision): Promise<boolean> => {
       setSubmittingDecision(true);
       setError(null);
@@ -89,7 +89,7 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
       }
     },
     []
-  );
+  ); */
 
 
   // Helper functions
@@ -174,8 +174,8 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
     // Actions
    /*  fetchRequests,
     fetchStats, */
-    submitDecision,
-    /* refreshData, */
+    //submitDecision,
+    // refreshData, //refreshData,
 
     // Helpers
     getUrgentRequests,
