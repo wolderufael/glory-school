@@ -6,11 +6,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Settings2 } from "lucide-react";
+import { ChevronDown, Settings2, AlertTriangle } from "lucide-react";
 import { useUpdateAcademicYearStatus } from "@/lib/react-query/mutations/useUpdateAcademicYearStatus";
 import { useUpdateSemesterStatus } from "@/lib/react-query/mutations/useUpdateSemesterStatus";
 import { Semester } from "@/lib/react-query/hooks/useAcademicCalender";
 import PasswordConfirmationDialog from "./PasswordConfirmationDialog";
+import { useAllAssessmentGroups } from "@/lib/react-query/hooks/useAssessmentGroups";
 
 interface StatusManagementProps {
   academicYearId: number;
@@ -23,9 +24,22 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
   academicYearStatus,
   semesters,
 }) => {
+  const {
+    data: assessmentGroups = [],
+    isLoading: assessmentGroupsLoading,
+    error: assessmentGroupsError,
+  } = useAllAssessmentGroups();
+
   const updateAcademicYearStatus = useUpdateAcademicYearStatus();
   const updateSemesterStatus = useUpdateSemesterStatus();
 
+  // Check if there are open assessments that prevent status changes
+  const hasOpenAssessments =
+    assessmentGroups.length > 0 &&
+    assessmentGroups.filter((r) => r.status === "APPROVED").length === 0;
+
+  console.log("assessmentGroups", assessmentGroups);
+  console.log("hasOpenAssessments", hasOpenAssessments);
   // State for password confirmation dialog
   const [confirmationDialog, setConfirmationDialog] = useState<{
     isOpen: boolean;
@@ -169,6 +183,25 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
           </h3>
         </div>
 
+        {/* Warning message for open assessments */}
+        {hasOpenAssessments && (
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  Status Changes Restricted
+                </p>
+                <p className="text-sm text-amber-700 mt-1">
+                  You cannot change the academic year or semester status because
+                  there are open assessments that need to be dealt with. Please
+                  ensure all assessments are approved before changing status.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-4">
           {/* Academic Year Status */}
           <div className="flex items-center justify-between">
@@ -184,8 +217,12 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                   variant="outline"
                   className={`min-w-[120px] ${getStatusColor(
                     academicYearStatus
-                  )}`}
-                  disabled={updateAcademicYearStatus.isPending}
+                  )} ${
+                    hasOpenAssessments ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={
+                    updateAcademicYearStatus.isPending || hasOpenAssessments
+                  }
                 >
                   {academicYearStatus}
                   <ChevronDown className="ml-2 h-4 w-4" />
@@ -195,12 +232,14 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                 <DropdownMenuItem
                   onClick={() => handleAcademicYearStatusChange("OPEN")}
                   className="text-green-600"
+                  disabled={hasOpenAssessments}
                 >
                   OPEN
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleAcademicYearStatusChange("CLOSED")}
                   className="text-red-600"
+                  disabled={hasOpenAssessments}
                 >
                   CLOSED
                 </DropdownMenuItem>
@@ -239,8 +278,12 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                     variant="outline"
                     className={`min-w-[120px] ${getStatusColor(
                       semester.status
-                    )}`}
-                    disabled={updateSemesterStatus.isPending}
+                    )} ${
+                      hasOpenAssessments ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={
+                      updateSemesterStatus.isPending || hasOpenAssessments
+                    }
                   >
                     {semester.status}
                     <ChevronDown className="ml-2 h-4 w-4" />
@@ -252,6 +295,7 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                       handleSemesterStatusChange(semester.id, "UPCOMING")
                     }
                     className="text-blue-600"
+                    disabled={hasOpenAssessments}
                   >
                     UPCOMING
                   </DropdownMenuItem>
@@ -260,6 +304,7 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                       handleSemesterStatusChange(semester.id, "OPEN")
                     }
                     className="text-green-600"
+                    disabled={hasOpenAssessments}
                   >
                     OPEN
                   </DropdownMenuItem>
@@ -268,6 +313,7 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                       handleSemesterStatusChange(semester.id, "CLOSED")
                     }
                     className="text-red-600"
+                    disabled={hasOpenAssessments}
                   >
                     CLOSED
                   </DropdownMenuItem>

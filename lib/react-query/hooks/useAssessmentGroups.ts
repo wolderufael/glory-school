@@ -88,6 +88,20 @@ const fetchAssessmentGroupsByDepartment = async (
 
   return response.json();
 };
+const fetchAllAssessmentGroups = async (
+): Promise<AssessmentGroup[]> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+
 
 const transformToGradeApprovalRequests = (
   assessmentGroups: AssessmentGroup[]
@@ -150,6 +164,20 @@ export const useAssessmentGroups = (departmentId?: number) => {
     queryKey: ["assessmentGroups", departmentId],
     queryFn: () => fetchAssessmentGroupsByDepartment(departmentId!),
     enabled: !!departmentId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useAllAssessmentGroups = () => {
+  return useQuery({
+    queryKey: ["allAssessmentGroups"],
+    queryFn: async () => {
+      const assessmentGroups = await fetchAllAssessmentGroups();
+      // return transformToGradeApprovalRequests(assessmentGroups);
+      return assessmentGroups;
+    },
+    enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
