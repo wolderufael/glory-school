@@ -5,11 +5,22 @@ import { CurrentCoursesCard } from "@/components/dashboard/home/current-courses-
 import { QuickActionsCard } from "@/components/dashboard/home/quick-actions-card";
 import { useStudentInfo } from "@/lib/react-query/hooks/useStudentInfo";
 import { useEffect } from "react";
+import Reregistration from "@/components/dashboard/home/reregistration";
+import { useReregistration } from "@/lib/react-query/hooks/useReregistration";
+import { getLocalStorage } from "@/utils/localStorage";
 
 export default function DashboardPage() {
-  //const studentID = "1";
-  const { data: studentInfo, isLoading, refetch } = useStudentInfo();
-  console.log("studentInfoonDashboard", studentInfo);
+  const studentId = getLocalStorage("studentId");
+  const {
+    data: reregistrationData,
+    isLoading,
+    refetch: refetchReregistration,
+  } = useReregistration(
+    Number(studentId),
+    Number(getLocalStorage("academicSemesterId")) || 0,
+    Number(getLocalStorage("academicYearId")) || 0
+  );
+  const { data: studentInfo, refetch } = useStudentInfo();
 
   useEffect(() => {
     refetch();
@@ -26,8 +37,23 @@ export default function DashboardPage() {
     program: studentInfo?.program?.name || "Not assigned",
   };
 
+  // Check if should show reregistration component
+  // Show component if:
+  // 1. reregistrationData is null/undefined/empty
+  // 2. reregistrationData exists AND hasPassed is not null/undefined
+  // Don't show if reregistrationData exists AND hasPassed is null/undefined
+  const shouldShowReregistration =
+    !reregistrationData ||
+    Object.keys(reregistrationData).length === 0 ||
+    (reregistrationData &&
+      reregistrationData.hasPassed !== null &&
+      reregistrationData.hasPassed !== undefined);
+
   return (
-    <main className="flex-1 p-6">
+    <main className="flex-1 p-6 mt-4">
+      {shouldShowReregistration && (
+        <Reregistration onReregister={refetchReregistration} />
+      )}
       <StudentInfoCard data={studentInfoData} isLoading={isLoading} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

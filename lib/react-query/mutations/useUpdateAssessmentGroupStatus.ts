@@ -3,23 +3,28 @@ import { toast } from "sonner";
 
 interface UpdateAssessmentGroupStatusRequest {
   id: number;
+  departmentId: number;
   status: "APPROVED" | "REJECTED";
   reason?: string;
 }
 
 const updateAssessmentGroupStatus = async ({
   id,
+  departmentId,
   status,
   reason,
 }: UpdateAssessmentGroupStatusRequest): Promise<any> => {
+
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups/${id}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups/status/by-department-and-group`,
     {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        departmentId,
+        assessmentGroupId: id,
         status,
         ...(reason && { reason }),
       }),

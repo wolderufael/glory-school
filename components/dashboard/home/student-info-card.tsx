@@ -22,7 +22,7 @@ export function StudentInfoCard({
   console.log("data", data);
   if (isLoading) {
     return (
-      <Card className="mb-6 bg-blue-50 border-blue-200">
+      <Card className="mb-6 mt-4 bg-blue-50 border-blue-200">
         <CardContent className="p-4">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-blue-200 rounded w-1/4"></div>

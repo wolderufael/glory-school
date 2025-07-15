@@ -31,51 +31,15 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
 
   const { user } = useAuthStore();
 
-  // Determine if the slip is active based on current date
-  /*   const isActive = (() => {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1; 
-    const currentYear = currentDate.getFullYear();
-
-    // Parse academic year (format: "2023/24")
-    const [startYear] = slip.academicYear.split("/");
-    const academicStartYear = parseInt(startYear);
-    const semester = parseInt(slip.semester);
-
-    // Assuming:
-    // Semester 1: September (9) to January (1)
-    // Semester 2: February (2) to June (6)
-    // Summer: July (7) to August (8)
-
-    if (currentYear < academicStartYear) return false;
-    if (currentYear > academicStartYear + 1) return false;
-
-    if (semester === 1) {
-      // First semester is active from September to January
-      return (
-        (currentMonth >= 9 && currentYear === academicStartYear) ||
-        (currentMonth <= 1 && currentYear === academicStartYear + 1)
-      );
-    } else if (semester === 2) {
-      // Second semester is active from February to June
-      return (
-        currentMonth >= 2 &&
-        currentMonth <= 6 &&
-        currentYear === academicStartYear + 1
-      );
-    }
-
-    return false;
-  })(); */
   useEffect(() => {
     setMounted(true);
     const isActive =
       getLocalStorage("currentStudyingYear") === slip.year &&
-      getLocalStorage("currentStudyingSemester") === slip.semester;
+      getLocalStorage("currentStudyingSemester") === slip.semester_name;
     setIsActive(isActive);
     setUserMainId(getLocalStorage("userMainId")?.toString() || "");
     setCurrentDate(new Date().toLocaleDateString());
-  }, [slip.year, slip.semester]);
+  }, [slip.year, slip.academicSemester]);
 
   // Prevent hydration mismatch by showing loading state until mounted
   if (!mounted) {
@@ -105,10 +69,10 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
                 Year {slip.year} ({slip.entryYear} Entry)
               </div>
               <div className="text-center font-bold py-1">
-                Academic Year: {slip.academicYear}
+                Academic Year: {slip.academicYear.name}
               </div>
               <div className="text-center font-bold py-1">
-                Term {slip.semester}
+                Term {slip.academicSemester.name}
               </div>
             </div>
             <div className="grid grid-cols-2">
