@@ -6,10 +6,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Settings2, AlertTriangle } from "lucide-react";
+import { ChevronDown, Settings2, AlertTriangle, Eye } from "lucide-react";
 import { useUpdateAcademicYearStatus } from "@/lib/react-query/mutations/useUpdateAcademicYearStatus";
 import { useUpdateSemesterStatus } from "@/lib/react-query/mutations/useUpdateSemesterStatus";
-import { Semester } from "@/lib/react-query/hooks/useAcademicCalender";
+import { Semester } from "@/types/types";
 import PasswordConfirmationDialog from "./PasswordConfirmationDialog";
 import { useAllAssessmentGroups } from "@/lib/react-query/hooks/useAssessmentGroups";
 
@@ -17,12 +17,14 @@ interface StatusManagementProps {
   academicYearId: number;
   academicYearStatus: "OPEN" | "CLOSED";
   semesters: Semester[];
+  showButtons?: boolean;
 }
 
 const StatusManagement: React.FC<StatusManagementProps> = ({
   academicYearId,
   academicYearStatus,
   semesters,
+  showButtons = true,
 }) => {
   const {
     data: assessmentGroups = [],
@@ -36,10 +38,8 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
   // Check if there are open assessments that prevent status changes
   const hasOpenAssessments =
     assessmentGroups.length > 0 &&
-    assessmentGroups.filter((r) => r.status === "APPROVED").length === 0;
+    assessmentGroups.some((r) => r.status !== "APPROVED");
 
-  console.log("assessmentGroups", assessmentGroups);
-  console.log("hasOpenAssessments", hasOpenAssessments);
   // State for password confirmation dialog
   const [confirmationDialog, setConfirmationDialog] = useState<{
     isOpen: boolean;
@@ -173,6 +173,10 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
     }
   };
 
+  const getInactiveStatusColor = (status: string) => {
+    return "text-gray-500 bg-gray-50 border-gray-200 border-dashed opacity-75 cursor-not-allowed";
+  };
+
   return (
     <>
       <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
@@ -211,40 +215,51 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                 Overall status of the academic year
               </p>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={`min-w-[120px] ${getStatusColor(
-                    academicYearStatus
-                  )} ${
-                    hasOpenAssessments ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={
-                    updateAcademicYearStatus.isPending || hasOpenAssessments
-                  }
-                >
-                  {academicYearStatus}
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => handleAcademicYearStatusChange("OPEN")}
-                  className="text-green-600"
-                  disabled={hasOpenAssessments}
-                >
-                  OPEN
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleAcademicYearStatusChange("CLOSED")}
-                  className="text-red-600"
-                  disabled={hasOpenAssessments}
-                >
-                  CLOSED
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {showButtons && academicYearStatus !== "CLOSED" ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={`min-w-[120px] ${getStatusColor(
+                      academicYearStatus
+                    )} ${
+                      hasOpenAssessments ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={
+                      updateAcademicYearStatus.isPending || hasOpenAssessments
+                    }
+                  >
+                    {academicYearStatus}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => handleAcademicYearStatusChange("OPEN")}
+                    className="text-green-600"
+                    disabled={hasOpenAssessments}
+                  >
+                    OPEN
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleAcademicYearStatusChange("CLOSED")}
+                    className="text-red-600"
+                    disabled={hasOpenAssessments}
+                  >
+                    CLOSED
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div
+                className={`min-w-[120px] px-3 py-2 border rounded-md text-sm font-medium flex items-center gap-2 ${getInactiveStatusColor(
+                  academicYearStatus
+                )}`}
+              >
+                <Eye className="h-3 w-3" />
+                {academicYearStatus}
+              </div>
+            )}
           </div>
 
           {/* Semester Status Controls */}
@@ -272,53 +287,66 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
                   semester
                 </p>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`min-w-[120px] ${getStatusColor(
-                      semester.status
-                    )} ${
-                      hasOpenAssessments ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    disabled={
-                      updateSemesterStatus.isPending || hasOpenAssessments
-                    }
-                  >
-                    {semester.status}
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleSemesterStatusChange(semester.id, "UPCOMING")
-                    }
-                    className="text-blue-600"
-                    disabled={hasOpenAssessments}
-                  >
-                    UPCOMING
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleSemesterStatusChange(semester.id, "OPEN")
-                    }
-                    className="text-green-600"
-                    disabled={hasOpenAssessments}
-                  >
-                    OPEN
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      handleSemesterStatusChange(semester.id, "CLOSED")
-                    }
-                    className="text-red-600"
-                    disabled={hasOpenAssessments}
-                  >
-                    CLOSED
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {showButtons && semester.status !== "CLOSED" ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`min-w-[120px] ${getStatusColor(
+                        semester.status
+                      )} ${
+                        hasOpenAssessments
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      disabled={
+                        updateSemesterStatus.isPending || hasOpenAssessments
+                      }
+                    >
+                      {semester.status}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handleSemesterStatusChange(semester.id, "UPCOMING")
+                      }
+                      className="text-blue-600"
+                      disabled={hasOpenAssessments}
+                    >
+                      UPCOMING
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handleSemesterStatusChange(semester.id, "OPEN")
+                      }
+                      className="text-green-600"
+                      disabled={hasOpenAssessments}
+                    >
+                      OPEN
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handleSemesterStatusChange(semester.id, "CLOSED")
+                      }
+                      className="text-red-600"
+                      disabled={hasOpenAssessments}
+                    >
+                      CLOSED
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div
+                  className={`min-w-[120px] px-3 py-2 border rounded-md text-sm font-medium flex items-center gap-2 ${getInactiveStatusColor(
+                    semester.status
+                  )}`}
+                >
+                  <Eye className="h-3 w-3" />
+                  {semester.status}
+                </div>
+              )}
             </div>
           ))}
         </div>

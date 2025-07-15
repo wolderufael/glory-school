@@ -4,23 +4,8 @@ import {
 } from "@/utils/checkregistration";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { User } from "@/types/types";
 
-export interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  role:
-    | "STUDENT"
-    | "REGISTRAR"
-    | "DEPARTMENT"
-    | "ADMIN"
-    | "PRESIDENT"
-    | "TEACHER";
-  department?: string;
-  userMainId?: string;
-  studentId?: string;
-  userType?: string;
-}
 
 interface AuthState {
   user: User | null;
@@ -82,7 +67,6 @@ export const useAuthStore = create<AuthState>()(
           const data = await response.json();
           const { token, user, academicYear, academicSemester } = data;
 
-          console.log("user123", user);
 
           //if (user.userType === "Student") { }
 
@@ -137,6 +121,7 @@ export const useAuthStore = create<AuthState>()(
                 "currentStudyingLevel",
                 user?.student?.currentStudyingLevel
               );
+              localStorage.setItem("departmentId", user?.student?.departmentId?.toString());
             }
             localStorage.setItem("currentUserId", user?.id?.toString() || "");
             localStorage.setItem("userType", user?.userType || "");

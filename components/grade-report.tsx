@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Accordion,
@@ -15,24 +15,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "./ui/button";
+import { Printer } from "lucide-react";
+import { printGradeReport } from "@/utils/print";
 
 // Grade point mapping
 const GRADE_POINTS: Record<string, number> = {
-  "A": 4.0,
+  A: 4.0,
   "A-": 3.75,
   "B+": 3.5,
-  "B": 3.0,
+  B: 3.0,
   "B-": 2.75,
   "C+": 2.5,
-  "C": 2.0,
+  C: 2.0,
   "C-": 1.75,
-  "D": 1.5,
+  D: 1.5,
   "D-": 1.0,
-  "F": 0.0,
+  F: 0.0,
 };
 
 export function Results() {
+  const componentRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<any[]>([]);
 
   const getGradeColor = (grade: string) => {
@@ -63,6 +67,17 @@ export function Results() {
     return gradePoint * creditHours;
   };
 
+  const handlePrintGradeReport = () => {
+    // Get student info from localStorage or state
+    const studentId = localStorage.getItem("studentId");
+    const studentInfo = {
+      id: studentId || "",
+      name: localStorage.getItem("studentName") || "",
+    };
+
+    printGradeReport(results, studentInfo);
+  };
+
   useEffect(() => {
     const fetchResults = async () => {
       const studentId = localStorage.getItem("studentId");
@@ -70,12 +85,13 @@ export function Results() {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/assessments/gpa/${studentId}`
         );
-        
-        if (!response.ok) throw new Error('Network response was not ok');
-        
+
+        if (!response.ok) throw new Error("Network response was not ok");
+
         const data = await response.json();
-        if (!data || !Array.isArray(data)) throw new Error('Invalid data format');
-        
+        if (!data || !Array.isArray(data))
+          throw new Error("Invalid data format");
+
         setResults(data);
       } catch (error) {
         console.error("Error fetching results:", error);
@@ -88,8 +104,12 @@ export function Results() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>Academic Results</CardTitle>
+          <Button variant="outline" onClick={handlePrintGradeReport}>
+            <Printer className="w-4 h-4 mr-2" />
+            Print Grade Report
+          </Button>
         </CardHeader>
         <CardContent>
           <Accordion type="single" collapsible className="space-y-4">
@@ -99,7 +119,8 @@ export function Results() {
                   <div className="flex justify-between items-center w-full pr-4">
                     <div>
                       <p className="font-semibold">
-                        {semester.semester.name} - {semester.academicYear.name} (Level {semester.level})
+                        {semester.semester.name} - {semester.academicYear.name}{" "}
+                        (Level {semester.level})
                       </p>
                       <p className="text-sm text-gray-500">
                         Section: {semester.section.sectionName}
@@ -127,32 +148,34 @@ export function Results() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {semester.courses.map((course: any, courseIndex: number) => {
-                        const creditHours = calculateCreditHours(course);
-                        const points = calculatePoints(course);
-                        
-                        return (
-                          <TableRow key={courseIndex}>
-                            <TableCell>{courseIndex + 1}</TableCell>
-                            <TableCell className="font-medium">
-                              {course.courseCode}
-                            </TableCell>
-                            <TableCell>{course.title}</TableCell>
-                            <TableCell>{creditHours}</TableCell>
-                            <TableCell>{course.totalMark}</TableCell>
-                            <TableCell>
-                              <span
-                                className={`font-semibold ${getGradeColor(
-                                  course.gradeInLetter
-                                )}`}
-                              >
-                                {course.gradeInLetter}
-                              </span>
-                            </TableCell>
-                            <TableCell>{points.toFixed(2)}</TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {semester.courses.map(
+                        (course: any, courseIndex: number) => {
+                          const creditHours = calculateCreditHours(course);
+                          const points = calculatePoints(course);
+
+                          return (
+                            <TableRow key={courseIndex}>
+                              <TableCell>{courseIndex + 1}</TableCell>
+                              <TableCell className="font-medium">
+                                {course.courseCode}
+                              </TableCell>
+                              <TableCell>{course.title}</TableCell>
+                              <TableCell>{creditHours}</TableCell>
+                              <TableCell>{course.totalMark}</TableCell>
+                              <TableCell>
+                                <span
+                                  className={`font-semibold ${getGradeColor(
+                                    course.gradeInLetter
+                                  )}`}
+                                >
+                                  {course.gradeInLetter}
+                                </span>
+                              </TableCell>
+                              <TableCell>{points.toFixed(2)}</TableCell>
+                            </TableRow>
+                          );
+                        }
+                      )}
                     </TableBody>
                   </Table>
                   <div className="flex justify-end items-end my-6 flex-col">
@@ -160,17 +183,13 @@ export function Results() {
                       <p className="text-sm text-gray-500 font-semibold">
                         Total Credit Hours:
                       </p>
-                      <p className="font-semibold">
-                        {semester.totalCredits}
-                      </p>
-                      
+                      <p className="font-semibold">{semester.totalCredits}</p>
+
                       <p className="text-sm text-gray-500 font-semibold">
                         Semester GPA:
                       </p>
-                      <p className="font-semibold">
-                        {semester.gpa.toFixed(2)}
-                      </p>
-                      
+                      <p className="font-semibold">{semester.gpa.toFixed(2)}</p>
+
                       <p className="text-sm text-gray-500 font-semibold">
                         Cumulative GPA (CGPA):
                       </p>

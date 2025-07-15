@@ -4,10 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, CalendarDays, GraduationCap } from "lucide-react";
 import {
   useAcademicCalender,
-  AcademicCalender,
+  //AcademicCalender,
 } from "@/lib/react-query/hooks/useAcademicCalender";
 import { useEffect, useState } from "react";
 import StatusManagement from "./StatusManagement";
+import { AcademicYear } from "@/types/types";
 
 const formatDate = (dateString: string | undefined) => {
   if (!dateString) return "";
@@ -90,8 +91,8 @@ export default function AcademicCalenderTab() {
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-green-200 rounded-full opacity-10 blur-3xl" />
       </div>
 
-      {(academicCalenders as AcademicCalender[]).map(
-        (calendar: AcademicCalender, calendarIndex: number) => (
+      {(academicCalenders as AcademicYear[]).map(
+        (calendar: AcademicYear, calendarIndex: number) => (
           <div key={calendarIndex} className="space-y-8 relative">
             {/* Section background decoration */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent backdrop-blur-sm rounded-3xl" />
@@ -136,6 +137,7 @@ export default function AcademicCalenderTab() {
                     academicYearId={calendar.id}
                     academicYearStatus={calendar.status}
                     semesters={calendar.semesters}
+                    showButtons={calendarIndex === 0}
                   />
                 </div>
 
@@ -386,7 +388,7 @@ export default function AcademicCalenderTab() {
 
               {/* Divider between academic years */}
               {calendarIndex <
-                (academicCalenders as AcademicCalender[]).length - 1 && (
+                (academicCalenders as AcademicYear[]).length - 1 && (
                 <div className="border-b border-gray-200 my-12 opacity-50" />
               )}
             </div>

@@ -47,9 +47,15 @@ export const useAddAcademicYear = () => {
       );
 
       // Save the complete academic year data
-      console.log(res.data);
+      console.log("academic year data", res.data);
       setLocalStorage("academicYearName", res.data.year.name);
+      console.log("academic year name", res.data.year.name);
+      setLocalStorage("academicSemesterName", res.data.semesters[0].name);
+      console.log("academic semester name", res.data.semesters[0].name);
       setLocalStorage("academicYearId", res.data.year.id.toString());
+      console.log("academic year id", res.data.year.id);
+      setLocalStorage("academicSemesterId", res.data.semesters[0].id.toString());
+      console.log("academic semester id", res.data.semesters[0].id);
 
       return res.data;
     },

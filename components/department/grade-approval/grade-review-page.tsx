@@ -31,6 +31,7 @@ import {
 } from "@/components/department/grade-approval/types";
 import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
 import { useUpdateAssessmentGroupStatus } from "@/lib/react-query/mutations/useUpdateAssessmentGroupStatus";
+import { getLocalStorage } from "@/utils/localStorage";
 
 interface GradeReviewPageProps {
   request: GradeApprovalRequest | null;
@@ -60,6 +61,7 @@ export default function GradeReviewPage({
     isLoading: isLoadingStudents,
     error: studentsError,
   } = useByteachingAssessment(teachingAssignmentId ?? 0);
+    const departmentId = getLocalStorage("departmentId");
 
   // Mutation for updating assessment group status
   const updateStatusMutation = useUpdateAssessmentGroupStatus();
@@ -69,6 +71,7 @@ export default function GradeReviewPage({
 
     updateStatusMutation.mutate({
       id: parseInt(request.id, 10),
+      departmentId: Number(departmentId),
       status: decision === "approve" ? "APPROVED" : "REJECTED",
       reason: reason || undefined,
     });
