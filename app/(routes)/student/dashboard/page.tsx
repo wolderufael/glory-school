@@ -49,6 +49,9 @@ export default function DashboardPage() {
       reregistrationData.hasPassed !== null &&
       reregistrationData.hasPassed !== undefined);
 
+  console.log("shouldShowReregistration", shouldShowReregistration);
+  console.log("reregistrationData", reregistrationData);
+
   return (
     <main className="flex-1 p-6 mt-4">
       {shouldShowReregistration && (
