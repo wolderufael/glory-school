@@ -190,7 +190,7 @@ export default function Reregistration({ onReregister }: ReregistrationProps) {
               Semester GPA
             </p>
             <p className={`text-2xl ${getGPAColor(reregistrationData.gpa)}`}>
-              {reregistrationData.gpa.toFixed(2)}
+              {reregistrationData.gpa}
             </p>
           </div>
           <div className="text-center">
@@ -198,7 +198,7 @@ export default function Reregistration({ onReregister }: ReregistrationProps) {
               Cumulative GPA
             </p>
             <p className={`text-2xl ${getGPAColor(reregistrationData.cgpa)}`}>
-              {reregistrationData.cgpa.toFixed(2)}
+              {reregistrationData.cgpa}
             </p>
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function Reregistration({ onReregister }: ReregistrationProps) {
                     requirements to advance to the next semester. Your current
                     GPA of{" "}
                     <span className="font-bold">
-                      {reregistrationData.gpa.toFixed(2)}
+                      {reregistrationData.gpa}
                     </span>{" "}
                     does not meet the university's progression standards.
                   </p>
