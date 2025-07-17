@@ -39,18 +39,17 @@ export default function DashboardPage() {
 
   // Check if should show reregistration component
   // Show component if:
-  // 1. reregistrationData is null/undefined/empty
-  // 2. reregistrationData exists AND hasPassed is not null/undefined
-  // Don't show if reregistrationData exists AND hasPassed is null/undefined
+  // 1. Data has loaded (not loading)
+  // 2. AND (reregistrationData is null/undefined/empty OR reregistrationData exists AND hasPassed is not null/undefined)
+  // Don't show if still loading OR reregistrationData exists AND hasPassed is null/undefined
   const shouldShowReregistration =
-    !reregistrationData ||
-    Object.keys(reregistrationData).length === 0 ||
-    (reregistrationData &&
-      reregistrationData.hasPassed !== null &&
-      reregistrationData.hasPassed !== undefined);
+    !isLoading &&
+    (!reregistrationData ||
+      Object.keys(reregistrationData).length === 0 ||
+      (reregistrationData &&
+        reregistrationData.hasPassed !== null &&
+        reregistrationData.hasPassed !== undefined));
 
-  console.log("shouldShowReregistration", shouldShowReregistration);
-  console.log("reregistrationData", reregistrationData);
 
   return (
     <main className="flex-1 p-6 mt-4">
