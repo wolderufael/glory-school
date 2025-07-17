@@ -26,7 +26,7 @@ export const FullInfo = z.object({
   place_of_birth_town: z.string().optional(),
   place_of_birth_zone: z.string().optional(),
   place_of_birth_region: z.string().optional(),
-  date_of_birth: z.string().optional(),
+  date_of_birth: z.string().min(1, "Date of birth is required"),
   address_kebele: z.string().optional(),
   address_woreda: z.string().optional(),
   address_zone: z.string().optional(),
