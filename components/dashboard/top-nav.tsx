@@ -43,6 +43,8 @@ export function TopNav({
       <div className="flex items-center gap-4">
         <div className="md:flex hidden items-center gap-2">
           
+          {user?.userType != "Registrar" ? (
+        
            <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-slate-600">
@@ -53,6 +55,9 @@ export function TopNav({
               </SheetTrigger>
               <Messages  userInfo={user} />
             </Sheet>
+            )
+            : null
+              }
 
           {/* <Button variant="ghost" size="sm" className="text-slate-600">
             <Printer className="w-4 h-4 mr-1" />
