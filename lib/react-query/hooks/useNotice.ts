@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import {  Notice, fetchMessages, getNotice } from "../queries/getNotice";
+import {  MessageSchema, Notice, fetchMessages, getNotice } from "../queries/getNotice";
 
 interface UseNoticeParams {
   collegeId?: number;
@@ -34,7 +34,7 @@ export const useNotice = (params: UseNoticeParams = {}) => {
 
 
 export const useMessage = (params: useMessageParams = {}) => {
-  return useQuery<Notice[], Error>({
+  return useQuery<MessageSchema[], Error>({
     queryKey: ["userMessages", params],
     queryFn: () => {
       if (params.userId !== undefined && params.userType !== undefined) {
