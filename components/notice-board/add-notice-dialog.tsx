@@ -56,7 +56,7 @@ interface NoticeFormData {
 
 export function AddNoticeForm({
   colleges,
-  departments: initialDepartments, // Ignored since we fetch dynamically
+  departments: initialDepartments,
   onNoticeAdded,
   onCancel,
   onClose,

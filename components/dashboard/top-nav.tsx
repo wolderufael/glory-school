@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore} from "@/lib/store/authStore";
+import { Sheet, SheetTrigger } from "../ui/sheet";
+import Messages from "../notifications/viewMessage";
 
 interface TopNavProps {
   title?: string;
@@ -40,10 +42,18 @@ export function TopNav({
 
       <div className="flex items-center gap-4">
         <div className="md:flex hidden items-center gap-2">
-       {/*    <Button variant="ghost" size="sm" className="text-slate-600">
-            <MessageSquare className="w-4 h-4 mr-1" />
-            Messages
-          </Button> */}
+          
+           <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-slate-600">
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  Messages
+                </Button>
+                {/* <Button variant="outline">Open</Button> */}
+              </SheetTrigger>
+              <Messages  userInfo={user} />
+            </Sheet>
+
           {/* <Button variant="ghost" size="sm" className="text-slate-600">
             <Printer className="w-4 h-4 mr-1" />
             Print
