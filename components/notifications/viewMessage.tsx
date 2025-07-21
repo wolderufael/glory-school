@@ -63,14 +63,14 @@ const Messages = ({ userInfo }: any) => {
     }
   }, [userType, sectionId]);
 
-  const { data = MOCK_MESSAGES, isLoading, error } = useMessage({ userType, userId });
+  const { data, isLoading, error } = useMessage({ userType, userId });
 
   return (
     <SheetContent className="sm:max-w-[500px] w-1/2 px-6 pr-5 mx-4">
       <SheetHeader>
         <SheetTitle>Inbox</SheetTitle>
         <SheetDescription>
-          Notices and updates for your role <strong>({userType ?? "Guest"})</strong>.
+          Notices and updates for you <strong>({userType ?? "Guest"})</strong>.
         </SheetDescription>
         { userType != 'Student' ? ( 
            <div className="flex p-3 justify-end">
@@ -108,9 +108,11 @@ const Messages = ({ userInfo }: any) => {
             <h3 className="font-semibold text-base">{msg.title}</h3>
             <p className="text-sm text-muted-foreground">{msg.message}</p>
             <div className="text-xs text-right text-gray-500 mt-1">
-              From: {msg.author?.firstName} {msg.author?.lastName}
+              From: {msg?.senderType} 
               <br />
-              {/* <span className="text-xs">{format(new Date(msg.publishedAt), "PPP")}</span> */}
+              <span className="text-xs">
+                {msg?.createdAt ? format(new Date(msg.createdAt), "PPP") : "N/A"}
+              </span>
             </div>
             {msg.deadline && (
               <Badge className="mt-1" variant="destructive">

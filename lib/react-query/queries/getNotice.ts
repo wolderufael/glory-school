@@ -7,6 +7,21 @@ interface Author {
   email: string;
 }
 
+
+
+export interface MessageSchema {
+    id: number;
+    title: string;
+    message: string;
+    deadline?: string;
+   senderType: "Student" | "Teacher" | "Department" | "Registrar";
+    targetIds: number[] | undefined;
+    authorId: number;
+    targetType: "Student" | "Teacher"
+    is_active?: boolean;
+    createdAt?: string;
+}
+
 export interface Notice {
   id: number;
   title: string;
@@ -33,8 +48,8 @@ export const fetchMessages = async ({
 }: {
   userId: number;
   userType: string;
-}): Promise<Notice[]> => {
-  const { data } = await axios.get<Notice[]>(
+}): Promise<MessageSchema[]> => {
+  const { data } = await axios.get<MessageSchema[]>(
     `${process.env.NEXT_PUBLIC_BASE_URL}/messages/by-target/${userType}/${userId}`
   );
   return data;
