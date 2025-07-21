@@ -36,7 +36,9 @@ export function GradeApprovalNotifications({
     error,
   } = useGradeApprovalRequests(
     departmentId ? parseInt(departmentId.toString()) : undefined
-  );
+    );
+  
+  console.log("requests department", requests);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "revision_requested">("all");
 
   const getStatusIcon = (status: string) => {
@@ -70,9 +72,9 @@ export function GradeApprovalNotifications({
   };
 
   const filteredRequests = requests.filter((request) => {
-    if (filter === "pending") return request.status === "pending";
-    if (filter === "approved") return request.status === "approved";
-    if (filter === "rejected") return request.status === "rejected";
+    if (filter === "pending") return request.status === "department_pending";
+    if (filter === "approved") return request.status === "department_approved";
+    if (filter === "rejected") return request.status === "department_rejected";
     return true;
   });
 
@@ -169,7 +171,7 @@ export function GradeApprovalNotifications({
               onClick={() => setFilter("pending")}
               className="text-xs"
             >
-              Pending ({requests.filter((r) => r.status === "pending").length})
+              Pending ({requests.filter((r) => r.status === "department_pending").length})
             </Button>
             <Button
               variant={filter === "approved" ? "default" : "outline"}
@@ -178,7 +180,7 @@ export function GradeApprovalNotifications({
               className="text-xs"
             >
               <CheckCircle className="h-3 w-3 mr-1" />
-              Approved ({requests.filter((r) => r.status === "approved").length}
+              Approved ({requests.filter((r) => r.status === "department_approved").length}
               )
             </Button>
             <Button
@@ -187,7 +189,7 @@ export function GradeApprovalNotifications({
               onClick={() => setFilter("rejected")}
               className="text-xs"
             >
-              Rejected ({requests.filter((r) => r.status === "rejected").length}
+              Rejected ({requests.filter((r) => r.status === "department_rejected").length}
               )
             </Button>
           </div>
@@ -214,9 +216,9 @@ export function GradeApprovalNotifications({
                 <div
                   key={request.id}
                   className={`p-4 rounded-lg border transition-colors ${
-                    request.status === "pending"
+                    request.status === "department_pending"
                       ? "bg-red-50 border-red-200 hover:bg-red-100"
-                      : request.status === "approved"
+                      : request.status === "department_approved"
                       ? "bg-green-50 border-green-200 hover:bg-green-100"
                       : "bg-blue-50 border-blue-100 hover:bg-blue-100"
                   }`}
@@ -307,7 +309,7 @@ export function GradeApprovalNotifications({
                     </div>
 
                     {/* Action Button */}
-                    {(request.status === "pending" && <Button
+                    {(request.status === "department_pending" && <Button
                       onClick={() => onViewRequest(request)}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                       size="sm"

@@ -66,19 +66,21 @@ const statusConfig = {
   },
 };
 
-export function DepartmentBulkActions() {
+export function RegistrarBulkActions() {
   const bulkUpdateMutation = useBulkStatusUpdate();
   const departmentId = getLocalStorage("departmentId");
+  const registrarId = getLocalStorage("registrarId");
 
   const handleRequestSubmissions = async () => {
-    if (!departmentId) {
-      toast.error("Department ID not found");
+    if (!registrarId) {
+      toast.error("Registrar ID not found");
       return;
     }
 
     try {
       await bulkUpdateMutation.mutateAsync({
-        departmentId: departmentId.toString(),
+        registrarId: registrarId.toString(),
+        //departmentId: departmentId.toString(),
         status: "SUBMISSION_REQUESTED",
       });
     } catch (error) {

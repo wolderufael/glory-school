@@ -6,14 +6,13 @@ interface AssessmentGroup {
   name: string;
   status:
     | "DRAFT"
-    | "DEPARTMENT_SUBMISSION_REQUESTED"
+    | "SUBMISSION_REQUESTED"
     | "DEPARTMENT_UNDER_REVIEW"
     | "DEPARTMENT_APPROVED"
     | "DEPARTMENT_REJECTED"
-    | "REGISTRAR_SUBMISSION_REQUESTED"
     | "REGISTRAR_UNDER_REVIEW"
-    | "REGISTRAR_APPROVED"
-    | "REGISTRAR_REJECTED";
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
   level: string;
   departmentId: number;
   teachingAssignmentId: number;
@@ -114,10 +113,9 @@ const transformToGradeApprovalRequests = (
         group.status === "DEPARTMENT_UNDER_REVIEW" ||
         group.status === "DEPARTMENT_APPROVED" ||
         group.status === "DEPARTMENT_REJECTED" ||
-        group.status === "REGISTRAR_SUBMISSION_REQUESTED" ||
         group.status === "REGISTRAR_UNDER_REVIEW" ||
-        group.status === "REGISTRAR_APPROVED" ||
-        group.status === "REGISTRAR_REJECTED"
+        group.status === "REGISTRAR_REJECTED" ||
+        group.status === "APPROVED"
     )
     .map((group) => ({
       id: group.id.toString(),
@@ -159,7 +157,7 @@ const transformToGradeApprovalRequests = (
           ? ("department_rejected" as const)
           : group.status === "REGISTRAR_UNDER_REVIEW"
           ? ("registrar_pending" as const)
-          : group.status === "REGISTRAR_APPROVED"
+          : group.status === "APPROVED"
           ? ("registrar_approved" as const)
           : group.status === "REGISTRAR_REJECTED"
           ? ("registrar_rejected" as const)

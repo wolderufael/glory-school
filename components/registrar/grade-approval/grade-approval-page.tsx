@@ -10,7 +10,7 @@ import { GradeApprovalStatsComponent } from "./grade-approval-stats";
 import { useGradeApprovalLogic } from "./grade-approval-logic";
 import { GradeApprovalRequest, ApprovalDecision } from "./types";
 import { getLocalStorage } from "@/utils/localStorage";
-import { DepartmentBulkActions } from "./department-bulk-actions";
+import { RegistrarBulkActions } from "./registrar-bulk-actions";
 import { GradeReviewModal } from "./grade-review-modal";
 import GradeReviewPage from "./grade-review-page";
 //import { GradeReviewPage } from "./grade-review-modal";
@@ -30,23 +30,8 @@ export function GradeApprovalPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const departmentId = getLocalStorage("departmentId");
+  const registrarId = getLocalStorage("registrarId");
 
-  // Initial data load
-/*   useEffect(() => {
-    refreshData();
-  }, [refreshData]); */
-
-  // Auto-refresh every 5 minutes
-  /* useEffect(() => {
-    const interval = setInterval(() => {
-      if (!submittingDecision && !isModalOpen) {
-        fetchRequests();
-        fetchStats();
-      }
-    }, 5 * 60 * 1000); // 5 minutes
-
-    return () => clearInterval(interval);
-  }, [fetchRequests, fetchStats, submittingDecision, isModalOpen]); */
 
   const handleViewRequest = (request: GradeApprovalRequest) => {
     setSelectedRequest(request);
@@ -91,7 +76,7 @@ export function GradeApprovalPage() {
         </div>
 
         {/* Department Bulk Actions */}
-        {/* <DepartmentBulkActions /> */}
+        <RegistrarBulkActions />
 
         {/* Success Message */}
         {successMessage && (

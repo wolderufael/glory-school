@@ -40,6 +40,15 @@ interface GradeReviewPageProps {
   loading?: boolean;
 }
 
+const Departments = {
+  ANH: 1,
+  ANP: 2,
+  CAA: 3,
+  CRP: 4,
+  IRD: 5,
+  NRC: 6,
+};
+
 export default function GradeReviewPage({
   request,
   /*   onDecision, */
@@ -54,6 +63,7 @@ export default function GradeReviewPage({
 
   // Extract teaching assignment ID from the request
   const teachingAssignmentId = request?.teachingAssignmentId ?? null;
+  const depCode = request?.section.department;
 
   // Fetch real student assessment data
   const {
@@ -61,7 +71,10 @@ export default function GradeReviewPage({
     isLoading: isLoadingStudents,
     error: studentsError,
   } = useByteachingAssessment(teachingAssignmentId ?? 0);
-    const departmentId = getLocalStorage("departmentId");
+  const mapDepartmentId = (depCode: string | undefined) => {
+    return Departments[depCode as keyof typeof Departments];
+  };
+  const departmentId = mapDepartmentId(depCode);
 
   // Mutation for updating assessment group status
   const updateStatusMutation = useUpdateAssessmentGroupStatus();
@@ -71,8 +84,8 @@ export default function GradeReviewPage({
 
     updateStatusMutation.mutate({
       id: parseInt(request.id, 10),
-      departmentId: Number(departmentId),
-      status: decision === "approve" ? "APPROVED" : "REJECTED",
+      departmentId: departmentId,
+      status: decision === "approve" ? "APPROVED" : "REGISTRAR_REJECTED",
       reason: reason || undefined,
     });
     resetForm();

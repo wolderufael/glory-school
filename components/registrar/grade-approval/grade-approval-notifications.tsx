@@ -67,7 +67,7 @@ export function GradeApprovalNotifications({
   };
 
   const filteredRequests = requests.filter((request) => {
-    if (filter === "registrar_pending") return request.status === "registrar_pending";
+    if (filter === "registrar_pending") return request.status === "registrar_pending" || request.status === "department_approved";
     if (filter === "registrar_approved") return request.status === "registrar_approved";
     if (filter === "registrar_rejected") return request.status === "registrar_rejected";
     return true;
@@ -304,7 +304,7 @@ export function GradeApprovalNotifications({
                     </div>
 
                     {/* Action Button */}
-                    {(request.status === "registrar_pending" && <Button
+                    {((request.status === "registrar_pending" || request.status === "department_approved") && <Button
                       onClick={() => onViewRequest(request)}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                       size="sm"

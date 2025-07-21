@@ -368,7 +368,7 @@ const ListTable = () => {
     try {
       await updateAssessmentStatusMutation.mutateAsync({
         id: statusInfo.assessmentGroupId,
-        status: "UNDER_REVIEW",
+        status: "DEPARTMENT_UNDER_REVIEW",
       });
       refetchAssessments();
     } catch (error) {
@@ -392,14 +392,19 @@ const ListTable = () => {
     const statusInfo = getAssessmentGroupStatus();
     const status = statusInfo.status;
 
-    if (status === "APPROVED" || status === "UNDER_REVIEW") {
+    if (
+      status === "DEPARTMENT_APPROVED" ||
+      status === "DEPARTMENT_UNDER_REVIEW" ||
+      status === "REGISTRAR_UNDER_REVIEW" ||
+      status === "APPROVED"
+    ) {
       return [];
     }
 
     if (status === "DRAFT") {
       return [
         {
-          text: "Save1",
+          text: "Save",
           onClick: handleSubmit,
           disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
           className:
@@ -421,7 +426,8 @@ const ListTable = () => {
     let secondButton;
     switch (status) {
       case "SUBMISSION_REQUESTED":
-      case "REJECTED":
+      case "DEPARTMENT_REJECTED":
+      case "REGISTRAR_REJECTED":
         secondButton = {
           text: "Submit for Approval",
           onClick: handleSubmitForApproval,
@@ -602,7 +608,7 @@ const ListTable = () => {
                               icon: "📤",
                               dotColor: "bg-blue-400",
                             },
-                            UNDER_REVIEW: {
+                            DEPARTMENT_UNDER_REVIEW: {
                               text: "Under Review",
                               meaning:
                                 "Being reviewed by department no more changes allowed",
@@ -611,21 +617,46 @@ const ListTable = () => {
                               icon: "👁️",
                               dotColor: "bg-yellow-400",
                             },
-                            APPROVED: {
+                            DEPARTMENT_APPROVED: {
                               text: "Approved",
-                              meaning: "Finalized - no more changes allowed",
+                              meaning:
+                                "Finalized - no more changes allowed, still needs approval from registrar",
                               bgColor: "bg-green-100/90",
                               textColor: "text-green-800",
                               icon: "✅",
                               dotColor: "bg-green-400",
                             },
-                            REJECTED: {
+                            DEPARTMENT_REJECTED: {
                               text: "Rejected",
-                              meaning: "Needs revision - you can edit",
+                              meaning: "Rejected by department - you can edit",
                               bgColor: "bg-red-100/90",
                               textColor: "text-red-800",
                               icon: "❌",
                               dotColor: "bg-red-400",
+                            },
+                            REGISTRAR_UNDER_REVIEW: {
+                              text: "Under Review",
+                              meaning: "Being reviewed by registrar no more changes allowed",
+                              bgColor: "bg-yellow-100/90",
+                              textColor: "text-yellow-800",
+                              icon: "👁️",
+                              dotColor: "bg-yellow-400",
+                            },
+                            REGISTRAR_REJECTED: {
+                              text: "Rejected",
+                              meaning: "Rejected by registrar - you can edit",
+                              bgColor: "bg-red-100/90",
+                              textColor: "text-red-800",
+                              icon: "❌",
+                              dotColor: "bg-red-400",
+                            },
+                            APPROVED: {
+                              text: "Approved",
+                              meaning: "Finalized - no more changes allowed, still needs approval from registrar",
+                              bgColor: "bg-green-100/90",
+                              textColor: "text-green-800",
+                              icon: "✅",
+                              dotColor: "bg-green-400",
                             },
                           };
                           const statusConfig =
@@ -658,7 +689,7 @@ const ListTable = () => {
                               </div>
 
                               {/* Rejection Reason Display - Inline */}
-                              {status === "REJECTED" &&
+                              {(status === "DEPARTMENT_REJECTED" || status === "REGISTRAR_REJECTED") &&
                                 statusInfo.rejectionReason && (
                                   <div className="bg-red-50/95 border border-red-200 rounded-full px-4 py-2 backdrop-blur-sm h-8 flex items-center space-x-2 max-w-md shadow-sm">
                                     <AlertCircle className="w-3 h-3 text-red-500 flex-shrink-0" />

@@ -115,7 +115,7 @@ export function GradeApprovalPage() {
         </div>
 
         {/* Department Bulk Actions */}
-        <DepartmentBulkActions />
+       {/*  <DepartmentBulkActions /> */}
 
         {/* Success Message */}
         {successMessage && (

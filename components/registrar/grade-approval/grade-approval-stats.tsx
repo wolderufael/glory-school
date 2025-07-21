@@ -18,13 +18,14 @@ import { getLocalStorage } from "@/utils/localStorage";
 interface GradeApprovalStatsProps {}
 
 export function GradeApprovalStatsComponent({}: GradeApprovalStatsProps) {
-  const departmentId = getLocalStorage("departmentId");
 
   const {
     data: requests = [],
     isLoading: loading,
     error,
   } = useAllAssessmentGroups();
+
+  console.log("requests 123", requests);
 
   // Calculate stats from the actual data
   const stats = {
