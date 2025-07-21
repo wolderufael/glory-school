@@ -1,79 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { GradeApprovalRequest } from "@/components/department/grade-approval/types";
+import { AssessmentGroup } from "@/types/types";
 
-interface AssessmentGroup {
-  id: number;
-  name: string;
-  status:
-    | "DRAFT"
-    | "SUBMISSION_REQUESTED"
-    | "UNDER_REVIEW"
-    | "APPROVED"
-    | "REJECTED";
-  level: string;
-  departmentId: number;
-  teachingAssignmentId: number;
-  sectionId: number;
-  createdAt: string;
-  updatedAt: string;
-  department: {
-    id: number;
-    collegeId: number;
-    name: string;
-    code: string;
-    createdAt: string;
-  };
-  section: {
-    id: number;
-    sectionName: string;
-    createdAcademicYearId: number;
-    createdAt: string;
-    departmentId: number;
-    currentLevel: string;
-  };
-  teachingAssignment: {
-    id: number;
-    teacherId: number;
-    sectionId: number;
-    courseId: number;
-    academicSemesterId: number;
-    academicYearId: number;
-    level: string;
-    departmentId: number;
-    course: {
-      id: number;
-      collegeId: number;
-      departmentId: number;
-      level: string;
-      courseCode: string;
-      title: string;
-      theoryNhrs: number;
-      practicalNhrs: number;
-      cooperativeNhrs: number;
-      totalNhrs: number;
-      createdAt: string;
-    };
-    teacher: {
-      id: number;
-      userId: number;
-      createdAt: string;
-      updatedAt: string;
-      user: {
-        id: number;
-        firstName: string;
-        middleName: string;
-        lastName: string;
-        email: string;
-        phoneNumber: string;
-        password: string;
-        userType: string;
-        gender: string;
-        nationality: string;
-        userMainId: string;
-      };
-    };
-  };
-}
 
 const fetchAssessmentGroupsByDepartment = async (
   departmentId: number
@@ -88,8 +16,8 @@ const fetchAssessmentGroupsByDepartment = async (
 
   return response.json();
 };
-const fetchAllAssessmentGroups = async (
-): Promise<AssessmentGroup[]> => {
+
+const fetchAllAssessmentGroups = async (): Promise<AssessmentGroup[]> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups`
   );
@@ -101,17 +29,18 @@ const fetchAllAssessmentGroups = async (
   return response.json();
 };
 
-
-
 const transformToGradeApprovalRequests = (
   assessmentGroups: AssessmentGroup[]
 ): GradeApprovalRequest[] => {
   return assessmentGroups
     .filter(
       (group) =>
-        group.status === "UNDER_REVIEW" ||
-        group.status === "APPROVED" ||
-        group.status === "REJECTED"
+        group.status === "DEPARTMENT_UNDER_REVIEW" ||
+        group.status === "DEPARTMENT_APPROVED" ||
+        group.status === "DEPARTMENT_REJECTED" ||
+        group.status === "REGISTRAR_UNDER_REVIEW" ||
+        group.status === "REGISTRAR_REJECTED" ||
+        group.status === "APPROVED"
     )
     .map((group) => ({
       id: group.id.toString(),
@@ -145,13 +74,19 @@ const transformToGradeApprovalRequests = (
       grades: [], // Empty array as we don't have individual grade data
       submittedAt: group.updatedAt,
       status:
-        group.status === "UNDER_REVIEW"
-          ? ("pending" as const)
+        group.status === "DEPARTMENT_UNDER_REVIEW"
+          ? ("department_pending" as const)
+          : group.status === "DEPARTMENT_APPROVED"
+          ? ("department_approved" as const)
+          : group.status === "DEPARTMENT_REJECTED"
+          ? ("department_rejected" as const)
+          : group.status === "REGISTRAR_UNDER_REVIEW"
+          ? ("registrar_pending" as const)
           : group.status === "APPROVED"
-          ? ("approved" as const)
-          : group.status === "REJECTED"
-          ? ("rejected" as const)
-          : ("pending" as const),
+          ? ("registrar_approved" as const)
+          : group.status === "REGISTRAR_REJECTED"
+          ? ("registrar_rejected" as const)
+          : ("department_pending" as const),
       totalStudents: 25, // Would need student count from API
       submittedGrades: 25, // Would need submitted grade count from API
       message: `Grades submitted for ${group.name}`,
@@ -174,8 +109,8 @@ export const useAllAssessmentGroups = () => {
     queryKey: ["allAssessmentGroups"],
     queryFn: async () => {
       const assessmentGroups = await fetchAllAssessmentGroups();
-      // return transformToGradeApprovalRequests(assessmentGroups);
-      return assessmentGroups;
+      return transformToGradeApprovalRequests(assessmentGroups);
+      // return assessmentGroups;
     },
     enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes

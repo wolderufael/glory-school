@@ -6,9 +6,12 @@ interface UpdateAssessmentStatusRequest {
   status:
     | "DRAFT"
     | "SUBMISSION_REQUESTED"
-    | "UNDER_REVIEW"
-    | "APPROVED"
-    | "REJECTED";
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
 }
 
 interface UpdateAssessmentStatusResponse {
@@ -65,9 +68,12 @@ export const useUpdateAssessmentStatus = () => {
       const statusMessages = {
         DRAFT: "Assessment saved as draft",
         SUBMISSION_REQUESTED: "Assessment submitted for approval",
-        UNDER_REVIEW: "Assessment is now under review",
-        APPROVED: "Assessment approved successfully",
-        REJECTED: "Assessment rejected",
+        DEPARTMENT_UNDER_REVIEW: "Assessment is now under review by department",
+        DEPARTMENT_APPROVED: "Assessment approved successfully by department",
+        DEPARTMENT_REJECTED: "Assessment rejected by department",
+        REGISTRAR_UNDER_REVIEW: "Assessment is now under review by registrar",
+        REGISTRAR_REJECTED: "Assessment rejected by registrar",
+        APPROVED: "Assessment approved successfully by registrar",
       };
 
       toast.success(

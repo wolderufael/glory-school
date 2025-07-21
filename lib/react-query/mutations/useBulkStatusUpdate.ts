@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 interface BulkStatusUpdateRequest {
-  departmentId: string;
+  //departmentId: string;
+  registrarId: string;
   status:
     | "DRAFT"
     | "SUBMISSION_REQUESTED"
@@ -12,10 +13,11 @@ interface BulkStatusUpdateRequest {
 }
 
 const bulkUpdateStatusByDepartment = async ({
-  departmentId,
+  //departmentId,
+  registrarId,
   status,
 }: BulkStatusUpdateRequest): Promise<any> => {
-  const response = await fetch(
+ /*  const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups/status/by-department`,
     {
       method: "PATCH",
@@ -24,6 +26,19 @@ const bulkUpdateStatusByDepartment = async ({
       },
       body: JSON.stringify({
         departmentId: parseInt(departmentId, 10),
+        status,
+      }),
+    }
+  ); */
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups/status/by-registrar`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        //registrarId: parseInt(registrarId, 10),
         status,
       }),
     }

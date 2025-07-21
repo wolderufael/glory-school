@@ -64,7 +64,6 @@ export default function GradeReviewPage({
   // Extract teaching assignment ID from the request
   const teachingAssignmentId = request?.teachingAssignmentId ?? null;
   const depCode = request?.section.department;
-  console.log("request dep for id", request);
 
   // Fetch real student assessment data
   const {
@@ -72,7 +71,6 @@ export default function GradeReviewPage({
     isLoading: isLoadingStudents,
     error: studentsError,
   } = useByteachingAssessment(teachingAssignmentId ?? 0);
-
   const mapDepartmentId = (depCode: string | undefined) => {
     return Departments[depCode as keyof typeof Departments];
   };
@@ -87,8 +85,7 @@ export default function GradeReviewPage({
     updateStatusMutation.mutate({
       id: parseInt(request.id, 10),
       departmentId: departmentId,
-      status:
-        decision === "approve" ? "DEPARTMENT_APPROVED" : "DEPARTMENT_REJECTED",
+      status: decision === "approve" ? "APPROVED" : "REGISTRAR_REJECTED",
       reason: decision === "approve" ? null : reason,
     });
     resetForm();

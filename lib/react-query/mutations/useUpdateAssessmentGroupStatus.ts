@@ -4,8 +4,8 @@ import { toast } from "sonner";
 interface UpdateAssessmentGroupStatusRequest {
   id: number;
   departmentId: number;
-  status: "APPROVED" | "REJECTED";
-  reason?: string;
+  status: "DEPARTMENT_APPROVED" | "DEPARTMENT_REJECTED" | "APPROVED" | "REGISTRAR_REJECTED";
+  reason?: string | null;
 }
 
 const updateAssessmentGroupStatus = async ({
@@ -57,8 +57,10 @@ export const useUpdateAssessmentGroupStatus = () => {
 
       // Show success message
       const statusMessages = {
-        APPROVED: "Assessment group approved successfully",
-        REJECTED: "Assessment group rejected successfully",
+        DEPARTMENT_APPROVED: "Assessment group approved successfully by department",
+        DEPARTMENT_REJECTED: "Assessment group rejected successfully by department",
+        APPROVED: "Assessment group approved successfully by registrar",
+        REGISTRAR_REJECTED: "Assessment group rejected successfully by registrar",
       };
 
       toast.success(

@@ -77,6 +77,83 @@ export interface AcademicYear {
   semesters: Semester[];
 }
 
+export interface AssessmentGroup {
+  id: number;
+  name: string;
+  status:
+    | "DRAFT"
+    | "SUBMISSION_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
+  level: string;
+  departmentId: number;
+  teachingAssignmentId: number;
+  sectionId: number;
+  createdAt: string;
+  updatedAt: string;
+  department: {
+    id: number;
+    collegeId: number;
+    name: string;
+    code: string;
+    createdAt: string;
+  };
+  section: {
+    id: number;
+    sectionName: string;
+    createdAcademicYearId: number;
+    createdAt: string;
+    departmentId: number;
+    currentLevel: string;
+  };
+  teachingAssignment: {
+    id: number;
+    teacherId: number;
+    sectionId: number;
+    courseId: number;
+    academicSemesterId: number;
+    academicYearId: number;
+    level: string;
+    departmentId: number;
+    course: {
+      id: number;
+      collegeId: number;
+      departmentId: number;
+      level: string;
+      courseCode: string;
+      title: string;
+      theoryNhrs: number;
+      practicalNhrs: number;
+      cooperativeNhrs: number;
+      totalNhrs: number;
+      createdAt: string;
+    };
+    teacher: {
+      id: number;
+      userId: number;
+      createdAt: string;
+      updatedAt: string;
+      user: {
+        id: number;
+        firstName: string;
+        middleName: string;
+        lastName: string;
+        email: string;
+        phoneNumber: string;
+        password: string;
+        userType: string;
+        gender: string;
+        nationality: string;
+        userMainId: string;
+      };
+    };
+  };
+}
+
   export interface ReregistrationResponse {
   academicSemester: Semester;
   academicYear: AcademicYear;
@@ -156,3 +233,5 @@ export interface RegistrationSlip {
     }>;
   };
 }
+
+
