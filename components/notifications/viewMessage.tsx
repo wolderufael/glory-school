@@ -66,7 +66,7 @@ const Messages = ({ userInfo }: any) => {
   const { data = MOCK_MESSAGES, isLoading, error } = useMessage({ userType, userId });
 
   return (
-    <SheetContent>
+    <SheetContent className="sm:max-w-[500px] w-1/2 px-6 pr-5 mx-4">
       <SheetHeader>
         <SheetTitle>Inbox</SheetTitle>
         <SheetDescription>
