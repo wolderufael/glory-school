@@ -38,7 +38,7 @@ const StatusManagement: React.FC<StatusManagementProps> = ({
   // Check if there are open assessments that prevent status changes
   const hasOpenAssessments =
     assessmentGroups.length > 0 &&
-    assessmentGroups.some((r) => r.status !== "APPROVED");
+    assessmentGroups.some((r) => r.status !== "department_approved");
 
   // State for password confirmation dialog
   const [confirmationDialog, setConfirmationDialog] = useState<{

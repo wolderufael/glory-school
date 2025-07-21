@@ -105,6 +105,9 @@ export interface StudentAssessment {
   practical1: number;
   practical2: number;
   practical3: number;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
   totalPractical: number;
   practicalStatus: string;
   theory: number;

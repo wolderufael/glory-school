@@ -6,10 +6,14 @@ interface AssessmentGroup {
   name: string;
   status:
     | "DRAFT"
-    | "SUBMISSION_REQUESTED"
-    | "UNDER_REVIEW"
-    | "APPROVED"
-    | "REJECTED";
+    | "DEPARTMENT_SUBMISSION_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_SUBMISSION_REQUESTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_APPROVED"
+    | "REGISTRAR_REJECTED";
   level: string;
   departmentId: number;
   teachingAssignmentId: number;
@@ -88,8 +92,8 @@ const fetchAssessmentGroupsByDepartment = async (
 
   return response.json();
 };
-const fetchAllAssessmentGroups = async (
-): Promise<AssessmentGroup[]> => {
+
+const fetchAllAssessmentGroups = async (): Promise<AssessmentGroup[]> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/assessmentgroups`
   );
@@ -101,17 +105,19 @@ const fetchAllAssessmentGroups = async (
   return response.json();
 };
 
-
-
 const transformToGradeApprovalRequests = (
   assessmentGroups: AssessmentGroup[]
 ): GradeApprovalRequest[] => {
   return assessmentGroups
     .filter(
       (group) =>
-        group.status === "UNDER_REVIEW" ||
-        group.status === "APPROVED" ||
-        group.status === "REJECTED"
+        group.status === "DEPARTMENT_UNDER_REVIEW" ||
+        group.status === "DEPARTMENT_APPROVED" ||
+        group.status === "DEPARTMENT_REJECTED" ||
+        group.status === "REGISTRAR_SUBMISSION_REQUESTED" ||
+        group.status === "REGISTRAR_UNDER_REVIEW" ||
+        group.status === "REGISTRAR_APPROVED" ||
+        group.status === "REGISTRAR_REJECTED"
     )
     .map((group) => ({
       id: group.id.toString(),
@@ -145,13 +151,19 @@ const transformToGradeApprovalRequests = (
       grades: [], // Empty array as we don't have individual grade data
       submittedAt: group.updatedAt,
       status:
-        group.status === "UNDER_REVIEW"
-          ? ("pending" as const)
-          : group.status === "APPROVED"
-          ? ("approved" as const)
-          : group.status === "REJECTED"
-          ? ("rejected" as const)
-          : ("pending" as const),
+        group.status === "DEPARTMENT_UNDER_REVIEW"
+          ? ("department_pending" as const)
+          : group.status === "DEPARTMENT_APPROVED"
+          ? ("department_approved" as const)
+          : group.status === "DEPARTMENT_REJECTED"
+          ? ("department_rejected" as const)
+          : group.status === "REGISTRAR_UNDER_REVIEW"
+          ? ("registrar_pending" as const)
+          : group.status === "REGISTRAR_APPROVED"
+          ? ("registrar_approved" as const)
+          : group.status === "REGISTRAR_REJECTED"
+          ? ("registrar_rejected" as const)
+          : ("department_pending" as const),
       totalStudents: 25, // Would need student count from API
       submittedGrades: 25, // Would need submitted grade count from API
       message: `Grades submitted for ${group.name}`,
@@ -174,8 +186,8 @@ export const useAllAssessmentGroups = () => {
     queryKey: ["allAssessmentGroups"],
     queryFn: async () => {
       const assessmentGroups = await fetchAllAssessmentGroups();
-      // return transformToGradeApprovalRequests(assessmentGroups);
-      return assessmentGroups;
+      return transformToGradeApprovalRequests(assessmentGroups);
+      // return assessmentGroups;
     },
     enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes

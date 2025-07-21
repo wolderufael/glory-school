@@ -132,11 +132,11 @@ export const registrarNavigationItems = [
         icon: Calendar,
         url: "/registrar/acadamicYear",
       },
-/*       {
+      {
         title: "Grade Approval",
         icon: CheckCircle,
         url: "/registrar/grade-approval",
-      }, */
+      },
       /*       { title: "Course Catalog", icon: BookOpen, url: "#" },
       { title: "Class Scheduling", icon: Calendar, url: "#" },
       { title: "Grades & Transcripts", icon: Award, url: "#" },
