@@ -39,7 +39,7 @@ export function HeroSection() {
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
                 Wolaita Sodo
               </span>
-              <span className="block text-2xl md:text-3xl lg:text-4xl font-medium text-blue-100">
+              <span className="block font-bold text-blue-100">
                 Agricultural College
               </span>
             </h1>

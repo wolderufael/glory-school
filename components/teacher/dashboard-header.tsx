@@ -4,9 +4,11 @@ import {
   User,
   LayoutDashboard,
   FileArchive,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore} from "@/lib/store/authStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +17,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetTrigger } from "../ui/sheet";
+import Messages from "../notifications/viewMessage";
 
 export function TeacherDashboardHeader() {
+    const { user, logout } = useAuthStore();
+
   return (
     <div className="flex items-center justify-between p-6 bg-white border-b border-blue-100">
       <div>
@@ -37,6 +43,16 @@ export function TeacherDashboardHeader() {
         >
           <Bell className="h-4 w-4 text-blue-600" />
         </Button>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-slate-600">
+              <MessageSquare className="w-4 h-4 mr-1" />
+              Messages
+            </Button>
+            {/* <Button variant="outline">Open</Button> */}
+          </SheetTrigger>
+          <Messages  userInfo={user} />
+        </Sheet>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

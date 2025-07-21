@@ -25,3 +25,17 @@ export const getNotice = async (): Promise<Notice[]> => {
   data.reverse();
   return data;
 };
+
+
+export const fetchMessages = async ({
+  userId,
+  userType,
+}: {
+  userId: number;
+  userType: string;
+}): Promise<Notice[]> => {
+  const { data } = await axios.get<Notice[]>(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/messages/by-target/${userType}/${userId}`
+  );
+  return data;
+};
