@@ -212,24 +212,7 @@ const ListTable = () => {
             ? "NG"
             : calculateGrade(totalMark);
 
-          practical1 === null || practical2 === null || practical3 === null
-            ? "NA"
-            : "OK";
-        const theoryStatus = theory === null ? "NA" : "OK";
-
-        // Calculate totals with null handling
-        const totalPractical =
-          (practical1 ?? 0) + (practical2 ?? 0) + (practical3 ?? 0);
-        const totalMark = totalPractical + (theory ?? 0);
-
-        // Calculate grade with null check
-        const gradeInLetter =
-          practical1 === null ||
-          practical2 === null ||
-          practical3 === null ||
-          theory === null
-            ? "NG"
-            : calculateGrade(totalMark);
+     
 
         return {
           teachingAssignmentId: selectedTeachingAssignmentId,
