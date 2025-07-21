@@ -137,6 +137,11 @@ export const registrarNavigationItems = [
         icon: CheckCircle,
         url: "/registrar/grade-approval",
       },
+      {
+        title: "Re-Grade",
+        icon: CheckCircle,
+        url: "/registrar/re-grade",
+      },
       /*       { title: "Course Catalog", icon: BookOpen, url: "#" },
       { title: "Class Scheduling", icon: Calendar, url: "#" },
       { title: "Grades & Transcripts", icon: Award, url: "#" },

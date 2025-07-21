@@ -86,7 +86,7 @@ export default function GradeReviewPage({
       id: parseInt(request.id, 10),
       departmentId: departmentId,
       status: decision === "approve" ? "APPROVED" : "REGISTRAR_REJECTED",
-      reason: reason || undefined,
+      reason: decision === "approve" ? null : reason,
     });
     resetForm();
     onClose();
