@@ -108,7 +108,7 @@ const Messages = ({ userInfo }: any) => {
             <h3 className="font-semibold text-base">{msg.title}</h3>
             <p className="text-sm text-muted-foreground">{msg.message}</p>
             <div className="text-xs text-right text-gray-500 mt-1">
-              From: {msg?.senderType} 
+              From: {msg?.author ? `${msg.author.firstName} ${msg.author.lastName}` : "Unknown"} <br />
               <br />
               <span className="text-xs">
                 {msg?.createdAt ? format(new Date(msg.createdAt), "PPP") : "N/A"}

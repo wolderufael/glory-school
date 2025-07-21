@@ -16,7 +16,13 @@ export interface MessageSchema {
     deadline?: string;
    senderType: "Student" | "Teacher" | "Department" | "Registrar";
     targetIds: number[] | undefined;
-    authorId: number;
+    author: {
+      id: number;
+      firstName: string;
+      lastName: string;
+      email: string;
+      phoneNumber?: string;
+    };
     targetType: "Student" | "Teacher"
     is_active?: boolean;
     createdAt?: string;
