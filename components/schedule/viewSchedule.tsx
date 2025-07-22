@@ -107,7 +107,7 @@ const ViewSchedule = () => {
     }
   }
 
-  // Fetch sections
+
   const fetchSections = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sections`)
@@ -123,11 +123,11 @@ const ViewSchedule = () => {
     }
   }
 
-  // Fetch schedules with mock data for demonstration
+  
   const fetchSchedules = async () => {
     setIsLoading(true)
     try {
-      // Build query params
+  
       const params = new URLSearchParams()
       if (filters.departmentId && filters.departmentId !== "all") params.append("departmentId", filters.departmentId)
       if (filters.level && filters.level !== "all") params.append("level", filters.level)
