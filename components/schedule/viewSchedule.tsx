@@ -231,11 +231,11 @@ const ViewSchedule = () => {
     })
   }
 const normalizeSchedulePath = (schedulePath: string) => {
-  // Ensure valid web path
+ 
   if (schedulePath.includes("\\") || schedulePath.includes("C:") || schedulePath.includes("/home")) {
     return null // Invalid for public access
   }
-  // Ensure it starts with a slash
+
   return schedulePath.startsWith("/") ? schedulePath : `/${schedulePath}`;
 }
 
