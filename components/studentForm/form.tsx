@@ -34,6 +34,7 @@ interface TempStudent {
   department?: {
     name: string;
   };
+  password?: string;
 }
 
 export function StudentForm() {
@@ -511,7 +512,7 @@ export function StudentForm() {
           <h2 className="text-lg font-semibold text-gray-800">Student List</h2>
           <Button
             onClick={handleGenerateAllIds}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            className="bg-blue-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             Generate All IDs
           </Button>
@@ -538,6 +539,9 @@ export function StudentForm() {
                 </TableHead>
                 <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
                   Generated ID
+                </TableHead>
+                <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
+                  Password
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -575,6 +579,9 @@ export function StudentForm() {
                     </TableCell>
                     <TableCell className="p-3 text-sm text-gray-600">
                       {student.studentMainId || "Not generated"}
+                    </TableCell>
+                    <TableCell className="p-3 text-sm text-gray-600">
+                      {student.password || "Not generated"}
                     </TableCell>
                   </TableRow>
                 ))

@@ -27,21 +27,30 @@ import {
   Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useRegrade } from "@/lib/react-query/hooks/useRegrade";
+import { useFetchRegrade } from "@/lib/react-query/hooks/useRegrade";
 import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
+import { useCreateRegradeRequest } from "@/lib/react-query/mutations/useRegradeAssesment";
 import { AssessmentCell } from "@/components/markList/assessmentCell";
 import { Assessment } from "@/utils/assessment";
+import { RegradeAssesment } from "@/types/types";
+import { Textarea } from "@/components/ui/textarea";
+import { getLocalStorage } from "@/utils/localStorage";
 
 export default function ReGrade() {
+  const teacherId = getLocalStorage("teacherId") || "";
   const [studentId, setStudentId] = useState<string>("");
   const [courseCode, setCourseCode] = useState<string>("");
   const [searchTriggered, setSearchTriggered] = useState<boolean>(false);
-  const [currentAssessment, setCurrentAssessment] = useState<Assessment | null>(
+  const [currentAssessment, setCurrentAssessment] = useState<any | null>(
     null
   );
+  const [regradeReason, setRegradeReason] = useState<string>("");
 
   // Check if both fields are filled
   const canSearch = studentId.trim() !== "" && courseCode.trim() !== "";
+
+  //Mock assesment
+
 
   // Fetch assessment data using courseCode and studentId (mainId)
   const {
@@ -50,7 +59,7 @@ export default function ReGrade() {
     isError: isAssessmentError,
     error: assessmentError,
     refetch: refetchAssessment,
-  } = useRegrade(courseCode.trim(), studentId.trim());
+  } = useFetchRegrade(courseCode.trim(), studentId.trim(), teacherId.toString());
 
   const {
     assessments,
@@ -58,6 +67,9 @@ export default function ReGrade() {
     submitAssessments,
     isSubmitting,
   } = useAssessments();
+
+  // Initialize the re-grade request mutation
+  const createRegradeRequest = useCreateRegradeRequest();
 
   // Search for student assessment
   const handleSearch = () => {
@@ -79,7 +91,7 @@ export default function ReGrade() {
   // Handle assessment data when fetched
   useEffect(() => {
     if (fetchedAssessment && searchTriggered) {
-      setCurrentAssessment(fetchedAssessment);
+      setCurrentAssessment(fetchedAssessment as Assessment);
 
       // Populate local assessments with fetched data
       const studentDbId = fetchedAssessment.studentId;
@@ -115,11 +127,24 @@ export default function ReGrade() {
     }
   }, [fetchedAssessment, isAssessmentError, searchTriggered]);
 
-  // Submit regrade
+  // Submit regrade request
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!currentAssessment) {
       toast.error("No assessment data to submit");
+      return;
+    }
+
+    if (!regradeReason.trim()) {
+      toast.error("Please provide a reason for the re-grade request");
+      return;
+    }
+
+    if (regradeReason.trim().length < 10) {
+      toast.error(
+        "Please provide a more detailed reason (at least 10 characters)"
+      );
       return;
     }
 
@@ -148,43 +173,71 @@ export default function ReGrade() {
       }
     }
 
-    // Use fetched calculation data instead of local calculations
-    const assessmentInfo = [
-      {
+    // Calculate total mark for the re-grade request
+    const totalPracticalCalculated =
+      (practical1 ?? 0) + (practical2 ?? 0) + (practical3 ?? 0);
+    const totalMarkCalculated = totalPracticalCalculated + (theory ?? 0);
+
+    // Additional validation for re-grade request
+    if (totalMarkCalculated > 100) {
+      toast.error(
+        `Total mark (${totalMarkCalculated}) cannot exceed 100. Please adjust the marks.`
+      );
+      return;
+    }
+
+    try {
+      await createRegradeRequest.mutateAsync({
         teachingAssignmentId: currentAssessment.teachingAssignmentId!,
         studentId: studentDbId,
+        regradeReason: regradeReason.trim(),
         practical1,
         practical2,
         practical3,
-        practical1Title: currentAssessment.practical1Type,
-        practical2Title: currentAssessment.practical2Type,
-        practical3Title: currentAssessment.practical3Type,
-        totalPractical: currentAssessment.totalPractical,
-        practicalStatus: currentAssessment.practicalStatus,
-        theoryStatus: currentAssessment.theoryStatus,
-        totalMark: currentAssessment.totalMark,
+        practical1Type: currentAssessment.practical1Type,
+        practical2Type: currentAssessment.practical2Type,
+        practical3Type: currentAssessment.practical3Type,
+        totalPractical: totalPracticalCalculated,
+        practicalStatus: totalPracticalCalculated <= 70 ? "OK" : "Error",
         theory,
-        gradeInLetter: currentAssessment.gradeInLetter,
+        theoryStatus:
+          theory !== null && theory <= 30
+            ? "OK"
+            : theory === null
+            ? "N/A"
+            : "Error",
+        totalMark: totalMarkCalculated,
+        gradeInLetter: calculateGrade(totalMarkCalculated),
         comment,
-      },
-    ];
-
-    try {
-      await submitAssessments({
-        teachingAssignmentId: currentAssessment.teachingAssignmentId!,
-        assessmentGroupId: currentAssessment.assessmentGroup?.id ?? 0,
-        assessments: assessmentInfo,
+        //teachingAssignment: currentAssessment.teachingAssignment,
       });
 
-      toast.success("Assessment updated successfully!");
-
-      // Refetch the data to show updated values
-      refetchAssessment();
+      // Clear the form after successful submission
+      setRegradeReason("");
+      setStudentId("");
+      setCourseCode("");
+      setSearchTriggered(false);
+      setCurrentAssessment(null);
     } catch (error) {
-      console.error("Error updating assessment:", error);
-      toast.error("Failed to update assessment");
+      console.error("Error creating re-grade request:", error);
+      // Error is already handled by the mutation hook
     }
   };
+
+  // Helper function to calculate grade based on total marks
+    const calculateGrade = (total: number): string => {
+      if (total > 100) return "Error";
+      if (total >= 95) return "A+";
+      if (total >= 92) return "A";
+      if (total >= 89) return "A-";
+      if (total >= 86) return "B+";
+      if (total >= 83) return "B";
+      if (total >= 80) return "B-";
+      if (total >= 77) return "C+";
+      if (total >= 74) return "C";
+
+      return "F";
+    };
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
@@ -502,31 +555,55 @@ export default function ReGrade() {
                         <TableHeader>
                           <TableRow className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
                             <TableHead className="font-semibold text-gray-700 py-4">
-                              {currentAssessment.practical1Type ||
-                                "Practical 1"}
+                              <div>
+                                {currentAssessment.practical1Type ||
+                                  "Practical 1"}
+                              </div>
+                              <div className="text-xs text-gray-500 font-normal">
+                                (Max: varies)
+                              </div>
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4">
-                              {currentAssessment.practical2Type ||
-                                "Practical 2"}
+                              <div>
+                                {currentAssessment.practical2Type ||
+                                  "Practical 2"}
+                              </div>
+                              <div className="text-xs text-gray-500 font-normal">
+                                (Max: varies)
+                              </div>
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4">
-                              {currentAssessment.practical3Type ||
-                                "Practical 3"}
+                              <div>
+                                {currentAssessment.practical3Type ||
+                                  "Practical 3"}
+                              </div>
+                              <div className="text-xs text-gray-500 font-normal">
+                                (Max: varies)
+                              </div>
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4">
                               P. Status
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4 bg-blue-50">
-                              Total Practical
+                              <div>Total Practical</div>
+                              <div className="text-xs text-blue-600 font-normal">
+                                (Max: 70)
+                              </div>
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4">
-                              Theory
+                              <div>Theory</div>
+                              <div className="text-xs text-gray-500 font-normal">
+                                (Max: 30)
+                              </div>
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4">
                               T. Status
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4 bg-indigo-50">
-                              Total Mark
+                              <div>Total Mark</div>
+                              <div className="text-xs text-indigo-600 font-normal">
+                                (Max: 100)
+                              </div>
                             </TableHead>
                             <TableHead className="font-semibold text-gray-700 py-4">
                               Grade
@@ -538,7 +615,7 @@ export default function ReGrade() {
                             const studentDbId = currentAssessment.studentId!;
                             const local = assessments[studentDbId] || {};
 
-                            // Use fetched data for display (no local calculations)
+                            // Get current values (local changes take priority)
                             const practical1 =
                               local.practical1 ??
                               currentAssessment.practical1 ??
@@ -554,76 +631,225 @@ export default function ReGrade() {
                             const theory =
                               local.theory ?? currentAssessment.theory ?? null;
 
+                            // Dynamic calculations
+                            const totalPractical =
+                              (practical1 ?? 0) +
+                              (practical2 ?? 0) +
+                              (practical3 ?? 0);
+                            const totalMark = totalPractical + (theory ?? 0);
+                            const dynamicGrade = calculateGrade(totalMark);
+
+                            // Dynamic status calculations
+                            const practicalStatus =
+                              totalPractical <= 70 ? "OK" : "Error";
+                            const theoryStatus =
+                              theory !== null && theory <= 30
+                                ? "OK"
+                                : theory === null
+                                ? "N/A"
+                                : "Error";
+
+                            // Status colors
+                            const getPracticalStatusColor = () => {
+                              if (totalPractical === 0)
+                                return "text-gray-500 bg-gray-100";
+                              return totalPractical <= 70
+                                ? "text-green-600 bg-green-100"
+                                : "text-red-600 bg-red-100";
+                            };
+
+                            const getTheoryStatusColor = () => {
+                              if (theory === null || theory === 0)
+                                return "text-gray-500 bg-gray-100";
+                              return theory <= 30
+                                ? "text-green-600 bg-green-100"
+                                : "text-red-600 bg-red-100";
+                            };
+
+                            // Helper function to validate practical marks
+                            const validatePracticalUpdate = (
+                              field: "practical1" | "practical2" | "practical3",
+                              newValue: number
+                            ) => {
+                              // Check for negative values
+                              if (newValue < 0) {
+                                toast.error("Marks cannot be negative.");
+                                return false;
+                              }
+
+                              const currentP1 =
+                                field === "practical1"
+                                  ? newValue
+                                  : practical1 ?? 0;
+                              const currentP2 =
+                                field === "practical2"
+                                  ? newValue
+                                  : practical2 ?? 0;
+                              const currentP3 =
+                                field === "practical3"
+                                  ? newValue
+                                  : practical3 ?? 0;
+                              const newTotal =
+                                currentP1 + currentP2 + currentP3;
+
+                              if (newTotal > 70) {
+                                const otherMarks =
+                                  (practical1 ?? 0) +
+                                  (practical2 ?? 0) +
+                                  (practical3 ?? 0) -
+                                  (field === "practical1"
+                                    ? practical1 ?? 0
+                                    : field === "practical2"
+                                    ? practical2 ?? 0
+                                    : practical3 ?? 0);
+                                const maxAllowed = 70 - otherMarks;
+                                toast.error(
+                                  `Cannot enter ${newValue}. Maximum allowed for this field is ${maxAllowed} (Total would be ${newTotal}/70).`
+                                );
+                                return false;
+                              }
+                              return true;
+                            };
+
                             return (
                               <TableRow className="hover:bg-blue-50/50 transition-colors duration-200">
                                 <AssessmentCell
                                   value={practical1}
-                                  onChange={(value) =>
-                                    updateLocalAssessment(
-                                      studentDbId,
-                                      "practical1",
-                                      Number(value)
-                                    )
-                                  }
+                                  onChange={(value) => {
+                                    const numValue = Number(value);
+                                    if (
+                                      validatePracticalUpdate(
+                                        "practical1",
+                                        numValue
+                                      )
+                                    ) {
+                                      updateLocalAssessment(
+                                        studentDbId,
+                                        "practical1",
+                                        numValue
+                                      );
+                                    }
+                                  }}
                                 />
                                 <AssessmentCell
                                   value={practical2}
-                                  onChange={(value) =>
-                                    updateLocalAssessment(
-                                      studentDbId,
-                                      "practical2",
-                                      Number(value)
-                                    )
-                                  }
+                                  onChange={(value) => {
+                                    const numValue = Number(value);
+                                    if (
+                                      validatePracticalUpdate(
+                                        "practical2",
+                                        numValue
+                                      )
+                                    ) {
+                                      updateLocalAssessment(
+                                        studentDbId,
+                                        "practical2",
+                                        numValue
+                                      );
+                                    }
+                                  }}
                                 />
                                 <AssessmentCell
                                   value={practical3}
-                                  onChange={(value) =>
-                                    updateLocalAssessment(
-                                      studentDbId,
-                                      "practical3",
-                                      Number(value)
-                                    )
-                                  }
+                                  onChange={(value) => {
+                                    const numValue = Number(value);
+                                    if (
+                                      validatePracticalUpdate(
+                                        "practical3",
+                                        numValue
+                                      )
+                                    ) {
+                                      updateLocalAssessment(
+                                        studentDbId,
+                                        "practical3",
+                                        numValue
+                                      );
+                                    }
+                                  }}
                                 />
-                                <AssessmentCell
-                                  value={currentAssessment.practicalStatus}
-                                  isStatus={true}
-                                  readOnly={true}
-                                />
+                                <TableCell className="text-center py-4">
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getPracticalStatusColor()}`}
+                                  >
+                                    {practicalStatus}
+                                  </span>
+                                  {totalPractical > 70 && (
+                                    <div className="text-xs text-red-500 mt-1">
+                                      Max: 70
+                                    </div>
+                                  )}
+                                </TableCell>
                                 <TableCell className="text-center py-4 bg-blue-50/50">
-                                  <span className="font-bold text-blue-700 text-lg">
-                                    {currentAssessment.totalPractical}
+                                  <span
+                                    className={`font-bold text-lg ${
+                                      totalPractical <= 70
+                                        ? "text-blue-700"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    {totalPractical}
                                   </span>
                                 </TableCell>
                                 <AssessmentCell
                                   value={theory}
-                                  onChange={(value) =>
+                                  onChange={(value) => {
+                                    const numValue = Number(value);
+                                    if (numValue < 0) {
+                                      toast.error(
+                                        "Theory marks cannot be negative."
+                                      );
+                                      return;
+                                    }
+                                    if (numValue > 30) {
+                                      toast.error(
+                                        `Cannot enter ${numValue}. Theory marks cannot exceed 30.`
+                                      );
+                                      return;
+                                    }
                                     updateLocalAssessment(
                                       studentDbId,
                                       "theory",
-                                      Number(value)
-                                    )
-                                  }
+                                      numValue
+                                    );
+                                  }}
                                 />
-                                <AssessmentCell
-                                  value={currentAssessment.theoryStatus}
-                                  isStatus={true}
-                                  readOnly={true}
-                                />
+                                <TableCell className="text-center py-4">
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getTheoryStatusColor()}`}
+                                  >
+                                    {theoryStatus}
+                                  </span>
+                                  {theory !== null && theory > 30 && (
+                                    <div className="text-xs text-red-500 mt-1">
+                                      Max: 30
+                                    </div>
+                                  )}
+                                </TableCell>
                                 <TableCell className="text-center py-4 bg-indigo-50/50">
-                                  <span className="font-bold text-indigo-700 text-lg">
-                                    {currentAssessment.totalMark}
+                                  <span
+                                    className={`font-bold text-lg ${
+                                      totalMark <= 100
+                                        ? "text-indigo-700"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    {totalMark}
                                   </span>
                                 </TableCell>
                                 <TableCell className="text-center py-4">
                                   <span
                                     className={`px-3 py-1 rounded-full text-sm font-bold ${getGradeColor(
-                                      currentAssessment.gradeInLetter || "NG"
-                                    )}`}
+                                      dynamicGrade
+                                    )} transition-all duration-300`}
                                   >
-                                    {currentAssessment.gradeInLetter || "NG"}
+                                    {dynamicGrade}
                                   </span>
+                                  {totalMark !==
+                                    (currentAssessment.totalMark ?? 0) && (
+                                    <div className="text-xs text-blue-600 mt-1 font-medium">
+                                      Changed
+                                    </div>
+                                  )}
                                 </TableCell>
                               </TableRow>
                             );
@@ -632,27 +858,124 @@ export default function ReGrade() {
                       </Table>
                     </div>
 
+                    {/* Assessment Summary */}
+                    {(() => {
+                      const studentDbId = currentAssessment.studentId!;
+                      const local = assessments[studentDbId] || {};
+                      const practical1 =
+                        local.practical1 ?? currentAssessment.practical1 ?? 0;
+                      const practical2 =
+                        local.practical2 ?? currentAssessment.practical2 ?? 0;
+                      const practical3 =
+                        local.practical3 ?? currentAssessment.practical3 ?? 0;
+                      const theory =
+                        local.theory ?? currentAssessment.theory ?? 0;
+                      const totalPractical =
+                        practical1 + practical2 + practical3;
+                      const remainingPractical = Math.max(
+                        0,
+                        70 - totalPractical
+                      );
+                      const remainingTheory = Math.max(0, 30 - theory);
+
+                      return (
+                        <div className="p-4 bg-gray-50 border-t">
+                          <div className="grid grid-cols-3 md:grid-cols-2 gap-4 text-sm">
+                            <div className="text-center">
+                              <div className="font-medium text-gray-600">
+                                Current Practical Total
+                              </div>
+                              <div
+                                className={`text-lg font-bold ${
+                                  totalPractical <= 70
+                                    ? "text-blue-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {totalPractical} / 70
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-medium text-gray-600">
+                                Current Theory
+                              </div>
+                              <div
+                                className={`text-lg font-bold ${
+                                  theory <= 30
+                                    ? "text-blue-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {theory} / 30
+                              </div>
+                            </div>{" "}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Re-grade Reason Section */}
+                    <div className="p-6 bg-purple-50/50 border-t">
+                      <div className="space-y-4">
+                        <div>
+                          <Label
+                            htmlFor="regradeReason"
+                            className="text-sm font-medium text-gray-700 mb-2 block"
+                          >
+                            Reason for Re-grade Request *
+                          </Label>
+                          <Textarea
+                            id="regradeReason"
+                            placeholder="Please provide a detailed reason for the re-grade request (e.g., calculation error, missing marks, etc.)"
+                            value={regradeReason}
+                            onChange={(e) => {
+                              if (e.target.value.length <= 500) {
+                                setRegradeReason(e.target.value);
+                              }
+                            }}
+                            className="min-h-[100px] border-gray-300 focus:border-purple-500 focus:ring-purple-500 resize-none"
+                            required
+                          />
+                          <div className="mt-2 text-xs text-gray-500">
+                            Character count: {regradeReason.length}/500
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Submit Button */}
                     <div className="p-6 bg-gray-50/50 border-t">
                       <div className="flex justify-end">
                         <Button
                           onClick={handleSubmit}
-                          disabled={isSubmitting}
-                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold"
+                          disabled={
+                            createRegradeRequest.isPending ||
+                            !regradeReason.trim() ||
+                            regradeReason.trim().length < 10
+                          }
+                          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >
-                          {isSubmitting ? (
+                          {createRegradeRequest.isPending ? (
                             <div className="flex items-center space-x-2">
                               <Loader2 className="w-4 h-4 animate-spin" />
-                              <span>Saving...</span>
+                              <span>Submitting...</span>
                             </div>
                           ) : (
                             <div className="flex items-center space-x-2">
-                              <Save className="w-4 h-4" />
-                              <span>Save ReGrade</span>
+                              <RefreshCw className="w-4 h-4" />
+                              <span>Submit Re-grade Request</span>
                             </div>
                           )}
                         </Button>
                       </div>
+                      {(!regradeReason.trim() ||
+                        regradeReason.trim().length < 10) && (
+                        <div className="mt-3 text-sm text-red-600 text-right">
+                          {!regradeReason.trim()
+                            ? "Please provide a reason for the re-grade request"
+                            : "Reason must be at least 10 characters long"}
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
