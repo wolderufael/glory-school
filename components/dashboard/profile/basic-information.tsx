@@ -176,7 +176,7 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
     <div className="space-y-6 max-sm:px-4">
       {/* Top Section - Profile Picture and Access Information */}
       <div className="grid grid-cols-2 gap-6 max-sm:grid-cols-1">
-        {/* Profile Picture */}
+      
         <div className="bg-white rounded-lg shadow-sm p-6 max-sm:p-4 border border-blue-100">
           <div className="flex items-center justify-between mb-6 max-sm:flex-wrap max-sm:gap-3">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
