@@ -182,21 +182,21 @@ const ViewSchedule = () => {
     }
   }, [filters.departmentId, filters.level, allSections])
 
-  // Filter schedules based on criteria
+
   useEffect(() => {
     let filtered = schedules
 
-    // Filter by department
+ 
     if (filters.departmentId && filters.departmentId !== "all") {
       filtered = filtered.filter((schedule) => schedule.departmentId === Number(filters.departmentId))
     }
 
-    // Filter by level
+
     if (filters.level && filters.level !== "all") {
       filtered = filtered.filter((schedule) => schedule.level === filters.level)
     }
 
-    // Filter by section
+ 
     if (filters.sectionId && filters.sectionId !== "all") {
       filtered = filtered.filter((schedule) => schedule.sectionId === Number(filters.sectionId))
     }
