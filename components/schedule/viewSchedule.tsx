@@ -230,22 +230,45 @@ const ViewSchedule = () => {
       description: "All filters have been reset",
     })
   }
+const normalizeSchedulePath = (schedulePath: string) => {
+  // Ensure valid web path
+  if (schedulePath.includes("\\") || schedulePath.includes("C:") || schedulePath.includes("/home")) {
+    return null // Invalid for public access
+  }
+  // Ensure it starts with a slash
+  return schedulePath.startsWith("/") ? schedulePath : `/${schedulePath}`;
+}
 
-  const handleDownload = (schedule: Schedule) => {
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}${schedule.schedulePath.startsWith("/") ? schedule.schedulePath : `/${schedule.schedulePath}`}`
-    window.open(url, "_blank")
-    toast("Download Started", {
-      description: `Downloading ${schedule.fileName}...`,
-    })
+const handleDownload = (schedule: Schedule) => {
+  const path = normalizeSchedulePath(schedule.schedulePath);
+  if (!path) {
+    toast.error("File not available for download");
+    return;
   }
 
-  const handlePreview = (schedule: Schedule) => {
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}${schedule.schedulePath.startsWith("/") ? schedule.schedulePath : `/${schedule.schedulePath}`}`
-    window.open(url, "_blank")
-    toast("Opening Preview", {
-      description: `Opening ${schedule.fileName} for preview...`,
-    })
+  const url = `${process.env.NEXT_PUBLIC_BASE_URL}${path}`;
+  window.open(url, "_blank");
+
+  toast("Download Started", {
+    description: `Downloading file...`,
+  });
+};
+
+const handlePreview = (schedule: Schedule) => {
+  const path = normalizeSchedulePath(schedule.schedulePath);
+  if (!path) {
+    toast.error("File not available for preview");
+    return;
   }
+
+  const url = `${process.env.NEXT_PUBLIC_BASE_URL}${path}`;
+  window.open(url, "_blank");
+
+  toast("Opening Preview", {
+    description: `Opening file...`,
+  });
+};
+
 
   const getScheduleTypeColor = (type: string) => {
     switch (type) {
