@@ -20,41 +20,40 @@ import {
   Filter,
   RefreshCw,
   BookOpen,
+  User,
+  Loader2,
 } from "lucide-react"
 import { getLocalStorage } from "@/utils/localStorage"
-import { toast } from "sonner"
 import { format } from "date-fns"
-import { useSection } from "@/lib/react-query/hooks/useSection"
+import { toast } from "sonner"
 
 interface Department {
-  id: string
+  id: number
   name: string
   code: string
 }
 
 interface Section {
-  id: string
+  id: number
   sectionName: string
   level: string
-  departmentId: string
+  departmentId: number
+  department?: string
 }
 
 interface Schedule {
-  id: string
-  title: string
-  description: string
-  fileName: string
-  fileSize: number
-  fileType: string
-  uploadedBy: string
-  uploadedAt: string
-  departmentId: string
-  departmentName: string
+  id: number
+  sectionId: number
+  academicYearId: number
+  academicSemesterId: number
+  departmentId: number
   level: string
-  sectionId: string
-  sectionName: string
-  scheduleType: string
-  isActive: boolean
+  schedulePath: string
+  createdAt: string
+  // Derived fields for UI
+  fileName?: string
+  departmentName?: string
+  sectionName?: string
 }
 
 interface FilterCriteria {
@@ -62,7 +61,6 @@ interface FilterCriteria {
   level: string
   sectionId: string
   searchQuery: string
-  scheduleType: string
 }
 
 const LEVELS = [
@@ -70,29 +68,28 @@ const LEVELS = [
   { value: "II", label: "Level II" },
   { value: "III", label: "Level III" },
   { value: "IV", label: "Level IV" },
-] as const;
-
-const SCHEDULE_TYPES = [
-  { value: "", label: "All Types" },
-  { value: "exam", label: "Exam Schedule" },
-  { value: "class", label: "Class Schedule" },
-  { value: "event", label: "Event Schedule" },
-  { value: "assignment", label: "Assignment Schedule" },
+  { value: "V", label: "Level V" },
 ] as const
 
 const ViewSchedule = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [departmentList, setDepartmentList] = useState<Department[]>([])
+  const [allSections, setAllSections] = useState<Section[]>([])
+  const [filteredSections, setFilteredSections] = useState<Section[]>([])
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([])
 
   const [filters, setFilters] = useState<FilterCriteria>({
-    departmentId: "",
-    level: "",
-    sectionId: "",
+    departmentId: "all",
+    level: "all",
+    sectionId: "all",
     searchQuery: "",
-    scheduleType: "",
   })
+
+  // Get user info from localStorage
+  const userType = typeof window !== "undefined" ? getLocalStorage("userType") : undefined
+  const userId = typeof window !== "undefined" ? getLocalStorage("userId") : undefined
+  const userDepartmentId = typeof window !== "undefined" ? getLocalStorage("userDepartmentId") : undefined
 
   // Fetch departments
   const fetchDepartments = async () => {
@@ -103,107 +100,151 @@ const ViewSchedule = () => {
       setDepartmentList(data)
     } catch (e) {
       console.error("Error fetching departments:", e)
-      toast.error("Failed to fetch departments")
+      toast("Error", {
+        description: "Failed to fetch departments",
+        className: 'text-red-50'
+      })
     }
   }
 
-  // Fetch schedules from API using selected filters
+  // Fetch sections
+  const fetchSections = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sections`)
+      if (!res.ok) throw new Error("Failed to fetch sections")
+      const data = await res.json()
+      setAllSections(data)
+    } catch (e) {
+      console.error("Error fetching sections:", e)
+      toast("Error", {
+        description: "Failed to fetch sections",
+        className: 'text-red-50'
+      })
+    }
+  }
+
+  // Fetch schedules with mock data for demonstration
   const fetchSchedules = async () => {
     setIsLoading(true)
     try {
+      // Build query params
       const params = new URLSearchParams()
-      if (filters.departmentId) params.append("departmentId", filters.departmentId)
-      if (filters.level) params.append("level", filters.level)
-      if (filters.sectionId) params.append("sectionId", filters.sectionId)
-      if (filters.scheduleType) params.append("scheduleType", filters.scheduleType)
+      if (filters.departmentId && filters.departmentId !== "all") params.append("departmentId", filters.departmentId)
+      if (filters.level && filters.level !== "all") params.append("level", filters.level)
+      if (filters.sectionId && filters.sectionId !== "all") params.append("sectionId", filters.sectionId)
+      // If all filters are 'all', send null for departmentId
+      if (filters.departmentId === "all") params.append("departmentId", "null")
+      if (filters.level === "all") params.append("level", "all")
+      if (filters.sectionId === "all") params.append("sectionId", "all")
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedules?${params.toString()}`)
-      if (!res.ok) throw new Error("Failed to fetch schedules")
-      const data = await res.json()
-      setSchedules(data)
-      setFilteredSchedules(data) // Initialize filtered schedules
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedules?${params.toString()}`)
+      const data = await response.json()
+      // Add fileName for UI
+      const schedulesWithFileName = data.map((item: Schedule) => ({
+        ...item,
+        fileName: item.schedulePath.split("/").pop() || item.schedulePath.split("\\").pop() || "Schedule.pdf",
+      }))
+      setSchedules(schedulesWithFileName)
     } catch (e) {
       console.error("Error fetching schedules:", e)
-      toast.error("Failed to fetch schedules")
+      toast("Error", {
+        description: "Failed to fetch schedules",
+        className: 'text-red-50'
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Define clearFilters function to reset all filters
-  const clearFilters = () => {
-    setFilters({
-      departmentId: "",
-      level: "",
-      sectionId: "",
-      searchQuery: "",
-      scheduleType: "",
-    })
-    toast.success("Filters cleared successfully")
-  }
-
   useEffect(() => {
-    fetchDepartments()
+    Promise.all([fetchDepartments(), fetchSections(), fetchSchedules()]).catch((error) => {
+      console.error("Error fetching initial data:", error)
+    })
   }, [])
 
-  const { data: sections, isLoading: isSectionsLoading } = useSection(
-    filters.departmentId, 
-    filters.level
-  )
-
-  // Reset section selection if current selection is not in filtered results
+  // Filter sections based on selected department and level
   useEffect(() => {
-    if (filters.sectionId && sections && !sections.find(s => s.id === filters.sectionId)) {
-      setFilters((prev) => ({ ...prev, sectionId: "" }))
+    let filtered = allSections
+
+    if (filters.departmentId && filters.departmentId !== "all") {
+      filtered = filtered.filter((section) => section.departmentId === Number(filters.departmentId))
     }
-  }, [sections, filters.sectionId])
+
+    if (filters.level && filters.level !== "all") {
+      filtered = filtered.filter((section) => section.level === filters.level)
+    }
+
+    setFilteredSections(filtered)
+
+    // Reset section selection if current selection is not in filtered results
+    if (filters.sectionId !== "all" && !filtered.find((s) => s.id === Number(filters.sectionId))) {
+      setFilters((prev) => ({ ...prev, sectionId: "all" }))
+    }
+  }, [filters.departmentId, filters.level, allSections])
 
   // Filter schedules based on criteria
   useEffect(() => {
     let filtered = schedules
+
+    // Filter by department
+    if (filters.departmentId && filters.departmentId !== "all") {
+      filtered = filtered.filter((schedule) => schedule.departmentId === Number(filters.departmentId))
+    }
+
+    // Filter by level
+    if (filters.level && filters.level !== "all") {
+      filtered = filtered.filter((schedule) => schedule.level === filters.level)
+    }
+
+    // Filter by section
+    if (filters.sectionId && filters.sectionId !== "all") {
+      filtered = filtered.filter((schedule) => schedule.sectionId === Number(filters.sectionId))
+    }
 
     // Filter by search query
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase()
       filtered = filtered.filter(
         (schedule) =>
-          schedule.title.toLowerCase().includes(query) ||
-          schedule.description.toLowerCase().includes(query) ||
-          schedule.fileName.toLowerCase().includes(query) ||
-          schedule.uploadedBy.toLowerCase().includes(query),
+          (schedule.fileName && schedule.fileName.toLowerCase().includes(query)) ||
+          (schedule.departmentName && schedule.departmentName.toLowerCase().includes(query)) ||
+          (schedule.sectionName && schedule.sectionName.toLowerCase().includes(query))
       )
     }
 
     setFilteredSchedules(filtered)
-  }, [schedules, filters.searchQuery])
-
-  // Fetch schedules when filters change
-  useEffect(() => {
-    if (filters.departmentId || filters.level || filters.sectionId || filters.scheduleType) {
-      fetchSchedules()
-    }
-  }, [filters.departmentId, filters.level, filters.sectionId, filters.scheduleType])
+  }, [schedules, filters])
 
   const handleFilterChange = (key: keyof FilterCriteria, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
+  const clearFilters = () => {
+    setFilters({
+      departmentId: "all",
+      level: "all",
+      sectionId: "all",
+      searchQuery: "",
+    })
+    toast("Filters Cleared", {
+      description: "All filters have been reset",
+    })
+  }
+
   const handleDownload = (schedule: Schedule) => {
-    toast.success(`Downloading ${schedule.fileName}...`)
-    // Add actual download logic here
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}${schedule.schedulePath.startsWith("/") ? schedule.schedulePath : `/${schedule.schedulePath}`}`
+    window.open(url, "_blank")
+    toast("Download Started", {
+      description: `Downloading ${schedule.fileName}...`,
+    })
   }
 
   const handlePreview = (schedule: Schedule) => {
-    toast.success(`Opening ${schedule.fileName} for preview...`)
-    // Add actual preview logic here
-  }
-
-  const getFileIcon = (fileType: string) => {
-    if (fileType.includes("pdf")) return "📄"
-    if (fileType.includes("word")) return "📝"
-    if (fileType.includes("excel") || fileType.includes("sheet")) return "📊"
-    if (fileType.includes("image")) return "🖼️"
-    return "📁"
+    const url = `${process.env.NEXT_PUBLIC_BASE_URL}${schedule.schedulePath.startsWith("/") ? schedule.schedulePath : `/${schedule.schedulePath}`}`
+    window.open(url, "_blank")
+    toast("Opening Preview", {
+      description: `Opening ${schedule.fileName} for preview...`,
+    })
   }
 
   const getScheduleTypeColor = (type: string) => {
@@ -221,17 +262,10 @@ const ViewSchedule = () => {
     }
   }
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
       <div className="container mx-auto px-4 max-w-7xl">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
@@ -239,6 +273,20 @@ const ViewSchedule = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Schedule Viewer</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Browse and download academic schedules for your department, level, and section
+          </p>
+          <div className="flex items-center justify-center mt-4 space-x-4">
+            {userType && (
+              <Badge variant="outline" className="flex items-center">
+                <User className="w-3 h-3 mr-1" />
+                {userType.charAt(0).toUpperCase() + userType.slice(1)}
+              </Badge>
+            )}
+            {filteredSchedules.length > 0 && (
+              <Badge variant="secondary">{filteredSchedules.length} schedules found</Badge>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -281,9 +329,9 @@ const ViewSchedule = () => {
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Departments</SelectItem>
+                      <SelectItem value="all">All Departments</SelectItem>
                       {departmentList.map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id}>
+                        <SelectItem key={dept.id} value={dept.id.toString()}>
                           {dept.name}
                         </SelectItem>
                       ))}
@@ -302,7 +350,7 @@ const ViewSchedule = () => {
                       <SelectValue placeholder="Select level" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Levels</SelectItem>
+                      <SelectItem value="all">All Levels</SelectItem>
                       {LEVELS.map((level) => (
                         <SelectItem key={level.value} value={level.value}>
                           {level.label}
@@ -318,62 +366,23 @@ const ViewSchedule = () => {
                     <Users className="w-4 h-4 mr-2 text-purple-600" />
                     Section
                   </Label>
-                  <Select 
-                    value={filters.sectionId} 
-                    onValueChange={(value) => handleFilterChange("sectionId", value)}
-                    disabled={isSectionsLoading}
-                  >
+                  <Select value={filters.sectionId} onValueChange={(value) => handleFilterChange("sectionId", value)}>
                     <SelectTrigger className="mt-1">
-                      {isSectionsLoading ? (
-                        <span>Loading sections...</span>
-                      ) : (
-                        <SelectValue placeholder="Select section" />
-                      )}
+                      <SelectValue placeholder="Select section" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Sections</SelectItem>
-                      {sections && sections.length > 0 ? (
-                        sections.map((section) => (
-                          <SelectItem key={section.id} value={section.id}>
-                            {section.sectionName}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="" disabled>No sections available</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Schedule Type */}
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 flex items-center">
-                    <Calendar className="w-4 h-4 mr-2 text-orange-600" />
-                    Schedule Type
-                  </Label>
-                  <Select
-                    value={filters.scheduleType}
-                    onValueChange={(value) => handleFilterChange("scheduleType", value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SCHEDULE_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
+                      <SelectItem value="all">All Sections</SelectItem>
+                      {filteredSections.map((section) => (
+                        <SelectItem key={section.id} value={section.id.toString()}>
+                          {section.sectionName}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Clear Filters Button */}
-                <Button 
-                  variant="outline" 
-                  onClick={clearFilters} 
-                  className="w-full"
-                >
+                {/* Clear Filters */}
+                <Button variant="outline" onClick={clearFilters} className="w-full bg-transparent">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Clear Filters
                 </Button>
@@ -386,7 +395,7 @@ const ViewSchedule = () => {
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-indigo-600" />
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-indigo-600" />
                   <p className="text-gray-600">Loading schedules...</p>
                 </div>
               </div>
@@ -412,10 +421,10 @@ const ViewSchedule = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-3">
-                            <div className="text-3xl">{getFileIcon(schedule.fileType)}</div>
+                            {/* <div className="text-3xl">{getFileIcon(schedule.fileType)}</div> */}
                             <div>
-                              <h3 className="text-xl font-semibold text-gray-900">{schedule.title}</h3>
-                              <p className="text-gray-600 text-sm">{schedule.description}</p>
+                              <h3 className="text-xl font-semibold text-gray-900">{schedule.fileName}</h3>
+                              <p className="text-gray-600 text-sm">{schedule.level} Schedule</p>
                             </div>
                           </div>
 
@@ -432,11 +441,6 @@ const ViewSchedule = () => {
                               <Users className="w-4 h-4 text-purple-600" />
                               <span className="text-sm text-gray-700">{schedule.sectionName}</span>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge className={getScheduleTypeColor(schedule.scheduleType)}>
-                                {schedule.scheduleType.charAt(0).toUpperCase() + schedule.scheduleType.slice(1)}
-                              </Badge>
-                            </div>
                           </div>
 
                           <div className="flex items-center justify-between text-sm text-gray-500">
@@ -445,17 +449,15 @@ const ViewSchedule = () => {
                                 <FileText className="w-4 h-4" />
                                 <span>{schedule.fileName}</span>
                               </div>
-                              <div className="flex items-center space-x-1">
-                                <span>{formatFileSize(schedule.fileSize)}</span>
-                              </div>
                             </div>
                             <div className="flex items-center space-x-4">
                               <div className="flex items-center space-x-1">
-                                <span>{schedule.uploadedBy}</span>
+                                <User className="w-4 h-4" />
+                                <span>{schedule.sectionId}</span>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <Clock className="w-4 h-4" />
-                                <span>{format(new Date(schedule.uploadedAt), "MMM dd, yyyy")}</span>
+                                <span>{format(new Date(schedule.createdAt), "MMM dd, yyyy")}</span>
                               </div>
                             </div>
                           </div>
