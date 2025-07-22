@@ -2,19 +2,22 @@ export interface Assessment {
   id: number;
   teachingAssignmentId: number | null;
   studentId: number | null;
-  practical1?: number | null  ;
+  practical1?: number | null;
   practical2?: number | null;
   practical3?: number | null;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
   totalPractical?: number;
   practicalStatus?: string;
-  theory?: number | null ;
+  theory?: number | null;
   theoryStatus?: string;
   totalMark?: number;
   gradeInLetter?: string;
   comment?: string;
   createdAt: Date;
   updatedAt: Date;
-  assessmentGroup ?: AssessmentGroup;
+  assessmentGroup?: AssessmentGroup;
 }
 
 export interface TeachingAssignment {
@@ -31,6 +34,9 @@ export interface CreateAssessmentRequest {
   practical1?: number | null;
   practical2?: number | null;
   practical3?: number | null;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
   totalPractical?: number;
   practicalStatus?: string;
   theory?: number | null;

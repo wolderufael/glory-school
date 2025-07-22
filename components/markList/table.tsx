@@ -13,6 +13,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CreateAssessmentRequest } from "@/utils/assessment";
 import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
 import { ModuleInfoForm } from "./moduleInfoForm";
@@ -55,6 +62,82 @@ const ListTable = () => {
 
   const updateAssessmentStatusMutation = useUpdateAssessmentStatus();
   const [teacherId, setTeacherId] = useState<number | null>(null);
+  const [practical1Type, setPractical1Type] = useState<string>("Test 1");
+  const [practical2Type, setPractical2Type] = useState<string>("Test 2");
+  const [practical3Type, setPractical3Type] = useState<string>("Test 3");
+  const [isInitializing, setIsInitializing] = useState<boolean>(false);
+
+  // Helper function to get the next available number for an assessment type
+  const getNextAvailableNumber = (baseType: string, excludeColumn?: number) => {
+    const currentTypes = [practical1Type, practical2Type, practical3Type];
+    const existingNumbers: number[] = [];
+
+    currentTypes.forEach((type, index) => {
+      if (index === excludeColumn) return; // Skip the column we're updating
+
+      const typeWithoutNumber = type?.replace(/\s+\d+$/, "") || ""; // Remove number suffix safely
+      if (typeWithoutNumber === baseType) {
+        const match = type?.match(/\s+(\d+)$/);
+        if (match) {
+          existingNumbers.push(parseInt(match[1]));
+        }
+      }
+    });
+
+    // Find the next available number
+    let nextNumber = 1;
+    while (existingNumbers.includes(nextNumber)) {
+      nextNumber++;
+    }
+
+    return `${baseType} ${nextNumber}`;
+  };
+
+  // Update all students when assessment types change
+  const handlePractical1TypeChange = (selectedBaseType: string) => {
+    if (isInitializing) return; // Don't process changes during initialization
+
+    const newType = getNextAvailableNumber(selectedBaseType, 0);
+    setPractical1Type(newType);
+    // Update all existing student records with the new type
+    if (fetchedAssessments) {
+      fetchedAssessments.forEach((student: any) => {
+        if (student.student?.id) {
+          updateLocalAssessment(student.student.id, "practical1Type", newType);
+        }
+      });
+    }
+  };
+
+  const handlePractical2TypeChange = (selectedBaseType: string) => {
+    if (isInitializing) return; // Don't process changes during initialization
+
+    const newType = getNextAvailableNumber(selectedBaseType, 1);
+    setPractical2Type(newType);
+    // Update all existing student records with the new type
+    if (fetchedAssessments) {
+      fetchedAssessments.forEach((student: any) => {
+        if (student.student?.id) {
+          updateLocalAssessment(student.student.id, "practical2Type", newType);
+        }
+      });
+    }
+  };
+
+  const handlePractical3TypeChange = (selectedBaseType: string) => {
+    if (isInitializing) return; // Don't process changes during initialization
+
+    const newType = getNextAvailableNumber(selectedBaseType, 2);
+    setPractical3Type(newType);
+    // Update all existing student records with the new type
+    if (fetchedAssessments) {
+      fetchedAssessments.forEach((student: any) => {
+        if (student.student?.id) {
+          updateLocalAssessment(student.student.id, "practical3Type", newType);
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     const id = localStorage.getItem("teacherId");
@@ -80,6 +163,27 @@ const ListTable = () => {
     error: assessmentsError,
     refetch: refetchAssessments,
   } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
+
+  // Update assessment types when fetchedAssessments changes
+  useEffect(() => {
+    if (fetchedAssessments && fetchedAssessments.length > 0) {
+      setIsInitializing(true);
+      const firstAssessment = fetchedAssessments[0];
+
+      if (firstAssessment.practical1Title) {
+        setPractical1Type(firstAssessment.practical1Title);
+      }
+      if (firstAssessment.practical2Title) {
+        setPractical2Type(firstAssessment.practical2Title);
+      }
+      if (firstAssessment.practical3Title) {
+        setPractical3Type(firstAssessment.practical3Title);
+      }
+
+      // Clear the initializing flag after a brief delay to ensure all state updates are complete
+      setTimeout(() => setIsInitializing(false), 100);
+    }
+  }, [fetchedAssessments]);
 
   useEffect(() => {
     if (
@@ -188,6 +292,13 @@ const ListTable = () => {
         const practical1 = local.practical1 ?? fetched?.practical1 ?? null;
         const practical2 = local.practical2 ?? fetched?.practical2 ?? null;
         const practical3 = local.practical3 ?? fetched?.practical3 ?? null;
+        const studentPractical1Type =
+          local.practical1Type ?? fetched?.practical1Type ?? practical1Type;
+        const studentPractical2Type =
+          local.practical2Type ?? fetched?.practical2Type ?? practical2Type;
+        const studentPractical3Type =
+          local.practical3Type ?? fetched?.practical3Type ?? practical3Type;
+
         const theory = local.theory ?? fetched?.theory ?? null;
         const comment = local.comment ?? fetched?.comment ?? "";
 
@@ -220,6 +331,9 @@ const ListTable = () => {
           practical1,
           practical2,
           practical3,
+          practical1Title: studentPractical1Type,
+          practical2Title: studentPractical2Type,
+          practical3Title: studentPractical3Type,
           totalPractical,
           practicalStatus,
           theoryStatus,
@@ -256,7 +370,7 @@ const ListTable = () => {
     try {
       await updateAssessmentStatusMutation.mutateAsync({
         id: statusInfo.assessmentGroupId,
-        status: "UNDER_REVIEW",
+        status: "DEPARTMENT_UNDER_REVIEW",
       });
       refetchAssessments();
     } catch (error) {
@@ -280,14 +394,19 @@ const ListTable = () => {
     const statusInfo = getAssessmentGroupStatus();
     const status = statusInfo.status;
 
-    if (status === "APPROVED" || status === "UNDER_REVIEW") {
+    if (
+      status === "DEPARTMENT_APPROVED" ||
+      status === "DEPARTMENT_UNDER_REVIEW" ||
+      status === "REGISTRAR_UNDER_REVIEW" ||
+      status === "APPROVED"
+    ) {
       return [];
     }
 
     if (status === "DRAFT") {
       return [
         {
-          text: "Save1",
+          text: "Save",
           onClick: handleSubmit,
           disabled: isSubmitting || updateAssessmentStatusMutation.isPending,
           className:
@@ -309,7 +428,8 @@ const ListTable = () => {
     let secondButton;
     switch (status) {
       case "SUBMISSION_REQUESTED":
-      case "REJECTED":
+      case "DEPARTMENT_REJECTED":
+      case "REGISTRAR_REJECTED":
         secondButton = {
           text: "Submit for Approval",
           onClick: handleSubmitForApproval,
@@ -490,7 +610,7 @@ const ListTable = () => {
                               icon: "📤",
                               dotColor: "bg-blue-400",
                             },
-                            UNDER_REVIEW: {
+                            DEPARTMENT_UNDER_REVIEW: {
                               text: "Under Review",
                               meaning:
                                 "Being reviewed by department no more changes allowed",
@@ -499,21 +619,46 @@ const ListTable = () => {
                               icon: "👁️",
                               dotColor: "bg-yellow-400",
                             },
-                            APPROVED: {
+                            DEPARTMENT_APPROVED: {
                               text: "Approved",
-                              meaning: "Finalized - no more changes allowed",
+                              meaning:
+                                "Finalized - no more changes allowed, still needs approval from registrar",
                               bgColor: "bg-green-100/90",
                               textColor: "text-green-800",
                               icon: "✅",
                               dotColor: "bg-green-400",
                             },
-                            REJECTED: {
+                            DEPARTMENT_REJECTED: {
                               text: "Rejected",
-                              meaning: "Needs revision - you can edit",
+                              meaning: "Rejected by department - you can edit",
                               bgColor: "bg-red-100/90",
                               textColor: "text-red-800",
                               icon: "❌",
                               dotColor: "bg-red-400",
+                            },
+                            REGISTRAR_UNDER_REVIEW: {
+                              text: "Under Review",
+                              meaning: "Being reviewed by registrar no more changes allowed",
+                              bgColor: "bg-yellow-100/90",
+                              textColor: "text-yellow-800",
+                              icon: "👁️",
+                              dotColor: "bg-yellow-400",
+                            },
+                            REGISTRAR_REJECTED: {
+                              text: "Rejected",
+                              meaning: "Rejected by registrar - you can edit",
+                              bgColor: "bg-red-100/90",
+                              textColor: "text-red-800",
+                              icon: "❌",
+                              dotColor: "bg-red-400",
+                            },
+                            APPROVED: {
+                              text: "Approved",
+                              meaning: "Finalized - no more changes allowed, still needs approval from registrar",
+                              bgColor: "bg-green-100/90",
+                              textColor: "text-green-800",
+                              icon: "✅",
+                              dotColor: "bg-green-400",
                             },
                           };
                           const statusConfig =
@@ -546,7 +691,7 @@ const ListTable = () => {
                               </div>
 
                               {/* Rejection Reason Display - Inline */}
-                              {status === "REJECTED" &&
+                              {(status === "DEPARTMENT_REJECTED" || status === "REGISTRAR_REJECTED") &&
                                 statusInfo.rejectionReason && (
                                   <div className="bg-red-50/95 border border-red-200 rounded-full px-4 py-2 backdrop-blur-sm h-8 flex items-center space-x-2 max-w-md shadow-sm">
                                     <AlertCircle className="w-3 h-3 text-red-500 flex-shrink-0" />
@@ -643,13 +788,73 @@ const ListTable = () => {
                             Sex
                           </TableHead>
                           <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                            Practical 1
+                            <Select
+                              value={
+                                practical1Type?.replace(/\s+\d+$/, "") || "Test"
+                              } // Show base type in dropdown
+                              onValueChange={handlePractical1TypeChange}
+                            >
+                              <SelectTrigger className="w-24 h-8 text-xs font-semibold border-none shadow-none bg-transparent hover:bg-gray-50">
+                                <SelectValue>{practical1Type}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Test">Test</SelectItem>
+                                <SelectItem value="Exam">Exam</SelectItem>
+                                <SelectItem value="Assignment">
+                                  Assignment
+                                </SelectItem>
+                                <SelectItem value="Project">Project</SelectItem>
+                                <SelectItem value="Quiz">Quiz</SelectItem>
+                                <SelectItem value="Midterm">Midterm</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableHead>
                           <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                            Practical 2
+                            <Select
+                              value={
+                                practical2Type?.replace(/\s+\d+$/, "") || "Test"
+                              } // Show base type in dropdown
+                              onValueChange={handlePractical2TypeChange}
+                            >
+                              <SelectTrigger className="w-24 h-8 text-xs font-semibold border-none shadow-none bg-transparent hover:bg-gray-50">
+                                <SelectValue>{practical2Type}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Test">Test</SelectItem>
+                                <SelectItem value="Exam">Exam</SelectItem>
+                                <SelectItem value="Assignment">
+                                  Assignment
+                                </SelectItem>
+                                <SelectItem value="Project">Project</SelectItem>
+                                <SelectItem value="Quiz">Quiz</SelectItem>
+                                <SelectItem value="Midterm">Midterm</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableHead>
                           <TableHead className="font-semibold text-gray-700 py-4 text-center">
-                            Practical 3
+                            <Select
+                              value={
+                                practical3Type?.replace(/\s+\d+$/, "") || "Test"
+                              } // Show base type in dropdown
+                              onValueChange={handlePractical3TypeChange}
+                            >
+                              <SelectTrigger className="w-24 h-8 text-xs font-semibold border-none shadow-none bg-transparent hover:bg-gray-50">
+                                <SelectValue>{practical3Type}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Test">Test</SelectItem>
+                                <SelectItem value="Exam">Exam</SelectItem>
+                                <SelectItem value="Assignment">
+                                  Assignment
+                                </SelectItem>
+                                <SelectItem value="Project">Project</SelectItem>
+                                <SelectItem value="Quiz">Quiz</SelectItem>
+                                <SelectItem value="Midterm">Midterm</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableHead>
                           <TableHead className="font-semibold text-gray-700 py-4 text-center">
                             P. Status
@@ -764,7 +969,7 @@ const ListTable = () => {
                                     );
                                   }
                                 }}
-                                max={30}
+                                //max={30}
                               />
                               <AssessmentCell
                                 value={practical2}
@@ -784,7 +989,7 @@ const ListTable = () => {
                                     );
                                   }
                                 }}
-                                max={30}
+                                //max={30}
                               />
                               <AssessmentCell
                                 value={practical3}
@@ -804,7 +1009,7 @@ const ListTable = () => {
                                     );
                                   }
                                 }}
-                                max={30}
+                                //max={30}
                               />
                               <AssessmentCell
                                 value={practicalStatus}
@@ -825,7 +1030,7 @@ const ListTable = () => {
                                     Number(value)
                                   )
                                 }
-                                max={30}
+                                //max={30}
                               />
                               <AssessmentCell
                                 value={theoryStatus}

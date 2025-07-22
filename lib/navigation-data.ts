@@ -137,11 +137,16 @@ export const registrarNavigationItems = [
         icon: Calendar,
         url: "/registrar/acadamicYear",
       },
-/*       {
+      {
         title: "Grade Approval",
         icon: CheckCircle,
         url: "/registrar/grade-approval",
-      }, */
+      },
+      {
+        title: "Re-Grade Approval",
+        icon: CheckCircle,
+        url: "/registrar/re-grade",
+      },
       /*       { title: "Course Catalog", icon: BookOpen, url: "#" },
       { title: "Class Scheduling", icon: Calendar, url: "#" },
       { title: "Grades & Transcripts", icon: Award, url: "#" },
@@ -230,7 +235,7 @@ export const departmentNavigationItems = [
     title: "Academic Management",
     items: [
       {
-        title: "Teacher Assignment",
+        title: "Teacher Allocation",
         icon: BookOpen,
         url: "/department/teacher-assignment",
       },
@@ -239,6 +244,7 @@ export const departmentNavigationItems = [
         icon: CheckCircle,
         url: "/department/grade-approval",
       },
+
     /*   {
         title: "Section Assignment",
         icon: Calendar,
@@ -259,6 +265,11 @@ export const teacherNavigationItems = [
     title: "Assesment",
     items: [
       { title: "Assesment", icon: Calendar, url: "/teacher/markList" },
+      {
+        title: "Re-Grade",
+        icon: BookOpen,
+        url: "/teacher/re-grade",
+      },
       /*  { title: "Evaluation", icon: BookOpen, url: "#" }, */
       /*    { title: "Grade Approval", icon: Award, url: "#" }, */
     ],

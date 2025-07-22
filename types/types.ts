@@ -77,6 +77,83 @@ export interface AcademicYear {
   semesters: Semester[];
 }
 
+export interface AssessmentGroup {
+  id: number;
+  name: string;
+  status:
+    | "DRAFT"
+    | "SUBMISSION_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
+  level: string;
+  departmentId: number;
+  teachingAssignmentId: number;
+  sectionId: number;
+  createdAt: string;
+  updatedAt: string;
+  department: {
+    id: number;
+    collegeId: number;
+    name: string;
+    code: string;
+    createdAt: string;
+  };
+  section: {
+    id: number;
+    sectionName: string;
+    createdAcademicYearId: number;
+    createdAt: string;
+    departmentId: number;
+    currentLevel: string;
+  };
+  teachingAssignment: {
+    id: number;
+    teacherId: number;
+    sectionId: number;
+    courseId: number;
+    academicSemesterId: number;
+    academicYearId: number;
+    level: string;
+    departmentId: number;
+    course: {
+      id: number;
+      collegeId: number;
+      departmentId: number;
+      level: string;
+      courseCode: string;
+      title: string;
+      theoryNhrs: number;
+      practicalNhrs: number;
+      cooperativeNhrs: number;
+      totalNhrs: number;
+      createdAt: string;
+    };
+    teacher: {
+      id: number;
+      userId: number;
+      createdAt: string;
+      updatedAt: string;
+      user: {
+        id: number;
+        firstName: string;
+        middleName: string;
+        lastName: string;
+        email: string;
+        phoneNumber: string;
+        password: string;
+        userType: string;
+        gender: string;
+        nationality: string;
+        userMainId: string;
+      };
+    };
+  };
+}
+
   export interface ReregistrationResponse {
   academicSemester: Semester;
   academicYear: AcademicYear;
@@ -155,4 +232,133 @@ export interface RegistrationSlip {
       courseIds: string;
     }>;
   };
+}
+
+export interface Assessment {
+  id: number;
+  teachingAssignmentId: number | null;
+  studentId: number | null;
+  practical1?: number | null;
+  practical2?: number | null;
+  practical3?: number | null;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
+  totalPractical?: number;
+  practicalStatus?: string;
+  theory?: number | null;
+  theoryStatus?: string;
+  totalMark?: number;
+  gradeInLetter?: string;
+  comment?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  assessmentGroup?: AssessmentGroup;
+  teachingAssignment: {
+    id: number;
+    teacherId: number;
+    sectionId: number;
+    courseId: number;
+    academicSemesterId: number;
+    academicYearId: number;
+    level: string;
+    departmentId: number;
+  };
+}
+
+export interface RegradeAssesmentResponse {
+  id: number;
+  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeReason: string;
+  teachingAssignmentId: number;
+  studentId: number;
+  practical1?: number | null;
+  practical2?: number | null;
+  practical3?: number | null;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
+  totalPractical?: number;
+  practicalStatus?: string;
+  theory?: number | null;
+  theoryStatus?: string;
+  totalMark?: number;
+  gradeInLetter?: string;
+  comment?: string;
+  student: Student;
+  user: User;
+  originalGrade: Partial<Assessment>;
+  teachingAssignment: {
+    id: number;
+    teacherId: number;
+    sectionId: number;
+    courseId: number;
+    academicSemesterId: number;
+    academicYearId: number;
+    level: string;
+    departmentId: number;
+    course: {
+      id: number;
+      collegeId: number;
+      departmentId: number;
+      level: string;
+      courseCode: string;
+      title: string;
+      theoryNhrs: number;
+      practicalNhrs: number;
+      cooperativeNhrs: number;
+      totalNhrs: number;
+      createdAt: string;
+    };
+    teacher: {
+      id: number;
+      userId: number;
+      createdAt: string;
+      updatedAt: string;
+      user: {
+        id: number;
+        firstName: string;
+        middleName: string;
+        lastName: string;
+        email: string;
+        phoneNumber: string;
+        password: string;
+        userType: string;
+        gender: string;
+        nationality: string;
+        userMainId: string;
+      };
+    };
+  };
+}
+export interface RegradeAssesment {
+  id: number;
+  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeReason: string;
+  teachingAssignmentId: number;
+  studentId: number;
+  practical1?: number | null;
+  practical2?: number | null;
+  practical3?: number | null;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
+  totalPractical?: number;
+  practicalStatus?: string;
+  theory?: number | null;
+  theoryStatus?: string;
+  totalMark?: number;
+  gradeInLetter?: string;
+  comment?: string;
+}
+
+export interface RegradeRequest {
+  id: number;
+  student: Student;
+  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeReason: string;
+  originalGrade: Assessment;
+  requestedGrade: Assessment;
+  createdAt: string;
+  updatedAt: string;
 }

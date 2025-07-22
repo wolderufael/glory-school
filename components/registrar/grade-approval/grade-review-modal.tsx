@@ -1,6 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,39 +29,30 @@ import {
   BookOpen,
   Calendar,
   MessageSquare,
-  ArrowLeft,
 } from "lucide-react";
 import {
   GradeApprovalRequest,
   ApprovalDecision,
   GradeDistribution,
-} from "@/components/department/grade-approval/types";
+} from "./types";
 import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
 import { useUpdateAssessmentGroupStatus } from "@/lib/react-query/mutations/useUpdateAssessmentGroupStatus";
-import { getLocalStorage } from "@/utils/localStorage";
 
-interface GradeReviewPageProps {
+interface GradeReviewModalProps {
   request: GradeApprovalRequest | null;
-  //onDecision: (decision: ApprovalDecision) => void;
+  isOpen: boolean;
   onClose: () => void;
+  onDecision: (decision: ApprovalDecision) => void;
   loading?: boolean;
 }
 
-const Departments = {
-  ANH: 1,
-  ANP: 2,
-  CAA: 3,
-  CRP: 4,
-  IRD: 5,
-  NRC: 6,
-};
-
-export default function GradeReviewPage({
+export function GradeReviewModal({
   request,
-  /*   onDecision, */
+  isOpen,
   onClose,
+  onDecision,
   loading = false,
-}: GradeReviewPageProps) {
+}: GradeReviewModalProps) {
   const [decision, setDecision] = useState<
     "approve" | "reject" | "request_revision"
   >("approve");
@@ -63,8 +61,6 @@ export default function GradeReviewPage({
 
   // Extract teaching assignment ID from the request
   const teachingAssignmentId = request?.teachingAssignmentId ?? null;
-  const depCode = request?.section.department;
-  console.log("request dep for id", request);
 
   // Fetch real student assessment data
   const {
@@ -73,26 +69,27 @@ export default function GradeReviewPage({
     error: studentsError,
   } = useByteachingAssessment(teachingAssignmentId ?? 0);
 
-  const mapDepartmentId = (depCode: string | undefined) => {
-    return Departments[depCode as keyof typeof Departments];
-  };
-  const departmentId = mapDepartmentId(depCode);
-
   // Mutation for updating assessment group status
   const updateStatusMutation = useUpdateAssessmentGroupStatus();
 
   const handleSubmitDecision = () => {
     if (!request) return;
 
+    /*     const approvalDecision: ApprovalDecision = {
+      requestId: request.id,
+      action: decision,
+      reason: reason || undefined,
+      feedback: feedback || undefined,
+      reviewerId: "current-registrar-id", // This should come from auth context
+    };
+
+    onDecision(approvalDecision); */
+
     updateStatusMutation.mutate({
       id: parseInt(request.id, 10),
-      departmentId: departmentId,
-      status:
-        decision === "approve" ? "DEPARTMENT_APPROVED" : "DEPARTMENT_REJECTED",
-      reason: decision === "approve" ? null : reason,
+      status: decision === "approve" ? "APPROVED" : "REJECTED",
+      reason: reason || undefined,
     });
-    resetForm();
-    onClose();
   };
 
   const calculateGradeDistribution = (): GradeDistribution[] => {
@@ -132,68 +129,31 @@ export default function GradeReviewPage({
     setReason("");
   };
 
-  const handleBack = () => {
+  const handleClose = () => {
     resetForm();
     onClose();
   };
 
-  if (!request) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              No Request Found
-            </h2>
-            <p className="text-gray-600 mb-4">
-              The grade review request could not be found.
-            </p>
-            <Button onClick={handleBack} variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Go Back
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (!request) return null;
 
   const gradeDistribution = calculateGradeDistribution();
   const gradeStats = getGradeStats();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                onClick={handleBack}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Grade Approval
-              </Button>
-              <div className="h-6 w-px bg-gray-300"></div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Grade Review - {request.course.code}
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="!max-w-[90vw] sm:!max-w-[85vw] md:!max-w-[80vw] w-full max-h-[90vh] overflow-y-auto p-6">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-blue-900 flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            Grade Review - {request.course.code}
+          </DialogTitle>
+        </DialogHeader>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-6">
         <div className="space-y-6">
           {/* Request Summary */}
           <Card className="border-blue-100">
             <CardHeader>
-              <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
+              <CardTitle className="text-lg text-blue-900">
                 Request Summary
               </CardTitle>
             </CardHeader>
@@ -266,7 +226,7 @@ export default function GradeReviewPage({
                 <div className="flex items-center space-x-2 text-white/90">
                   <BarChart3 className="w-4 h-4" />
                   <span className="text-sm">
-                    {studentAssessments.length} Students
+                    {request.grades.length} Students
                   </span>
                 </div>
               </CardTitle>
@@ -355,6 +315,10 @@ export default function GradeReviewPage({
                               case "C+":
                               case "C-":
                                 return "text-amber-600 bg-amber-50 border border-amber-200";
+                              case "D":
+                              case "D+":
+                              case "D-":
+                                return "text-orange-600 bg-orange-50 border border-orange-200";
                               case "F":
                                 return "text-red-600 bg-red-50 border border-red-200";
                               default:
@@ -459,134 +423,6 @@ export default function GradeReviewPage({
             </CardContent>
           </Card>
 
-          {/* Grade Statistics */}
-          <Card className="border-green-100">
-            <CardHeader>
-              <CardTitle className="text-lg text-green-900 flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                Grade Distribution Statistics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {(() => {
-                  const gradeStats: Record<string, number> = {};
-                  const allGrades = [
-                    "A+",
-                    "A",
-                    "A-",
-                    "B+",
-                    "B",
-                    "B-",
-                    "C+",
-                    "C",
-                    "C-",
-                    "F",
-                  ];
-
-                  // Initialize all grades with 0
-                  allGrades.forEach((grade) => {
-                    gradeStats[grade] = 0;
-                  });
-
-                  // Count actual grades from student assessments
-                  studentAssessments.forEach((assessment: any) => {
-                    const grade = assessment.gradeInLetter || "F";
-                    if (gradeStats.hasOwnProperty(grade)) {
-                      gradeStats[grade]++;
-                    }
-                  });
-
-                  const getGradeColor = (grade: string) => {
-                    switch (grade) {
-                      case "A+":
-                      case "A":
-                      case "A-":
-                        return "bg-emerald-100 text-emerald-800 border-emerald-200";
-                      case "B+":
-                      case "B":
-                      case "B-":
-                        return "bg-blue-100 text-blue-800 border-blue-200";
-                      case "C+":
-                      case "C":
-                      case "C-":
-                        return "bg-amber-100 text-amber-800 border-amber-200";
-                      case "F":
-                        return "bg-red-100 text-red-800 border-red-200";
-                      default:
-                        return "bg-gray-100 text-gray-800 border-gray-200";
-                    }
-                  };
-
-                  return allGrades.map((grade) => (
-                    <div
-                      key={grade}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${getGradeColor(
-                        grade
-                      )}`}
-                    >
-                      <span className="font-bold">{gradeStats[grade]}</span>
-                      <span>{grade}</span>
-                      <span className="text-xs opacity-75">
-                        (
-                        {studentAssessments.length > 0
-                          ? `${Math.round(
-                              (gradeStats[grade] / studentAssessments.length) *
-                                100
-                            )}%`
-                          : "0%"}
-                        )
-                      </span>
-                    </div>
-                  ));
-                })()}
-              </div>
-
-              {/* Summary Stats */}
-              <div className="mt-4 flex flex-wrap gap-4 pt-3 border-t border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-gray-700">
-                    A Grades:{" "}
-                    <span className="font-bold text-emerald-600">
-                      {
-                        studentAssessments.filter((a: any) =>
-                          ["A+", "A", "A-"].includes(a.gradeInLetter || "F")
-                        ).length
-                      }
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-gray-700">
-                    B Grades:{" "}
-                    <span className="font-bold text-blue-600">
-                      {
-                        studentAssessments.filter((a: any) =>
-                          ["B+", "B", "B-"].includes(a.gradeInLetter || "F")
-                        ).length
-                      }
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-gray-700">
-                    F Grades:{" "}
-                    <span className="font-bold text-red-600">
-                      {
-                        studentAssessments.filter(
-                          (a: any) => a.gradeInLetter === "F"
-                        ).length
-                      }
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Decision Form */}
           <Card className="border-blue-100">
             <CardHeader>
@@ -647,10 +483,8 @@ export default function GradeReviewPage({
           </Card>
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex justify-between mt-6 pt-6 border-t border-gray-200">
-          <Button variant="outline" onClick={handleBack} disabled={loading}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+        <DialogFooter className="flex justify-between">
+          <Button variant="outline" onClick={handleClose} disabled={loading}>
             Cancel
           </Button>
           <Button
@@ -683,8 +517,8 @@ export default function GradeReviewPage({
               </>
             )}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

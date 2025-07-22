@@ -31,9 +31,13 @@ export function GradeApprovalStatsComponent({}: GradeApprovalStatsProps) {
   // Calculate stats from the actual data
   const stats = {
     totalRequests: requests.length,
-    pendingRequests: requests.filter((r) => r.status === "pending").length,
-    approvedRequests: requests.filter((r) => r.status === "approved").length,
+    pendingRequests: requests.filter((r) => r.status === "department_pending")
+      .length,
+    approvedRequests: requests.filter((r) => r.status === "department_approved")
+      .length,
   };
+
+  console.log("requests 1234.....", requests);
 
   if (loading) {
     return (

@@ -18,7 +18,7 @@ import {
   Filter,
 } from "lucide-react";
 import { GradeApprovalRequest } from "./types";
-import { useGradeApprovalRequests } from "@/lib/react-query/hooks/useAssessmentGroups";
+import { useAllAssessmentGroups, useGradeApprovalRequests } from "@/lib/react-query/hooks/useAssessmentGroups";
 import { getLocalStorage } from "@/utils/localStorage";
 
 interface GradeApprovalNotificationsProps {
@@ -28,18 +28,13 @@ interface GradeApprovalNotificationsProps {
 export function GradeApprovalNotifications({
   onViewRequest,
 }: GradeApprovalNotificationsProps) {
-  const departmentId = getLocalStorage("departmentId");
 
   const {
     data: requests = [],
     isLoading: loading,
     error,
-  } = useGradeApprovalRequests(
-    departmentId ? parseInt(departmentId.toString()) : undefined
-    );
-  
-  console.log("requests department", requests);
-  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "revision_requested">("all");
+  } = useAllAssessmentGroups();
+  const [filter, setFilter] = useState<"all" | "registrar_pending" | "registrar_approved" | "registrar_rejected" | "registrar_revision_requested">("all");
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -72,9 +67,9 @@ export function GradeApprovalNotifications({
   };
 
   const filteredRequests = requests.filter((request) => {
-    if (filter === "pending") return request.status === "department_pending";
-    if (filter === "approved") return request.status === "department_approved";
-    if (filter === "rejected") return request.status === "department_rejected";
+    if (filter === "registrar_pending") return request.status === "registrar_pending" || request.status === "department_approved";
+    if (filter === "registrar_approved") return request.status === "registrar_approved";
+    if (filter === "registrar_rejected") return request.status === "registrar_rejected";
     return true;
   });
 
@@ -166,30 +161,30 @@ export function GradeApprovalNotifications({
               All ({requests.length})
             </Button>
             <Button
-              variant={filter === "pending" ? "default" : "outline"}
+              variant={filter === "registrar_pending" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilter("pending")}
+              onClick={() => setFilter("registrar_pending")}
               className="text-xs"
             >
-              Pending ({requests.filter((r) => r.status === "department_pending").length})
+              Pending ({requests.filter((r) => r.status === "registrar_pending").length})
             </Button>
             <Button
-              variant={filter === "approved" ? "default" : "outline"}
+              variant={filter === "registrar_approved" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilter("approved")}
+              onClick={() => setFilter("registrar_approved")}
               className="text-xs"
             >
               <CheckCircle className="h-3 w-3 mr-1" />
-              Approved ({requests.filter((r) => r.status === "department_approved").length}
+              Approved ({requests.filter((r) => r.status === "registrar_approved").length}
               )
             </Button>
             <Button
-              variant={filter === "rejected" ? "default" : "outline"}
+              variant={filter === "registrar_rejected" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilter("rejected")}
+              onClick={() => setFilter("registrar_rejected")}
               className="text-xs"
             >
-              Rejected ({requests.filter((r) => r.status === "department_rejected").length}
+              Rejected ({requests.filter((r) => r.status === "registrar_rejected").length}
               )
             </Button>
           </div>
@@ -216,9 +211,9 @@ export function GradeApprovalNotifications({
                 <div
                   key={request.id}
                   className={`p-4 rounded-lg border transition-colors ${
-                    request.status === "department_pending"
+                    request.status === "registrar_pending"
                       ? "bg-red-50 border-red-200 hover:bg-red-100"
-                      : request.status === "department_approved"
+                      : request.status === "registrar_approved"
                       ? "bg-green-50 border-green-200 hover:bg-green-100"
                       : "bg-blue-50 border-blue-100 hover:bg-blue-100"
                   }`}
@@ -309,7 +304,7 @@ export function GradeApprovalNotifications({
                     </div>
 
                     {/* Action Button */}
-                    {(request.status === "department_pending" && <Button
+                    {((request.status === "registrar_pending" || request.status === "department_approved") && <Button
                       onClick={() => onViewRequest(request)}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                       size="sm"
