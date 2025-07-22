@@ -69,6 +69,11 @@ export const navigationItems = [
         icon: FileText,
         url: "/student/dashboard/grade-report",
       },
+       {
+        title: "Schedule",
+        icon: Calendar,
+        url: "/student/dashboard/viewSchedule",
+      },
        /* 
       {
         title: "Grades & Transcripts",
@@ -177,6 +182,15 @@ export const registrarNavigationItems = [
     title: "Communication",
     items: [
       { title: "Notice Board", icon: Bell, url: "/registrar/board" },
+      /*       { title: "Messaging", icon: Mail, url: "#" },
+      { title: "Parent/Student Portal", icon: Users, url: "#" },
+      { title: "Event Calendar", icon: Calendar, url: "#" }, */
+    ],
+  },
+  {
+    title: "Schedule",
+    items: [
+      { title: "Add Schedule", icon: Calendar, url: "/registrar/addSchedule" },
       /*       { title: "Messaging", icon: Mail, url: "#" },
       { title: "Parent/Student Portal", icon: Users, url: "#" },
       { title: "Event Calendar", icon: Calendar, url: "#" }, */

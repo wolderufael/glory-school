@@ -59,10 +59,12 @@ interface Department {
 
 interface Teacher {
   id: number
-  name: string
-  email: string
-  departmentId: number
-  department?: string
+  user: {
+    firstName: string
+    lastName:string
+    email: string
+  }
+ 
 }
 
 interface Section {
@@ -128,23 +130,8 @@ const AddMessage = () => {
     }
   }
 
-  // Fetch functions
-  // Mock data for demo/testing
-  const mockDepartments: Department[] = [
-    { id: 1, name: "Computer Science", code: "CS" },
-    { id: 2, name: "Mathematics", code: "MATH" },
-    { id: 3, name: "Physics", code: "PHYS" },
-  ];
-  const mockTeachers: Teacher[] = [
-    { id: 1, name: "Alice Smith", email: "alice@wsu.edu", departmentId: 1 },
-    { id: 2, name: "Bob Johnson", email: "bob@wsu.edu", departmentId: 2 },
-    { id: 3, name: "Carol Lee", email: "carol@wsu.edu", departmentId: 1 },
-  ];
-  const mockSections: Section[] = [
-    { id: 1, name: "CS101-A", grade: "1st Year", studentCount: 30 },
-    { id: 2, name: "MATH201-B", grade: "2nd Year", studentCount: 25 },
-    { id: 3, name: "PHYS301-C", grade: "3rd Year", studentCount: 20 },
-  ];
+ 
+
 
 //   async function fetchDepartments() {
 //     try {
@@ -173,9 +160,6 @@ const AddMessage = () => {
       setSectionList(data)
       setFilteredSections(data)
     } catch (e) {
-      // fallback to mock data
-      setSectionList(mockSections)
-      setFilteredSections(mockSections)
       console.error("Error fetching classes, using mock data:", e)
       toast("Error",{
         description: "Failed to fetch classes, using demo data.",
@@ -193,9 +177,6 @@ const AddMessage = () => {
       setTeacherList(data)
       setFilteredTeachers(data)
     } catch (e) {
-      // fallback to mock data
-      setTeacherList(mockTeachers)
-      setFilteredTeachers(mockTeachers)
       console.error("Error fetching teachers, using mock data:", e)
       toast("Error",{
         description: "Failed to fetch teachers, using demo data.",
@@ -217,14 +198,13 @@ const AddMessage = () => {
   useEffect(() => {
     if (targetType === "Teacher") {
       let filtered = teacherList
-      if (selectedDepartment) {
-        filtered = filtered.filter((teacher) => teacher.departmentId === selectedDepartment)
-      }
+     
       if (searchQuery) {
         filtered = filtered.filter(
           (teacher) =>
-            teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            teacher.email.toLowerCase().includes(searchQuery.toLowerCase()),
+            teacher.user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            teacher.user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            teacher.user.email.toLowerCase().includes(searchQuery.toLowerCase()),
         )
       }
       setFilteredTeachers(filtered)
@@ -514,8 +494,8 @@ const AddMessage = () => {
                       />
                       <Users className="w-4 h-4 text-gray-500" />
                       <div className="flex-1">
-                        <p className="font-medium">{teacher.name}</p>
-                        <p className="text-sm text-gray-500">{teacher.email}</p>
+                        <p className="font-medium">{teacher?.user?.firstName}</p>
+                        <p className="text-sm text-gray-500">{teacher?.user?.email}</p>
                       </div>
                     </div>
                   ))}
