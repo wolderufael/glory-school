@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { getLocalStorage } from "@/utils/localStorage";
 import { useEffect } from "react";
 
@@ -24,23 +25,6 @@ const Messages = ({ userInfo }: any) => {
 
  const { user } = useAuthStore();
  
- const MOCK_MESSAGES = [
-  {
-    id: 1,
-    title: "Semester Registration",
-    message: "Please complete your semester registration before July 25.",
-    deadline: "2025-07-25",
-    publishedAt: "2025-07-15",
-    isActive: true,
-    author: {
-      id: 1,
-      firstName: "Registrar",
-      lastName: "Office",
-      email: "registrar@example.com",
-    },
-  },
-];
-
 
 
   const [userId, setUserId] = React.useState(userInfo?.id);
@@ -65,6 +49,25 @@ const Messages = ({ userInfo }: any) => {
 
   const { data, isLoading, error } = useMessage({ userType, userId });
 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Determine if we're on the add message page
+  const isAddMessagePage = pathname?.includes("/message/addNew");
+
+  // Ref to SheetClose button
+  const sheetCloseRef = React.useRef<HTMLButtonElement>(null);
+  const handleAddMessage = () => {
+    // Close the sheet first
+    if (sheetCloseRef.current) {
+      sheetCloseRef.current.click();
+    }
+    // Navigate after closing
+    setTimeout(() => {
+      router.push(`/${userType?.toLowerCase()}/message/addNew`);
+    }, 100); // slight delay to allow sheet to close
+  };
+
   return (
     <SheetContent className="sm:max-w-[500px] w-1/2 px-6 pr-5 mx-4">
       <SheetHeader>
@@ -72,19 +75,24 @@ const Messages = ({ userInfo }: any) => {
         <SheetDescription>
           Notices and updates for you <strong>({userType ?? "Guest"})</strong>.
         </SheetDescription>
-        { userType != 'Student' ? ( 
-           <div className="flex p-3 justify-end">
-           <Link href={`/${userType?.toLowerCase()}/message/addNew`}>
-            <Button variant="outline" size="sm" className="mb-2">
+        {/* Only show Add Message button if not on add message page and not student */}
+        {userType !== "Student" && !isAddMessagePage && (
+          <div className="flex p-3 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="mb-2"
+              onClick={handleAddMessage}
+              id="add-message-btn"
+            >
               Add Message
-            </Button> 
-            </Link>
+            </Button>
+            {/* SheetClose button for programmatic close */}
+            <SheetClose asChild>
+              <button ref={sheetCloseRef} style={{ display: "none" }} type="button" />
+            </SheetClose>
           </div>
-        )
-         : null
-        }
-       
-          
+        )}
       </SheetHeader>
 
       <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto">
