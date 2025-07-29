@@ -7,17 +7,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useAssignTeacher } from "@/lib/react-query/mutations/useAssignTeacher";
+import {
+  useAssignTeacher,
+  useReAssignTeacher,
+} from "@/lib/react-query/mutations/useAssignTeacher";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import TeacherSelect from "./TeacherSelect";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { TeachingAssignment } from "@/types/assessment";
 
 interface AssignmentConfirmDialogProps {
   isOpen: boolean;
+  reAssign?: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  onReAssignSuccess?: () => void;
   courseTitle: string;
   courseId: string;
   departmentId: string;
@@ -25,17 +31,20 @@ interface AssignmentConfirmDialogProps {
   levelId: string;
   academicSemesterId: string;
   academicYearId: string;
+  teachingAssignment: TeachingAssignment | null;
 }
 
-interface SelectedTeacher {
+export interface SelectedTeacher {
   id: string;
   fullName: string;
 }
 
 export function AssignmentConfirmDialog({
   isOpen,
+  reAssign,
   onClose,
   onSuccess,
+  onReAssignSuccess,
   courseTitle,
   courseId,
   departmentId,
@@ -43,10 +52,16 @@ export function AssignmentConfirmDialog({
   levelId,
   academicSemesterId,
   academicYearId,
+  teachingAssignment,
 }: AssignmentConfirmDialogProps) {
   const [selectedTeacher, setSelectedTeacher] =
     useState<SelectedTeacher | null>(null);
   const { mutate: assignTeacher, isPending, isSuccess } = useAssignTeacher();
+  const {
+    mutate: reAssignTeacher,
+    isPending: isReAssignPending,
+    isSuccess: isReAssignSuccess,
+  } = useReAssignTeacher();
 
   // Reset selected teacher when dialog opens/closes
   useEffect(() => {
@@ -57,14 +72,15 @@ export function AssignmentConfirmDialog({
 
   // Close dialog on successful assignment
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess || isReAssignSuccess) {
       handleClose();
       // Call onSuccess callback if provided
-      if (onSuccess) {
-        onSuccess();
+      if (onSuccess || onReAssignSuccess) {
+        onSuccess && onSuccess();
+        onReAssignSuccess && onReAssignSuccess();
       }
     }
-  }, [isSuccess, onSuccess]);
+  }, [isSuccess, isReAssignSuccess, onSuccess]);
 
   const handleTeacherSelect = (teacherId: string, fullName: string) => {
     setSelectedTeacher({ id: teacherId, fullName });
@@ -76,15 +92,24 @@ export function AssignmentConfirmDialog({
       return;
     }
 
-    assignTeacher({
-      courseId: parseInt(courseId),
-      teacherId: parseInt(selectedTeacher.id),
-      departmentId: parseInt(departmentId),
-      sectionId: parseInt(sectionId),
-      level: levelId,
-      academicSemesterId: parseInt(academicSemesterId),
-      academicYearId: parseInt(academicYearId),
-    });
+    if (reAssign) {
+      console.log("reAssign", teachingAssignment?.id, selectedTeacher.id);
+      reAssignTeacher({
+        teachingAssignmentId: teachingAssignment?.id || 0,
+        teacherId: selectedTeacher.id,
+      });
+      handleClose();
+    } else {
+      assignTeacher({
+        courseId: parseInt(courseId),
+        teacherId: parseInt(selectedTeacher.id),
+        departmentId: parseInt(departmentId),
+        sectionId: parseInt(sectionId),
+        level: levelId,
+        academicSemesterId: parseInt(academicSemesterId),
+        academicYearId: parseInt(academicYearId),
+      });
+    }
   };
 
   const handleClose = () => {
@@ -151,7 +176,11 @@ export function AssignmentConfirmDialog({
             disabled={isPending || !selectedTeacher}
             className={!selectedTeacher ? "opacity-50 cursor-not-allowed" : ""}
           >
-            {isPending ? "Assigning..." : "Assign Teacher"}
+            {isPending || isReAssignPending
+              ? "Assigning..."
+              : reAssign
+              ? "Re-Assign Teacher"
+              : "Assign Teacher"}
           </Button>
         </DialogFooter>
       </DialogContent>

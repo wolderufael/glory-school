@@ -25,7 +25,14 @@ interface CreateRegradeRequest {
 // Interface for updating re-grade status
 interface UpdateRegradeStatusRequest {
   id: number;
-  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeStatus:
+    | "REGRADE_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
 }
 
 // Create new re-grade request
@@ -39,7 +46,7 @@ const createRegradeRequest = async (
     },
     body: JSON.stringify({
       ...data,
-      regradeStatus: "APPROVAL_REQUESTED", // Default status for new requests
+      regradeStatus: "DEPARTMENT_REQUESTED", // Default status for new requests
     }),
   });
 
@@ -93,7 +100,7 @@ export const useCreateRegradeRequest = () => {
         queryKey: ["regradeRequests"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["teachingAssessment", variables.teachingAssignmentId],
+        queryKey: ["teachingAssignment", variables.teachingAssignmentId],
       });
       queryClient.invalidateQueries({
         queryKey: ["studentAssessment", variables.studentId],
@@ -128,9 +135,13 @@ export const useUpdateRegradeStatus = () => {
 
       // Show status-specific success messages
       const statusMessages = {
-        APPROVAL_REQUESTED: "Re-grade request submitted for review",
+        REGRADE_REQUESTED: "Re-grade request submitted for review",
+        DEPARTMENT_UNDER_REVIEW: "Re-grade request approved by teacher",
+        DEPARTMENT_APPROVED: "Re-grade request approved by department",
+        DEPARTMENT_REJECTED: "Re-grade request rejected by department",
+        REGISTRAR_UNDER_REVIEW: "Re-grade request submitted for review",
+        REGISTRAR_REJECTED: "Re-grade request rejected by registrar",
         APPROVED: "Re-grade request approved successfully",
-        REJECTED: "Re-grade request has been rejected",
       };
 
       toast.success(
@@ -146,7 +157,7 @@ export const useUpdateRegradeStatus = () => {
 };
 
 // Hook for bulk status updates (useful for registrar dashboard)
-export const useBulkUpdateRegradeStatus = () => {
+/* export const useBulkUpdateRegradeStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -189,4 +200,4 @@ export const useBulkUpdateRegradeStatus = () => {
       toast.error(error.message || "Failed to update re-grade statuses");
     },
   });
-};
+}; */

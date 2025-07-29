@@ -4,8 +4,9 @@ import { useCourses } from "@/lib/react-query/hooks/useCourses";
 import { cn } from "@/lib/utils";
 import { Course } from "@/lib/react-query/queries/getCourses";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AssignmentConfirmDialog } from "./AssignmentConfirmDialog";
+import { TeachingAssignment } from "@/types/assessment";
 
 interface CourseListProps {
   departmentId: string;
@@ -27,7 +28,10 @@ export default function CourseList({
   onCourseSelect,
 }: CourseListProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<TeachingAssignment | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [reAssign, setReAssign] = useState(false);
   console.log(
     "CourseList",
     departmentId,
@@ -41,12 +45,52 @@ export default function CourseList({
     error,
     refetch,
   } = useCourses({ departmentId, levelId, sectionId, academicSemesterId });
+  console.log("courses", courses);
+  useEffect(() => {
+    async function getTeachingAssignmentByCourse(
+      courseId: number | undefined
+    ): Promise<TeachingAssignment> {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/teaching-assignments/by-course/${courseId}`
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch teaching assignment by course");
+        }
+
+        const data = await res.json();
+        return data[0];
+      } catch (error) {
+        console.error("Error fetching teaching assignment by course:", error);
+        throw new Error("Failed to fetch teaching assignment by course");
+      }
+    }
+
+    const fetchTeachingAssignment = async () => {
+      if (selectedCourse?.id) {
+        try {
+          const teachingAssignment = await getTeachingAssignmentByCourse(
+            selectedCourse.id
+          );
+          console.log("teachingAssignment", teachingAssignment);
+          setSelectedAssignment(teachingAssignment);
+        } catch (error) {
+          console.error("Error setting teaching assignment:", error);
+          setSelectedAssignment(null);
+        }
+      }
+    };
+
+    fetchTeachingAssignment();
+  }, [selectedCourse]);
 
   const handleAssignmentSuccess = () => {
     // Refetch the courses data to get updated assignment status
     refetch();
     setDialogOpen(false);
     setSelectedCourse(null);
+    setSelectedAssignment(null);
   };
 
   if (!levelId || !sectionId) {
@@ -121,8 +165,8 @@ export default function CourseList({
                       {course.courseCode}
                     </p>
                     <div className="mt-2 flex items-center justify-center pt-2 border-t border-gray-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center w-full">
+                        <div className="flex items-center gap-2 flex-1">
                           <span
                             className={cn(
                               "px-2 py-1 rounded-full text-sm",
@@ -142,18 +186,34 @@ export default function CourseList({
                             </>
                           )}
                         </div>
-                        {!course.assigned && (
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCourse(course);
-                              setDialogOpen(true);
-                            }}
-                          >
-                            Assign
-                          </Button>
-                        )}
+                        <div className="flex justify-end">
+                          {!course.assigned && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCourse(course);
+                                setReAssign(false);
+                                setDialogOpen(true);
+                              }}
+                            >
+                              Assign
+                            </Button>
+                          )}
+                          {course.assigned && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCourse(course);
+                                setReAssign(true);
+                                setDialogOpen(true);
+                              }}
+                            >
+                              Re-Assign
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -168,14 +228,17 @@ export default function CourseList({
         </CardContent>
       </Card>
 
-      {selectedCourse && (
+      {selectedCourse &&  (
         <AssignmentConfirmDialog
           isOpen={dialogOpen}
+          reAssign={reAssign}
           onClose={() => {
             setDialogOpen(false);
             setSelectedCourse(null);
+            setReAssign(false);
           }}
           onSuccess={handleAssignmentSuccess}
+          onReAssignSuccess={handleAssignmentSuccess}
           courseTitle={selectedCourse.title}
           courseId={selectedCourse.id.toString()}
           departmentId={departmentId}
@@ -183,6 +246,7 @@ export default function CourseList({
           levelId={levelId}
           academicSemesterId={academicSemesterId}
           academicYearId={academicYearId}
+          teachingAssignment={selectedAssignment}
         />
       )}
     </>

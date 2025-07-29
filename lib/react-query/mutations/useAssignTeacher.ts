@@ -12,6 +12,11 @@ interface AssignTeacherData {
   academicSemesterId: number;
 }
 
+interface UpdateTeachingAssignment{
+  teachingAssignmentId: number;
+  teacherId: string;
+}
+
 export const useAssignTeacher = () => {
   const queryClient = useQueryClient();
   console.log("queryClient", queryClient);
@@ -44,6 +49,38 @@ export const useAssignTeacher = () => {
       toast.error("Error", {
         description:
           error.message || "Failed to assign teacher. Please try again.",
+      });
+    },
+  });
+};
+export const useReAssignTeacher = () => {
+  const queryClient = useQueryClient();
+  console.log("queryClient", queryClient);
+
+  return useMutation({
+    mutationFn: async (data: UpdateTeachingAssignment) => {
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/teaching-assignments/${data.teachingAssignmentId}`,
+        {
+          teacherId: Number(data.teacherId),
+        }
+      );
+      return response.data;
+    },
+    onSuccess: (_, id) => {
+      // Invalidate relevant queries to refetch the updated data
+      queryClient.invalidateQueries({
+        queryKey: ["courses", id],
+      });
+
+      toast.success("Success", {
+        description: "Teacher has been re-assigned successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast.error("Error", {
+        description:
+          error.message || "Failed to re-assign teacher. Please try again.",
       });
     },
   });

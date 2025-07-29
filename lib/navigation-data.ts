@@ -69,12 +69,17 @@ export const navigationItems = [
         icon: FileText,
         url: "/student/dashboard/grade-report",
       },
-       {
+      {
+        title: "Certificate",
+        icon: FileText,
+        url: "/student/dashboard/certificate",
+      },
+      {
         title: "Schedule",
         icon: Calendar,
         url: "/student/dashboard/viewSchedule",
       },
-       /* 
+      /* 
       {
         title: "Grades & Transcripts",
         icon: Award,
@@ -244,8 +249,13 @@ export const departmentNavigationItems = [
         icon: CheckCircle,
         url: "/department/grade-approval",
       },
+      {
+        title: "Re-Grade",
+        icon: CheckCircle,
+        url: "/department/regrade-department",
+      },
 
-    /*   {
+      /*   {
         title: "Section Assignment",
         icon: Calendar,
         url: "/department/section-assignment",

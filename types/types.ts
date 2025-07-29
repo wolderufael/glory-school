@@ -253,6 +253,7 @@ export interface Assessment {
   comment?: string;
   createdAt: Date;
   updatedAt: Date;
+  assessmentGroupId: number;
   assessmentGroup?: AssessmentGroup;
   teachingAssignment: {
     id: number;
@@ -268,7 +269,15 @@ export interface Assessment {
 
 export interface RegradeAssesmentResponse {
   id: number;
-  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  //regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeStatus:
+    | "REGRADE_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
   regradeReason: string;
   teachingAssignmentId: number;
   studentId: number;
@@ -285,8 +294,11 @@ export interface RegradeAssesmentResponse {
   totalMark?: number;
   gradeInLetter?: string;
   comment?: string;
-  student: Student;
-  user: User;
+  assessmentGroupId: number;
+  student: {
+    student: Student;
+    user: User;
+  };
   originalGrade: Partial<Assessment>;
   teachingAssignment: {
     id: number;
@@ -333,9 +345,18 @@ export interface RegradeAssesmentResponse {
 }
 export interface RegradeAssesment {
   id: number;
-  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  //regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeStatus:
+    | "REGRADE_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
   regradeReason: string;
   teachingAssignmentId: number;
+  assessmentGroupId: number;
   studentId: number;
   practical1?: number | null;
   practical2?: number | null;
@@ -355,7 +376,14 @@ export interface RegradeAssesment {
 export interface RegradeRequest {
   id: number;
   student: Student;
-  regradeStatus: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+  regradeStatus:
+    | "REGRADE_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
   regradeReason: string;
   originalGrade: Assessment;
   requestedGrade: Assessment;

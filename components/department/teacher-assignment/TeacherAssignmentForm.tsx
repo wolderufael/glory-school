@@ -189,7 +189,7 @@ const SECTIONS = [
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-2 text-gray-800">
                       <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                        Available Courses
+                        Available Courses 
                       </span>
                     </CardTitle>
                     <CardDescription className="text-gray-600">

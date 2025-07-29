@@ -1,50 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { RegradeAssesment, Assessment } from "@/types/types";
-import { toast } from "sonner";
-
-
-
-const mockAssessment = {
-  id: 30,
-  teachingAssignmentId: 30,
-  studentId: 4,
-  assessmentGroup: {
-    id: 30,
-    name: "Assessment for Section1 - Level II",
-    status: "SUBMISSION_REQUESTED",
-    level: "II",
-    departmentId: 1,
-    teachingAssignmentId: 30,
-    sectionId: 29,
-    createdAt: "2025-07-20T19:05:31.191Z",
-    updatedAt: "2025-07-20T19:41:10.599Z",
-  },
-  practical1: 30,
-  practical2: 20,
-  practical3: 20,
-  practical1Type: "Practical 1",
-  practical2Type: "Practical 2",
-  practical3Type: "Practical 3",
-  totalPractical: 70,
-  practicalStatus: "OK",
-  theory: 20,
-  theoryStatus: "OK",
-  totalMark: 90,
-  gradeInLetter: "A-",
-  comment: "",
-  createdAt: new Date("2024-01-15T10:30:00.000Z"),
-  updatedAt: new Date("2024-01-15T14:20:00.000Z"),
-  teachingAssignment: {
-    id: 30,
-    teacherId: 3,
-    sectionId: 29,
-    courseId: 11,
-    academicSemesterId: 2,
-    academicYearId: 1,
-    level: "II",
-    departmentId: 1,
-  },
-};
 
 const getRegrade = async (
   courseCode: string,
@@ -63,12 +18,17 @@ const getRegrade = async (
   return res.json();
 };
 
-export const useFetchRegrade = (courseCode: string, mainId: string, teacherId: string) => {
+export const useFetchRegrade = (
+  courseCode: string,
+  mainId: string,
+  teacherId: string
+) => {
   return useQuery({
     queryKey: ["regrade", courseCode, mainId, teacherId],
     queryFn: () => getRegrade(courseCode, mainId, teacherId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
+    
     enabled: Boolean(courseCode && mainId),
   });
 };
@@ -76,6 +36,11 @@ export const useFetchRegrade = (courseCode: string, mainId: string, teacherId: s
 // Interface for re-grade request filters
 interface RegradeFilters {
   status?: "APPROVAL_REQUESTED" | "APPROVED" | "REJECTED";
+/*   status?:
+    | "DEPARTMENT_REQUESTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED"; */
   studentId?: number;
   teacherId?: number;
   departmentId?: number;
@@ -127,12 +92,9 @@ const fetchRegradeRequests = async (
 };
 
 const fetchAllRegradeRequests = async (): Promise<RegradeAssesment[]> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/regrade`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/regrade`, {
+    method: "GET",
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch regrade requests");
