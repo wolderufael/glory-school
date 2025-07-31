@@ -19,7 +19,7 @@ import {
   FileText,
   GraduationCap,
 } from "lucide-react";
-import { useRegradeRequests,useAllRegradeRequests } from "@/lib/react-query/hooks/useRegrade";
+import { useRegradeRequests,useAllRegradeRequests, useTeacherRegradeRequests } from "@/lib/react-query/hooks/useRegrade";
 import { RegradeAssesmentResponse } from "@/types/types";
 import ReGradeDetailPage from "./re-grade-detail-page";
 
@@ -37,9 +37,16 @@ type ReGradeStatus =
   | "APPROVED";
 
 export default function ReGradeReview() {
-  // Use mock data with frontend filtering
-  const { data: allRequests, isLoading, error } = useAllRegradeRequests();
- 
+
+  //const { data: allRequests, isLoading, error } = useAllRegradeRequests();
+
+  /* TODO: Change to useAllRegradeRequests */
+  const teacherId = 2;
+  const {
+    data: allRequests,
+    isLoading,
+    error,
+  } = useTeacherRegradeRequests(Number(teacherId));
 
   const [filter, setFilter] = useState<ReGradeStatus>("all");
   const [selectedRequest, setSelectedRequest] =
@@ -143,9 +150,8 @@ export default function ReGradeReview() {
       REGISTRAR_UNDER_REVIEW: allRequests?.filter(
         (r) => r.regradeStatus === "REGISTRAR_UNDER_REVIEW"
       ).length,
-      APPROVED: allRequests?.filter(
-        (r) => r.regradeStatus === "APPROVED"
-      ).length,
+      APPROVED: allRequests?.filter((r) => r.regradeStatus === "APPROVED")
+        .length,
       REGISTRAR_REJECTED: allRequests?.filter(
         (r) => r.regradeStatus === "REGISTRAR_REJECTED"
       ).length,
@@ -215,7 +221,9 @@ export default function ReGradeReview() {
                 Approved ({statusCounts.APPROVED})
               </Button>
               <Button
-                variant={filter === "REGISTRAR_REJECTED" ? "default" : "outline"}
+                variant={
+                  filter === "REGISTRAR_REJECTED" ? "default" : "outline"
+                }
                 size="sm"
                 onClick={() => setFilter("REGISTRAR_REJECTED")}
                 className="text-xs bg-red-600 hover:bg-red-700"
@@ -274,7 +282,8 @@ export default function ReGradeReview() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <h4 className="font-medium text-purple-900">
-                              {request.student.user.firstName} {request.student.user.lastName}
+                              {request.student.user.firstName}{" "}
+                              {request.student.user.lastName}
                             </h4>
                             <Badge variant="outline" className="text-xs">
                               <GraduationCap className="h-3 w-3 mr-1" />
@@ -330,7 +339,7 @@ export default function ReGradeReview() {
                             <span className="flex items-center gap-1">
                               Grade Change:
                               <Badge variant="outline" className="mx-1 text-xs">
-                                {request.originalGrade.gradeInLetter}
+                                {request.originalGrade?.gradeInLetter}
                               </Badge>
                               →
                               <Badge variant="outline" className="mx-1 text-xs">
@@ -413,9 +422,9 @@ export default function ReGradeReview() {
                           className="text-purple-600 border-purple-300 hover:bg-purple-50"
                         >
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
+                          Review
                         </Button>
-                        {request.regradeStatus === "REGISTRAR_UNDER_REVIEW" && (
+                {/*         {request.regradeStatus === "REGISTRAR_UNDER_REVIEW" && (
                           <Button
                             size="sm"
                             onClick={() => handleViewRequest(request)}
@@ -424,7 +433,7 @@ export default function ReGradeReview() {
                             <FileText className="h-4 w-4 mr-2" />
                             Review
                           </Button>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>
