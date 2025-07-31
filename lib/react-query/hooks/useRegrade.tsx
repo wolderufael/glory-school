@@ -106,8 +106,8 @@ const fetchAllRegradeRequestsByTeacher = async (teacherId: number): Promise<Regr
   return response.json();
 };
 
-const fetchAllRegradeRequests = async (): Promise<RegradeAssesment[]> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/regrade`, {
+const fetchAllRegradeRequests = async (): Promise<RegradeAssesmentResponse[]> => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests`, {
     method: "GET",
   });
 

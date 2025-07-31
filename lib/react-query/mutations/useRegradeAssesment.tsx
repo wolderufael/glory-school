@@ -34,6 +34,7 @@ interface UpdateRegradeStatusRequest {
     | "REGISTRAR_UNDER_REVIEW"
     | "REGISTRAR_REJECTED"
     | "APPROVED";
+  regradeReason?: string;
 }
 
 // Create new re-grade request
@@ -68,6 +69,7 @@ const createRegradeRequest = async (
 const updateRegradeStatus = async ({
   id,
   regradeStatus,
+  regradeReason,
 }: UpdateRegradeStatusRequest): Promise<RegradeAssesment> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests/${id}`,
@@ -78,6 +80,7 @@ const updateRegradeStatus = async ({
       },
       body: JSON.stringify({
         regradeStatus,
+        regradeReason,
       }),
     }
   );

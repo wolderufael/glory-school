@@ -54,6 +54,13 @@ export default function RegradeDeptRequest() {
   const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
   const [regradeReason, setRegradeReason] = useState<string>("");
 
+  // Client-side rendering state to prevent hydration mismatch
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Check if both fields are filled
   const canSearch = studentId.trim() !== "" && courseCode.trim() !== "";
 
@@ -456,12 +463,12 @@ export default function RegradeDeptRequest() {
                     onChange={(e) => handleTeacherSearchInput(e.target.value)}
                     className="pl-10 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                   />
-                  {isTeachersLoading && (
+                  {isClient && isTeachersLoading && (
                     <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
                   )}
 
                   {/* Error Display */}
-                  {teachersError && (
+                  {isClient && teachersError && (
                     <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg p-4 z-10">
                       <p className="text-sm text-red-500 text-center">
                         Error loading teachers
@@ -470,7 +477,8 @@ export default function RegradeDeptRequest() {
                   )}
 
                   {/* Dropdown Results */}
-                  {!isTeachersLoading &&
+                  {isClient &&
+                    !isTeachersLoading &&
                     !selectedTeacher &&
                     showTeacherDropdown &&
                     filteredTeachers.length > 0 && (
@@ -495,7 +503,8 @@ export default function RegradeDeptRequest() {
                     )}
 
                   {/* No Results */}
-                  {!isTeachersLoading &&
+                  {isClient &&
+                    !isTeachersLoading &&
                     teacherSearchQuery &&
                     filteredTeachers.length === 0 &&
                     !selectedTeacher && (
@@ -579,7 +588,7 @@ export default function RegradeDeptRequest() {
         </Card>
 
         {/* Assessment Results */}
-        {searchTriggered && (
+        {currentAssessment && (
           <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
               <CardTitle className="flex items-center space-x-2">

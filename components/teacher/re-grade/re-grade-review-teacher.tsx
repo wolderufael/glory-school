@@ -234,11 +234,11 @@ export default function ReGradeReview() {
                   filter === "DEPARTMENT_APPROVED" ? "default" : "outline"
                 }
                 size="sm"
-                onClick={() => setFilter("DEPARTMENT_APPROVED")}
+                onClick={() => setFilter("DEPARTMENT_UNDER_REVIEW")}
                 className="text-xs bg-green-600 hover:bg-green-700"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
-                Approved ({statusCounts.DEPARTMENT_APPROVED})
+                Approved ({statusCounts.DEPARTMENT_UNDER_REVIEW})
               </Button>
               <Button
                 variant={

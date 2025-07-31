@@ -51,8 +51,8 @@ export default function ReGradeDetailPage({
 
     updateRegradeStatus.mutate({
       id: request.id,
-      regradeStatus: decision === "approve" ? "APPROVED" : "REJECTED",
-      //regradeReason: decision === "reject" ? rejectionReason : "Request approved",
+      regradeStatus: decision === "approve" ? "REGISTRAR_UNDER_REVIEW" : "DEPARTMENT_REJECTED",
+      regradeReason: decision === "reject" ? rejectionReason : "Regrade request approved by department",
     });
 
     resetForm();
@@ -136,9 +136,9 @@ export default function ReGradeDetailPage({
             <Badge
               className={`
                 ${
-                  request.regradeStatus === "DEPARTMENT_REQUESTED"
+                  request.regradeStatus === "DEPARTMENT_UNDER_REVIEW"
                     ? "bg-orange-100 text-orange-800 border-orange-200"
-                    : request.regradeStatus === "APPROVED"
+                    : request.regradeStatus === "DEPARTMENT_APPROVED"
                     ? "bg-green-100 text-green-800 border-green-200"
                     : "bg-red-100 text-red-800 border-red-200"
                 }
@@ -167,15 +167,15 @@ export default function ReGradeDetailPage({
                   <p className="text-sm text-gray-600">Student</p>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-medium">
-                      {request.user.firstName.charAt(0)}
-                      {request.user.lastName.charAt(0)}
+                      {request.student.user.firstName.charAt(0)}
+                      {request.student.user.lastName.charAt(0)}
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {request.user.firstName} {request.user.lastName}
+                        {request.student.user.firstName} {request.student.user.lastName}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {request.user.studentId}
+                        {request.student.user.studentId}
                       </p>
                     </div>
                   </div>
@@ -209,7 +209,7 @@ export default function ReGradeDetailPage({
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">Department</p>
                   <p className="font-medium text-gray-900">
-                    {request.user.department}
+                    {request.student.user.department}
                   </p>
                 </div>
 
@@ -252,26 +252,26 @@ export default function ReGradeDetailPage({
                       <span className="text-sm text-red-700">Final Grade:</span>
                       <Badge
                         className={`font-bold ${getGradeColor(
-                          request.originalGrade.gradeInLetter || ""
+                          request.originalGrade?.gradeInLetter || ""
                         )}`}
                       >
-                        {request.originalGrade.gradeInLetter}
+                        {request.originalGrade?.gradeInLetter}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-red-700">Total Mark:</span>
                       <span className="font-medium">
-                        {request.originalGrade.totalMark}/100
+                        {request.originalGrade?.totalMark}/100
                       </span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-red-700">Practical:</span>
-                        <span>{request.originalGrade.totalPractical}/70</span>
+                        <span>{request.originalGrade?.totalPractical}/70</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-red-700">Theory:</span>
-                        <span>{request.originalGrade.theory}/30</span>
+                        <span>{request.originalGrade?.theory}/30</span>
                       </div>
                     </div>
                   </div>
@@ -327,41 +327,41 @@ export default function ReGradeDetailPage({
                   <div>
                     <span className="text-blue-700">Grade Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade.gradeInLetter} →{" "}
+                      {request.originalGrade?.gradeInLetter} →{" "}
                       {request.gradeInLetter}
                     </span>
                   </div>
                   <div>
                     <span className="text-blue-700">Mark Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade.totalMark} → {request.totalMark}
+                      {request.originalGrade?.totalMark} → {request.totalMark}
                       <span
                         className={`ml-1 ${
                           request.totalMark! -
-                            request.originalGrade.totalMark! >
+                            request.originalGrade?.totalMark! >
                           0
                             ? "text-green-600"
                             : "text-red-600"
                         }`}
                       >
                         (
-                        {request.totalMark! - request.originalGrade.totalMark! >
+                        {request.totalMark! - request.originalGrade?.totalMark! >
                         0
                           ? "+"
                           : ""}
-                        {request.totalMark! - request.originalGrade.totalMark!})
+                        {request.totalMark! - request.originalGrade?.totalMark!})
                       </span>
                     </span>
                   </div>
                   <div>
                     <span className="text-blue-700">Practical Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade.totalPractical} →{" "}
+                      {request.originalGrade?.totalPractical} →{" "}
                       {request.totalPractical}
                       <span
                         className={`ml-1 ${
                           request.totalPractical! -
-                            request.originalGrade.totalPractical! >
+                            request.originalGrade?.totalPractical! >
                           0
                             ? "text-green-600"
                             : "text-red-600"
@@ -369,12 +369,12 @@ export default function ReGradeDetailPage({
                       >
                         (
                         {request.totalPractical! -
-                          request.originalGrade.totalPractical! >
+                          request.originalGrade?.totalPractical! >
                         0
                           ? "+"
                           : ""}
                         {request.totalPractical! -
-                          request.originalGrade.totalPractical!}
+                          request.originalGrade?.totalPractical!}
                         )
                       </span>
                     </span>
@@ -415,12 +415,12 @@ export default function ReGradeDetailPage({
           </Card>
 
           {/* Decision Section - Only show if status is APPROVAL_REQUESTED */}
-          {request.regradeStatus === "DEPARTMENT_REQUESTED" && (
+          {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
             <Card className="border-blue-100">
               <CardHeader>
                 <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
                   <CheckCircle className="h-5 w-5" />
-                  Registrar Decision
+                  Department Decision
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -483,7 +483,7 @@ export default function ReGradeDetailPage({
         </div>
 
         {/* Footer Actions - Only show if status is APPROVAL_REQUESTED */}
-        {request.regradeStatus === "DEPARTMENT_REQUESTED" && (
+        {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
           <div className="flex justify-between mt-6 pt-6 border-t border-gray-200">
             <Button variant="outline" onClick={handleBack} disabled={loading}>
               <ArrowLeft className="h-4 w-4 mr-2" />

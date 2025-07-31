@@ -19,12 +19,16 @@ import {
   FileText,
   GraduationCap,
 } from "lucide-react";
-import { useRegradeRequests } from "@/lib/react-query/hooks/useRegrade";
+import {
+  useRegradeRequests,
+  useTeacherRegradeRequests,
+} from "@/lib/react-query/hooks/useRegrade";
 import { RegradeAssesmentResponse } from "@/types/types";
 import ReGradeDetailPage from "./re-grade-detail-page";
+import { getLocalStorage } from "@/utils/localStorage";
 
 // Mock data in RegradeAssesmentResponse format
-const mockReGradeRequests: RegradeAssesmentResponse[] = [
+/* const mockReGradeRequests: RegradeAssesmentResponse[] = [
   {
     id: 1,
     regradeStatus: "DEPARTMENT_REQUESTED",
@@ -390,20 +394,29 @@ const mockReGradeRequests: RegradeAssesmentResponse[] = [
       },
     },
   },
-];
+]; */
 
 type ReGradeStatus =
   | "all"
-  | "DEPARTMENT_REQUESTED"
+  | "REGRADE_REQUESTED"
+  | "DEPARTMENT_UNDER_REVIEW"
+  | "DEPARTMENT_APPROVED"
+  | "DEPARTMENT_REJECTED"
   | "REGISTRAR_UNDER_REVIEW"
   | "REGISTRAR_REJECTED"
   | "APPROVED";
 
 export default function ReGradeReview() {
   // Use mock data with frontend filtering
-  const allRequests = mockReGradeRequests;
-  const isLoading = false;
-  const error = null;
+  const departmentId = getLocalStorage("departmentId") || 0;
+
+  /* TODO: Change to useDepartmentRegradeRequests */
+  const teacherId = 2;
+  const {
+    data: allRequests,
+    isLoading,
+    error,
+  } = useTeacherRegradeRequests(Number(teacherId));
 
   const [filter, setFilter] = useState<ReGradeStatus>("all");
   const [selectedRequest, setSelectedRequest] =
@@ -411,18 +424,19 @@ export default function ReGradeReview() {
   const [showDetailPage, setShowDetailPage] = useState(false);
 
   // Frontend filtering
-  const requests = allRequests.filter((request: RegradeAssesmentResponse) => {
+  const requests = allRequests?.filter((request: RegradeAssesmentResponse) => {
     if (filter === "all") return true;
     return request.regradeStatus === filter;
   });
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "DEPARTMENT_REQUESTED":
+      case "DEPARTMENT_UNDER_REVIEW":
         return <Clock className="h-4 w-4 text-orange-500" />;
-      case "APPROVED":
+      case "DEPARTMENT_APPROVED":
+      case "REGISTRAR_UNDER_REVIEW":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "REGISTRAR_REJECTED":
+      case "DEPARTMENT_REJECTED":
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
@@ -431,11 +445,12 @@ export default function ReGradeReview() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "DEPARTMENT_REQUESTED":
+      case "DEPARTMENT_UNDER_REVIEW":
         return "bg-orange-100 text-orange-800 border-orange-200";
-      case "APPROVED":
+      case "DEPARTMENT_APPROVED":
+      case "REGISTRAR_UNDER_REVIEW":
         return "bg-green-100 text-green-800 border-green-200";
-      case "REGISTRAR_REJECTED":
+      case "DEPARTMENT_REJECTED":
         return "bg-red-100 text-red-800 border-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -444,18 +459,19 @@ export default function ReGradeReview() {
 
   const getCardBorderColor = (status: string) => {
     switch (status) {
-      case "DEPARTMENT_REQUESTED":
+      case "DEPARTMENT_UNDER_REVIEW":
         return "border-orange-200 bg-orange-50 hover:bg-orange-100";
-      case "APPROVED":
+      case "DEPARTMENT_APPROVED":
+      case "REGISTRAR_UNDER_REVIEW":
         return "border-green-200 bg-green-50 hover:bg-green-100";
-      case "REGISTRAR_REJECTED":
+      case "DEPARTMENT_REJECTED":
         return "border-red-200 bg-red-50 hover:bg-red-100";
       default:
         return "border-gray-200 bg-gray-50 hover:bg-gray-100";
     }
   };
 
-  const filteredRequests = mockReGradeRequests.filter((request) => {
+  const filteredRequests = allRequests?.filter((request) => {
     if (filter === "all") return true;
     return request.regradeStatus === filter;
   });
@@ -503,15 +519,17 @@ export default function ReGradeReview() {
 
   const getStatusCounts = () => {
     return {
-      all: mockReGradeRequests.length,
-      DEPARTMENT_REQUESTED: mockReGradeRequests.filter(
-        (r) => r.regradeStatus === "DEPARTMENT_REQUESTED"
+      all: allRequests?.length,
+      DEPARTMENT_PENDING: allRequests?.filter(
+        (r) => r.regradeStatus === "DEPARTMENT_UNDER_REVIEW"
       ).length,
-      APPROVED: mockReGradeRequests.filter(
-        (r) => r.regradeStatus === "APPROVED"
+      DEPARTMENT_APPROVED: allRequests?.filter(
+        (r) =>
+          r.regradeStatus === "DEPARTMENT_APPROVED" ||
+          r.regradeStatus === "REGISTRAR_UNDER_REVIEW"
       ).length,
-      REGISTRAR_REJECTED: mockReGradeRequests.filter(
-        (r) => r.regradeStatus === "REGISTRAR_REJECTED"
+      DEPARTMENT_REJECTED: allRequests?.filter(
+        (r) => r.regradeStatus === "DEPARTMENT_REJECTED"
       ).length,
     };
   };
@@ -560,32 +578,40 @@ export default function ReGradeReview() {
               </Button>
               <Button
                 variant={
-                  filter === "DEPARTMENT_REQUESTED" ? "default" : "outline"
+                  filter === "DEPARTMENT_UNDER_REVIEW" ? "default" : "outline"
                 }
                 size="sm"
-                onClick={() => setFilter("DEPARTMENT_REQUESTED")}
+                onClick={() => setFilter("DEPARTMENT_UNDER_REVIEW")}
                 className="text-xs bg-orange-600 hover:bg-orange-700"
               >
                 <Clock className="h-3 w-3 mr-1" />
-                Pending ({statusCounts.DEPARTMENT_REQUESTED})
+                Pending ({statusCounts.DEPARTMENT_PENDING})
               </Button>
               <Button
-                variant={filter === "APPROVED" ? "default" : "outline"}
+                variant={
+                  filter === "DEPARTMENT_APPROVED" ||
+                  filter === "REGISTRAR_UNDER_REVIEW"
+                    ? "default"
+                    : "outline"
+                }
                 size="sm"
-                onClick={() => setFilter("APPROVED")}
+                //onClick={() => setFilter("DEPARTMENT_APPROVED")}
+                onClick={() => setFilter("REGISTRAR_UNDER_REVIEW")}
                 className="text-xs bg-green-600 hover:bg-green-700"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
-                Approved ({statusCounts.APPROVED})
+                Approved ({statusCounts.DEPARTMENT_APPROVED})
               </Button>
               <Button
-                variant={filter === "REGISTRAR_REJECTED" ? "default" : "outline"}
+                variant={
+                  filter === "DEPARTMENT_REJECTED" ? "default" : "outline"
+                }
                 size="sm"
-                onClick={() => setFilter("REGISTRAR_REJECTED")}
+                onClick={() => setFilter("DEPARTMENT_REJECTED")}
                 className="text-xs bg-red-600 hover:bg-red-700"
               >
                 <XCircle className="h-3 w-3 mr-1" />
-                Rejected ({statusCounts.REGISTRAR_REJECTED})
+                Rejected ({statusCounts.DEPARTMENT_REJECTED})
               </Button>
             </div>
           </div>
@@ -594,7 +620,7 @@ export default function ReGradeReview() {
           </p>
         </CardHeader>
         <CardContent>
-          {filteredRequests.length === 0 ? (
+          {filteredRequests?.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <RefreshCw className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p className="text-lg font-medium">No re-grade requests found</p>
@@ -608,7 +634,7 @@ export default function ReGradeReview() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredRequests.map((request) => {
+              {filteredRequests?.map((request) => {
                 //const deadlineInfo = getDeadlineStatus(request.deadline);
 
                 return (
@@ -624,13 +650,13 @@ export default function ReGradeReview() {
                         <Avatar className="h-10 w-10">
                           <AvatarImage
                             src={
-                              request.student.profilePicture ||
+                              //request.student.student.profilePicture ||
                               "/placeholder.svg?height=40&width=40"
                             }
                           />
                           <AvatarFallback className="bg-purple-500 text-white">
-                            {request.user.firstName.charAt(0)}
-                            {request.user.lastName.charAt(0)}
+                            {request.student.user.firstName.charAt(0)}
+                            {request.student.user.lastName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
 
@@ -638,11 +664,12 @@ export default function ReGradeReview() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <h4 className="font-medium text-purple-900">
-                              {request.user.firstName} {request.user.lastName}
+                              {request.student.user.firstName}{" "}
+                              {request.student.user.lastName}
                             </h4>
                             <Badge variant="outline" className="text-xs">
                               <GraduationCap className="h-3 w-3 mr-1" />
-                              {request.user.studentId}
+                              {request.student.user.studentId}
                             </Badge>
                             <Badge
                               className={`text-xs border ${getStatusColor(
@@ -694,7 +721,7 @@ export default function ReGradeReview() {
                             <span className="flex items-center gap-1">
                               Grade Change:
                               <Badge variant="outline" className="mx-1 text-xs">
-                                {request.originalGrade.gradeInLetter}
+                                {request.originalGrade?.gradeInLetter}
                               </Badge>
                               →
                               <Badge variant="outline" className="mx-1 text-xs">
@@ -733,7 +760,7 @@ export default function ReGradeReview() {
                             </div>
                           )}
 
-                          {request.regradeStatus === "APPROVED" && (
+                          {request.regradeStatus === "DEPARTMENT_APPROVED" && (
                             <div className="bg-green-50 p-3 rounded border-l-4 border-green-300">
                               <p className="text-sm text-green-700">
                                 <span className="font-medium">
@@ -747,7 +774,7 @@ export default function ReGradeReview() {
                             </div>
                           )}
 
-                          {request.regradeStatus === "REGISTRAR_REJECTED" &&
+                          {request.regradeStatus === "DEPARTMENT_REJECTED" &&
                             request.regradeReason && (
                               <div className="bg-red-50 p-3 rounded border-l-4 border-red-300">
                                 <p className="text-sm text-red-700 mb-1">
@@ -777,9 +804,9 @@ export default function ReGradeReview() {
                           className="text-purple-600 border-purple-300 hover:bg-purple-50"
                         >
                           <Eye className="h-4 w-4 mr-2" />
-                          View Details
+                          Review
                         </Button>
-                        {request.regradeStatus === "REGISTRAR_UNDER_REVIEW" && (
+                        {/*                         {request.regradeStatus === "REGISTRAR_UNDER_REVIEW" && (
                           <Button
                             size="sm"
                             onClick={() => handleViewRequest(request)}
@@ -788,7 +815,7 @@ export default function ReGradeReview() {
                             <FileText className="h-4 w-4 mr-2" />
                             Review
                           </Button>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </div>
