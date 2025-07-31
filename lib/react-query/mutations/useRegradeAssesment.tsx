@@ -5,14 +5,15 @@ import { RegradeAssesment } from "@/types/types";
 // Interface for creating a new re-grade request
 interface CreateRegradeRequest {
   teachingAssignmentId: number;
+  assessmentGroupId: number;
   studentId: number;
   regradeReason: string;
   practical1?: number | null;
   practical2?: number | null;
   practical3?: number | null;
-  practical1Type?: string;
-  practical2Type?: string;
-  practical3Type?: string;
+  practical1Title?: string;
+  practical2Title?: string;
+  practical3Title?: string;
   totalPractical?: number;
   practicalStatus?: string;
   theory?: number | null;
@@ -39,16 +40,19 @@ interface UpdateRegradeStatusRequest {
 const createRegradeRequest = async (
   data: CreateRegradeRequest
 ): Promise<RegradeAssesment> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...data,
-      regradeStatus: "DEPARTMENT_REQUESTED", // Default status for new requests
-    }),
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...data,
+        regradeStatus: "REGRADE_REQUESTED", // Default status for new requests
+      }),
+    }
+  );
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

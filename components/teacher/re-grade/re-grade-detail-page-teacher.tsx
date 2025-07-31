@@ -252,26 +252,26 @@ export default function ReGradeDetailPage({
                       <span className="text-sm text-red-700">Final Grade:</span>
                       <Badge
                         className={`font-bold ${getGradeColor(
-                          request.originalGrade.gradeInLetter || ""
+                          request.originalGrade?.gradeInLetter || ""
                         )}`}
                       >
-                        {request.originalGrade.gradeInLetter}
+                        {request.originalGrade?.gradeInLetter}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-red-700">Total Mark:</span>
                       <span className="font-medium">
-                        {request.originalGrade.totalMark}/100
+                        {request.originalGrade?.totalMark}/100
                       </span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-red-700">Practical:</span>
-                        <span>{request.originalGrade.totalPractical}/70</span>
+                        <span>{request.originalGrade?.totalPractical}/70</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-red-700">Theory:</span>
-                        <span>{request.originalGrade.theory}/30</span>
+                        <span>{request.originalGrade?.theory}/30</span>
                       </div>
                     </div>
                   </div>
@@ -327,41 +327,41 @@ export default function ReGradeDetailPage({
                   <div>
                     <span className="text-blue-700">Grade Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade.gradeInLetter} →{" "}
+                      {request.originalGrade?.gradeInLetter} →{" "}
                       {request.gradeInLetter}
                     </span>
                   </div>
                   <div>
                     <span className="text-blue-700">Mark Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade.totalMark} → {request.totalMark}
+                      {request.originalGrade?.totalMark} → {request.totalMark}
                       <span
                         className={`ml-1 ${
                           request.totalMark! -
-                            request.originalGrade.totalMark! >
+                            request.originalGrade?.totalMark! >
                           0
                             ? "text-green-600"
                             : "text-red-600"
                         }`}
                       >
                         (
-                        {request.totalMark! - request.originalGrade.totalMark! >
+                        {request.totalMark! - request.originalGrade?.totalMark! >
                         0
                           ? "+"
                           : ""}
-                        {request.totalMark! - request.originalGrade.totalMark!})
+                        {request.totalMark! - request.originalGrade?.totalMark!})
                       </span>
                     </span>
                   </div>
                   <div>
                     <span className="text-blue-700">Practical Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade.totalPractical} →{" "}
+                      {request.originalGrade?.totalPractical} →{" "}
                       {request.totalPractical}
                       <span
                         className={`ml-1 ${
                           request.totalPractical! -
-                            request.originalGrade.totalPractical! >
+                            request.originalGrade?.totalPractical! >
                           0
                             ? "text-green-600"
                             : "text-red-600"
@@ -369,12 +369,12 @@ export default function ReGradeDetailPage({
                       >
                         (
                         {request.totalPractical! -
-                          request.originalGrade.totalPractical! >
+                          request.originalGrade?.totalPractical! >
                         0
                           ? "+"
                           : ""}
                         {request.totalPractical! -
-                          request.originalGrade.totalPractical!}
+                          request.originalGrade?.totalPractical!}
                         )
                       </span>
                     </span>
@@ -415,7 +415,7 @@ export default function ReGradeDetailPage({
           </Card>
 
           {/* Decision Section - Only show if status is APPROVAL_REQUESTED */}
-          {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
+{/*           {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
             <Card className="border-blue-100">
               <CardHeader>
                 <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
@@ -479,11 +479,11 @@ export default function ReGradeDetailPage({
                 )}
               </CardContent>
             </Card>
-          )}
+          )} */}
         </div>
 
         {/* Footer Actions - Only show if status is APPROVAL_REQUESTED */}
-        {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
+   {/*      {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
           <div className="flex justify-between mt-6 pt-6 border-t border-gray-200">
             <Button variant="outline" onClick={handleBack} disabled={loading}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -519,7 +519,7 @@ export default function ReGradeDetailPage({
               )}
             </Button>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

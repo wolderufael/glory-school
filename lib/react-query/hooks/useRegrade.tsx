@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { RegradeAssesment, Assessment } from "@/types/types";
+import { RegradeAssesment, Assessment, RegradeAssesmentResponse } from "@/types/types";
 
 const getRegrade = async (
   courseCode: string,
@@ -86,6 +86,21 @@ const fetchRegradeRequests = async (
     throw new Error(
       errorData.message || `HTTP error! status: ${response.status}`
     );
+  }
+
+  return response.json();
+};
+
+const fetchAllRegradeRequestsByTeacher = async (teacherId: number): Promise<RegradeAssesmentResponse[]> => {    
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests/by-teacher/${teacherId}`,
+    {
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch regrade requests");
   }
 
   return response.json();
@@ -179,7 +194,7 @@ export const useStudentRegradeRequests = (studentId: number) => {
 export const useTeacherRegradeRequests = (teacherId: number) => {
   return useQuery({
     queryKey: ["teacherRegradeRequests", teacherId],
-    queryFn: () => fetchRegradeRequests({ teacherId }),
+    queryFn: () => fetchAllRegradeRequestsByTeacher(teacherId),
     enabled: !!teacherId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,

@@ -34,9 +34,9 @@ import { AssessmentCell } from "@/components/markList/assessmentCell";
 import { Assessment } from "@/utils/assessment";
 import { RegradeAssesment } from "@/types/types";
 import { Textarea } from "@/components/ui/textarea";
-import TeacherSelect from "../../teacher-assignment/TeacherSelect";
 import { getLocalStorage } from "@/utils/localStorage";
 import { SelectedTeacher } from "../../teacher-assignment/AssignmentConfirmDialog";
+import { Teacher, useTeachers } from "@/lib/react-query/queries/getTeachers";
 
 export default function RegradeDeptRequest() {
   //const teacherId = getLocalStorage("teacherId") || "";
@@ -48,6 +48,10 @@ export default function RegradeDeptRequest() {
   const [courseCode, setCourseCode] = useState<string>("");
   const [searchTriggered, setSearchTriggered] = useState<boolean>(false);
   const [currentAssessment, setCurrentAssessment] = useState<any | null>(null);
+
+  // Local teacher search state
+  const [teacherSearchQuery, setTeacherSearchQuery] = useState("");
+  const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
   const [regradeReason, setRegradeReason] = useState<string>("");
 
   // Check if both fields are filled
@@ -75,9 +79,67 @@ export default function RegradeDeptRequest() {
     isSubmitting,
   } = useAssessments();
 
+  // Fetch teachers for the dropdown
+  const {
+    data: allTeachers = [],
+    isLoading: isTeachersLoading,
+    error: teachersError,
+  } = useTeachers({ departmentId });
+
+  // Filter teachers based on search query
+  const filteredTeachers = React.useMemo(() => {
+    if (!teacherSearchQuery.trim()) return [];
+
+    const searchTerm = teacherSearchQuery.toLowerCase();
+    return allTeachers.filter((teacher: Teacher) => {
+      const { user } = teacher;
+      return user.firstName.toLowerCase().startsWith(searchTerm);
+    });
+  }, [allTeachers, teacherSearchQuery]);
+
   const handleTeacherSelect = (teacherId: string, fullName: string) => {
     setSelectedTeacher({ id: teacherId, fullName });
   };
+
+  // Handle teacher search input
+  const handleTeacherSearchInput = (value: string) => {
+    setTeacherSearchQuery(value);
+    setShowTeacherDropdown(value.trim().length > 0);
+    if (selectedTeacher && value !== selectedTeacher.fullName) {
+      setSelectedTeacher(null);
+    }
+  };
+
+  // Handle teacher selection from dropdown
+  const handleTeacherSelectFromDropdown = (teacher: Teacher) => {
+    const fullName = `${teacher.user.firstName} ${teacher.user.lastName}`;
+    setSelectedTeacher({ id: teacher.id.toString(), fullName });
+    setTeacherSearchQuery(fullName);
+    setShowTeacherDropdown(false);
+  };
+
+  // Effect to clear search when a teacher is selected
+  React.useEffect(() => {
+    if (selectedTeacher) {
+      setTeacherSearchQuery(selectedTeacher.fullName);
+      setShowTeacherDropdown(false);
+    }
+  }, [selectedTeacher]);
+
+  // Effect to close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest("[data-teacher-search]")) {
+        setShowTeacherDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Initialize the re-grade request mutation
   const createRegradeRequest = useCreateRegradeRequest();
@@ -133,8 +195,13 @@ export default function RegradeDeptRequest() {
           fetchedAssessment.comment ?? ""
         );
       }
+
+      // Reset searchTriggered after successful data processing
+      setSearchTriggered(false);
     } else if (isAssessmentError && searchTriggered) {
       setCurrentAssessment(null);
+      // Also reset searchTriggered on error
+      setSearchTriggered(false);
     }
   }, [fetchedAssessment, isAssessmentError, searchTriggered]);
 
@@ -201,13 +268,14 @@ export default function RegradeDeptRequest() {
       await createRegradeRequest.mutateAsync({
         teachingAssignmentId: currentAssessment.teachingAssignmentId!,
         studentId: studentDbId,
+        assessmentGroupId: currentAssessment.assessmentGroupId,
         regradeReason: regradeReason.trim(),
         practical1,
         practical2,
         practical3,
-        practical1Type: currentAssessment.practical1Type,
-        practical2Type: currentAssessment.practical2Type,
-        practical3Type: currentAssessment.practical3Type,
+        practical1Title: currentAssessment.practical1Type,
+        practical2Title: currentAssessment.practical2Type,
+        practical3Title: currentAssessment.practical3Type,
         totalPractical: totalPracticalCalculated,
         practicalStatus: totalPracticalCalculated <= 70 ? "OK" : "Error",
         theory,
@@ -281,7 +349,6 @@ export default function RegradeDeptRequest() {
     if (!assessmentError) return null;
 
     const errorMessage = assessmentError.message || "";
-    console.log("errorMessage", errorMessage);
     const isNetworkError =
       errorMessage.includes("fetch") ||
       errorMessage.includes("network") ||
@@ -367,16 +434,78 @@ export default function RegradeDeptRequest() {
                   />
                 </div>
               </div> */}
-              <div className="py-4">
-                <Label className="text-sm font-medium block mb-2 text-gray-800">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="teacherId"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Search Teacher{" "}
                   <span className="text-red-500 font-bold text-lg">*</span>
                 </Label>
-                <TeacherSelect
-                  departmentId={departmentId}
-                  value={selectedTeacher?.id || ""}
-                  onChange={handleTeacherSelect}
-                />
+                <div className="relative" data-teacher-search>
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="teacherId"
+                    type="text"
+                    placeholder="Search teachers..."
+                    value={
+                      selectedTeacher
+                        ? selectedTeacher.fullName
+                        : teacherSearchQuery
+                    }
+                    onChange={(e) => handleTeacherSearchInput(e.target.value)}
+                    className="pl-10 h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  {isTeachersLoading && (
+                    <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
+                  )}
+
+                  {/* Error Display */}
+                  {teachersError && (
+                    <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg p-4 z-10">
+                      <p className="text-sm text-red-500 text-center">
+                        Error loading teachers
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Dropdown Results */}
+                  {!isTeachersLoading &&
+                    !selectedTeacher &&
+                    showTeacherDropdown &&
+                    filteredTeachers.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg z-10">
+                        <div className="overflow-auto max-h-[150px]">
+                          {filteredTeachers.map((teacher: Teacher) => (
+                            <div
+                              key={teacher.id}
+                              onClick={() =>
+                                handleTeacherSelectFromDropdown(teacher)
+                              }
+                              className="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-gray-50 text-sm"
+                            >
+                              <User className="h-3 w-3 text-gray-500" />
+                              <span className="font-medium">
+                                {`${teacher.user.firstName} ${teacher.user.lastName}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {/* No Results */}
+                  {!isTeachersLoading &&
+                    teacherSearchQuery &&
+                    filteredTeachers.length === 0 &&
+                    !selectedTeacher && (
+                      <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg p-2 z-10">
+                        <p className="text-sm text-gray-500 text-center">
+                          No teachers found
+                        </p>
+                      </div>
+                    )}
+                </div>
               </div>
               {/* Student ID Input */}
               <div className="space-y-2">
