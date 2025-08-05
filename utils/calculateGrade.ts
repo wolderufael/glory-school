@@ -45,3 +45,31 @@ export const calculateGradeWithNYCCheck = (
   // If both theory and practical meet NYC requirements, calculate normal grade
   return calculateGrade(total, totalPractical, theory);
 };
+
+
+export const checkpracticalStatus = (
+  practical1: number,
+  practical2: number,
+  practical3: number
+) => {
+  const totalPractical = practical1 + practical2 + practical3;
+  if (totalPractical < 56) {
+    return "NYC";
+  }
+
+  if (totalPractical > 56) {
+    return "C";
+  }
+  return "NA";
+};
+
+
+export const checktheoryStatus = (theory: number) => {
+  if (theory < 18) {
+    return "NYC";
+  }
+  if (theory > 18) {
+    return "C";
+  }
+  return "NA";
+};

@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { useTeachingAssignment } from "@/lib/react-query/hooks/useTeachingAssignment";
 import { toast } from "sonner";
-import { calculateGrade } from "@/utils/calculateGrade";
+import { calculateGrade, checkpracticalStatus, checktheoryStatus } from "@/utils/calculateGrade";
 
 interface StudentMark {
   student_main_id: string;
@@ -304,11 +304,13 @@ const ListTable = () => {
         const comment = local.comment ?? fetched?.comment ?? "";
 
         // Auto-calculate status fields based on new logic
-        const practicalStatus =
+      /*   const practicalStatus =
           practical1 === null || practical2 === null || practical3 === null
             ? "NA"
             : "OK";
-        const theoryStatus = theory === null ? "NA" : "OK";
+        const theoryStatus = theory === null ? "NA" : "OK"; */
+        const practicalStatus = checkpracticalStatus(practical1, practical2, practical3);
+        const theoryStatus = checktheoryStatus(theory);
 
         // Calculate totals with null handling
         const totalPractical =
@@ -881,13 +883,15 @@ const ListTable = () => {
                           const theory = local.theory ?? item.theory ?? null;
 
                           // Auto-calculate status fields
-                          const practicalStatus =
+                        /*   const practicalStatus =
                             practical1 === null ||
                             practical2 === null ||
                             practical3 === null
                               ? "NA"
                               : "OK";
-                          const theoryStatus = theory === null ? "NA" : "OK";
+                          const theoryStatus = theory === null ? "NA" : "OK"; */
+                          const practicalStatus = checkpracticalStatus(practical1, practical2, practical3);
+                          const theoryStatus = checktheoryStatus(theory);
 
                           // Calculate totals with null handling
                           const totalPractical =

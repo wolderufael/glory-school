@@ -298,7 +298,7 @@ const Login = () => {
                   href="/auth/signup"
                   className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
                 >
-                  Create Account
+                  Create Account 
                 </Link>
               </span>
             </div>

@@ -132,6 +132,12 @@ export const registrarNavigationItems = [
     title: "Dashboard",
     items: [
       { title: "Dashboard", icon: Home, url: "/registrar", isActive: true },
+      {
+        title: "User Management",
+        icon: UserPlus,
+        url: "/registrar/user-management",
+        isActive: true,
+      },
     ],
   },
   {
@@ -234,6 +240,7 @@ export const departmentNavigationItems = [
     title: "Dashboard",
     items: [
       { title: "Dashboard", icon: Home, url: "/department", isActive: true },
+      
     ],
   },
   {

@@ -39,7 +39,7 @@ import { Assessment } from "@/utils/assessment";
 import { RegradeAssesment, RegradeAssesmentResponse } from "@/types/types";
 import { Textarea } from "@/components/ui/textarea";
 import { getLocalStorage } from "@/utils/localStorage";
-import { calculateGrade } from "@/utils/calculateGrade";
+import { calculateGrade, checkpracticalStatus, checktheoryStatus } from "@/utils/calculateGrade";
 
 interface ReGradeProps {
   request: RegradeAssesmentResponse | null;
@@ -430,14 +430,16 @@ export default function ReGrade({
                             const dynamicGrade = calculateGrade(totalMark,totalPractical,theory||0);
 
                             // Dynamic status calculations
-                            const practicalStatus =
+                            /* const practicalStatus =
                               totalPractical <= 70 ? "OK" : "Error";
                             const theoryStatus =
                               theory !== null && theory <= 30
                                 ? "OK"
                                 : theory === null
                                 ? "N/A"
-                                : "Error";
+                                : "Error"; */
+                            const practicalStatus = checkpracticalStatus(practical1||0, practical2||0, practical3||0);
+                            const theoryStatus = checktheoryStatus(theory||0);
 
                             // Status colors
                             const getPracticalStatusColor = () => {
