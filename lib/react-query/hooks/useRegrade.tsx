@@ -105,6 +105,20 @@ const fetchAllRegradeRequestsByTeacher = async (teacherId: number): Promise<Regr
 
   return response.json();
 };
+const fetchAllRegradeRequestsByDepartment = async (departmentId: number): Promise<RegradeAssesmentResponse[]> => {    
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests/by-department/${departmentId}`,
+    {
+      method: "GET",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch regrade requests");
+  }
+
+  return response.json();
+};
 
 const fetchAllRegradeRequests = async (): Promise<RegradeAssesmentResponse[]> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests`, {
@@ -196,6 +210,16 @@ export const useTeacherRegradeRequests = (teacherId: number) => {
     queryKey: ["teacherRegradeRequests", teacherId],
     queryFn: () => fetchAllRegradeRequestsByTeacher(teacherId),
     enabled: !!teacherId,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+};
+// Hook to fetch re-grade requests by department
+export const useDepartmentRegradeRequests = (departmentId: number) => {
+  return useQuery({
+    queryKey: ["departmentRegradeRequests", departmentId],
+    queryFn: () => fetchAllRegradeRequestsByDepartment(departmentId),
+    enabled: !!departmentId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

@@ -35,6 +35,29 @@ interface UpdateRegradeStatusRequest {
     | "REGISTRAR_REJECTED"
     | "APPROVED";
   regradeReason?: string;
+  practical1?: number | null;
+  practical2?: number | null;
+  practical3?: number | null;
+  practical1Type?: string;
+  practical2Type?: string;
+  practical3Type?: string;
+  totalPractical?: number;
+  gradeInLetter?: string;
+  theory?: number | null;
+  totalMark?: number;
+}
+
+interface UpdateRegradeDecisionRequest {
+  id: number;
+  regradeStatus:
+    | "REGRADE_REQUESTED"
+    | "DEPARTMENT_UNDER_REVIEW"
+    | "DEPARTMENT_APPROVED"
+    | "DEPARTMENT_REJECTED"
+    | "REGISTRAR_UNDER_REVIEW"
+    | "REGISTRAR_REJECTED"
+    | "APPROVED";
+  regradeReason?: string;
 }
 
 // Create new re-grade request
@@ -70,7 +93,55 @@ const updateRegradeStatus = async ({
   id,
   regradeStatus,
   regradeReason,
+  practical1,
+  practical2,
+  practical3,
+  practical1Type,
+  practical2Type,
+  practical3Type,
+  totalPractical,
+  gradeInLetter,
+  theory,
+  totalMark,
 }: UpdateRegradeStatusRequest): Promise<RegradeAssesment> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        regradeStatus,
+        regradeReason,
+        practical1,
+        practical2,
+        practical3,
+        practical1Type,
+        practical2Type,
+        practical3Type,
+        totalPractical,
+        gradeInLetter,
+        theory,
+        totalMark,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `HTTP error! status: ${response.status}`
+    );
+  }
+
+  return response.json();
+};
+const updateRegradeDecision = async ({
+  id,
+  regradeStatus,
+  regradeReason,
+}: UpdateRegradeDecisionRequest): Promise<RegradeAssesment> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/regrade-requests/${id}`,
     {
@@ -138,6 +209,51 @@ export const useUpdateRegradeStatus = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["teachingAssessment"],
+      });
+
+      // Show status-specific success messages
+      const statusMessages = {
+        REGRADE_REQUESTED: "Re-grade request submitted for review",
+        DEPARTMENT_UNDER_REVIEW: "Re-grade request approved by teacher",
+        DEPARTMENT_APPROVED: "Re-grade request approved by department",
+        DEPARTMENT_REJECTED: "Re-grade request rejected by department",
+        REGISTRAR_UNDER_REVIEW: "Re-grade request submitted for review",
+        REGISTRAR_REJECTED: "Re-grade request rejected by registrar",
+        APPROVED: "Re-grade request approved successfully",
+      };
+
+      toast.success(
+        statusMessages[variables.regradeStatus] ||
+          "Re-grade status updated successfully"
+      );
+    },
+    onError: (error: Error) => {
+      console.error("Error updating re-grade status:", error);
+      toast.error(error.message || "Failed to update re-grade status");
+    },
+  });
+};
+export const useUpdateRegradeDecision = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateRegradeDecision,
+    onSuccess: (data, variables) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({
+        queryKey: ["regradeRequests"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["regradeRequest", variables.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["teachingAssessment"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["departmentRegradeRequests"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["teacherRegradeRequests"],
       });
 
       // Show status-specific success messages

@@ -33,12 +33,14 @@ interface ReGradeDetailPageProps {
   request: RegradeAssesmentResponse | null;
   onClose: () => void;
   loading?: boolean;
+  onSuccess?: () => void;
 }
 
 export default function ReGradeDetailPage({
   request,
   onClose,
   loading = false,
+  onSuccess,
 }: ReGradeDetailPageProps) {
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
   const [rejectionReason, setRejectionReason] = useState("");
@@ -49,14 +51,26 @@ export default function ReGradeDetailPage({
   const handleSubmitDecision = () => {
     if (!request) return;
 
-    updateRegradeStatus.mutate({
-      id: request.id,
-      regradeStatus: decision === "approve" ? "APPROVED" : "REGISTRAR_REJECTED",
-      //regradeReason: decision === "reject" ? rejectionReason : "Request approved",
-    });
+    updateRegradeStatus.mutate(
+      {
+        id: request.id,
+        regradeStatus:
+          decision === "approve" ? "APPROVED" : "DEPARTMENT_UNDER_REVIEW",
+        //regradeReason: decision === "reject" ? rejectionReason : "Request approved",
+      },
+      {
+        onSuccess: () => {
+          resetForm();
 
-    resetForm();
-    onClose();
+          // Call onSuccess callback to trigger refetch
+          if (onSuccess) {
+            onSuccess();
+          }
+
+          onClose();
+        },
+      }
+    );
   };
 
   const resetForm = () => {
@@ -172,7 +186,8 @@ export default function ReGradeDetailPage({
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {request.student.user.firstName} {request.student.user.lastName}
+                        {request.student.user.firstName}{" "}
+                        {request.student.user.lastName}
                       </p>
                       <p className="text-sm text-gray-600">
                         {request.student.user.studentId}
@@ -252,26 +267,41 @@ export default function ReGradeDetailPage({
                       <span className="text-sm text-red-700">Final Grade:</span>
                       <Badge
                         className={`font-bold ${getGradeColor(
-                        request.originalGrade?.gradeInLetter || ""
+                          request.originalGrade?.gradeInLetter || ""
                         )}`}
                       >
-                        {request.originalGrade?.gradeInLetter}
+                        {request.regradeStatus === "APPROVED"
+                          ? request.gradeInLetter
+                          : request.originalGrade?.gradeInLetter}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-red-700">Total Mark:</span>
                       <span className="font-medium">
-                        {request.originalGrade?.totalMark}/100
+                        {request.regradeStatus === "APPROVED"
+                          ? request.totalMark
+                          : request.originalGrade?.totalMark}
+                        /100
                       </span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-red-700">Practical:</span>
-                        <span>{request.originalGrade?.totalPractical}/70</span>
+                        <span>
+                          {request.regradeStatus === "APPROVED"
+                            ? request.totalPractical
+                            : request.originalGrade?.totalPractical}
+                          /70
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-red-700">Theory:</span>
-                        <span>{request.originalGrade?.theory}/30</span>
+                        <span>
+                          {request.regradeStatus === "APPROVED"
+                            ? request.theory
+                            : request.originalGrade?.theory}
+                          /30
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -290,10 +320,14 @@ export default function ReGradeDetailPage({
                       </span>
                       <Badge
                         className={`font-bold ${getGradeColor(
-                          request.gradeInLetter!
+                          request.regradeStatus === "APPROVED"
+                            ? request.originalGrade?.gradeInLetter || ""
+                            : request.gradeInLetter!
                         )}`}
                       >
-                        {request.gradeInLetter}
+                        {request.regradeStatus === "APPROVED"
+                          ? request.originalGrade?.gradeInLetter
+                          : request.gradeInLetter}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
@@ -301,17 +335,30 @@ export default function ReGradeDetailPage({
                         Total Mark:
                       </span>
                       <span className="font-medium">
-                        {request.totalMark}/100
+                        {request.regradeStatus === "APPROVED"
+                          ? request.originalGrade?.totalMark
+                          : request.totalMark}
+                        /100
                       </span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-green-700">Practical:</span>
-                        <span>{request.totalPractical}/70</span>
+                        <span>
+                          {request.regradeStatus === "APPROVED"
+                            ? request.originalGrade?.totalPractical
+                            : request.totalPractical}
+                          /70
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-green-700">Theory:</span>
-                        <span>{request.theory}/30</span>
+                        <span>
+                          {request.regradeStatus === "APPROVED"
+                            ? request.originalGrade?.theory
+                            : request.theory}
+                          /30
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -327,54 +374,85 @@ export default function ReGradeDetailPage({
                   <div>
                     <span className="text-blue-700">Grade Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade?.gradeInLetter} →{" "}
-                      {request.gradeInLetter}
+                      {request.regradeStatus === "APPROVED"
+                        ? request.originalGrade?.gradeInLetter
+                        : request.originalGrade?.gradeInLetter}{" "}
+                      →{" "}
+                      {request.regradeStatus === "APPROVED"
+                        ? request.gradeInLetter
+                        : request.gradeInLetter}
                     </span>
                   </div>
                   <div>
                     <span className="text-blue-700">Mark Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade?.totalMark} → {request.totalMark}
+                      {request.regradeStatus === "APPROVED"
+                        ? request.originalGrade?.totalMark
+                        : request.originalGrade?.totalMark}{" "}
+                      →{" "}
+                      {request.regradeStatus === "APPROVED"
+                        ? request.totalMark
+                        : request.totalMark}
                       <span
                         className={`ml-1 ${
-                          request.totalMark! -
-                            request.originalGrade?.totalMark! >
-                          0
-                            ? "text-green-600"
-                            : "text-red-600"
+                          request.regradeStatus === "APPROVED"
+                            ? (request.totalMark || 0) -
+                                (request.originalGrade?.totalMark || 0) >
+                              0
+                              ? "text-green-600"
+                              : "text-red-600"
+                            : "text-gray-600"
                         }`}
                       >
                         (
-                        {request.totalMark! - request.originalGrade?.totalMark! >
-                        0
-                          ? "+"
+                        {request.regradeStatus === "APPROVED"
+                          ? (request.totalMark || 0) -
+                              (request.originalGrade?.totalMark || 0) >
+                            0
+                            ? "+"
+                            : ""
                           : ""}
-                        {request.totalMark! - request.originalGrade?.totalMark!})
+                        {request.regradeStatus === "APPROVED"
+                          ? (request.totalMark || 0) -
+                            (request.originalGrade?.totalMark || 0)
+                          : 0}
+                        )
                       </span>
                     </span>
                   </div>
                   <div>
                     <span className="text-blue-700">Practical Change: </span>
                     <span className="font-medium">
-                      {request.originalGrade?.totalPractical} →{" "}
-                      {request.totalPractical}
+                      {request.regradeStatus === "APPROVED"
+                        ? request.originalGrade?.totalPractical
+                        : request.originalGrade?.totalPractical}{" "}
+                      →{" "}
+                      {request.regradeStatus === "APPROVED"
+                        ? request.totalPractical
+                        : request.totalPractical}
                       <span
                         className={`ml-1 ${
-                          request.totalPractical! -
-                            request.originalGrade?.totalPractical! >
-                          0
-                            ? "text-green-600"
-                            : "text-red-600"
+                          request.regradeStatus === "APPROVED"
+                            ? (request.totalPractical || 0) -
+                                (request.originalGrade?.totalPractical || 0) >
+                              0
+                              ? "text-green-600"
+                              : "text-red-600"
+                            : "text-gray-600"
                         }`}
                       >
                         (
-                        {request.totalPractical! -
-                          request.originalGrade?.totalPractical! >
-                        0
-                          ? "+"
+                        {request.regradeStatus === "APPROVED"
+                          ? (request.totalPractical || 0) -
+                              (request.originalGrade?.totalPractical || 0) >
+                            0
+                            ? "+"
+                            : ""
                           : ""}
-                        {request.totalPractical! -
-                          request.originalGrade?.totalPractical!}
+                        {request.regradeStatus === "APPROVED"
+                          ? (request.totalPractical || 0) -
+                            (request.originalGrade?.totalPractical || 0)
+                          : 0}
                         )
                       </span>
                     </span>

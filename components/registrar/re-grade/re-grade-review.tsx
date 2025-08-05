@@ -19,12 +19,15 @@ import {
   FileText,
   GraduationCap,
 } from "lucide-react";
-import { useRegradeRequests,useAllRegradeRequests, useTeacherRegradeRequests } from "@/lib/react-query/hooks/useRegrade";
+import {
+  useRegradeRequests,
+  useAllRegradeRequests,
+  useTeacherRegradeRequests,
+} from "@/lib/react-query/hooks/useRegrade";
 import { RegradeAssesmentResponse } from "@/types/types";
 import ReGradeDetailPage from "./re-grade-detail-page";
 
 // Mock data in RegradeAssesmentResponse format
-
 
 type ReGradeStatus =
   | "all"
@@ -37,7 +40,6 @@ type ReGradeStatus =
   | "APPROVED";
 
 export default function ReGradeReview() {
-
   //const { data: allRequests, isLoading, error } = useAllRegradeRequests();
 
   /* TODO: Change to useAllRegradeRequests */
@@ -46,7 +48,8 @@ export default function ReGradeReview() {
     data: allRequests,
     isLoading,
     error,
-  } = useTeacherRegradeRequests(Number(teacherId));
+    refetch,
+  } = useAllRegradeRequests();
 
   const [filter, setFilter] = useState<ReGradeStatus>("all");
   const [selectedRequest, setSelectedRequest] =
@@ -55,7 +58,13 @@ export default function ReGradeReview() {
 
   // Frontend filtering
   const requests = allRequests?.filter((request: RegradeAssesmentResponse) => {
-    if (filter === "all") return true;
+    if (filter === "all") {
+      return [
+        "REGISTRAR_UNDER_REVIEW",
+        "APPROVED",
+        "REGISTRAR_REJECTED",
+      ].includes(request.regradeStatus);
+    }
     return request.regradeStatus === filter;
   });
 
@@ -99,7 +108,13 @@ export default function ReGradeReview() {
   };
 
   const filteredRequests = allRequests?.filter((request) => {
-    if (filter === "all") return true;
+    if (filter === "all") {
+      return [
+        "REGISTRAR_UNDER_REVIEW",
+        "APPROVED",
+        "REGISTRAR_REJECTED",
+      ].includes(request.regradeStatus);
+    }
     return request.regradeStatus === filter;
   });
 
@@ -146,7 +161,11 @@ export default function ReGradeReview() {
 
   const getStatusCounts = () => {
     return {
-      all: allRequests?.length,
+      all: allRequests?.filter((r) =>
+        ["REGISTRAR_UNDER_REVIEW", "APPROVED", "REGISTRAR_REJECTED"].includes(
+          r.regradeStatus
+        )
+      ).length,
       REGISTRAR_UNDER_REVIEW: allRequests?.filter(
         (r) => r.regradeStatus === "REGISTRAR_UNDER_REVIEW"
       ).length,
@@ -178,6 +197,7 @@ export default function ReGradeReview() {
         request={selectedRequest}
         onClose={handleCloseDetailPage}
         loading={false}
+        onSuccess={() => refetch()}
       />
     );
   }
@@ -206,7 +226,7 @@ export default function ReGradeReview() {
                 }
                 size="sm"
                 onClick={() => setFilter("REGISTRAR_UNDER_REVIEW")}
-                className="text-xs bg-orange-600 hover:bg-orange-700"
+                className="text-xs"
               >
                 <Clock className="h-3 w-3 mr-1" />
                 Pending ({statusCounts.REGISTRAR_UNDER_REVIEW})
@@ -215,7 +235,7 @@ export default function ReGradeReview() {
                 variant={filter === "APPROVED" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilter("APPROVED")}
-                className="text-xs bg-green-600 hover:bg-green-700"
+                className="text-xs"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Approved ({statusCounts.APPROVED})
@@ -226,7 +246,7 @@ export default function ReGradeReview() {
                 }
                 size="sm"
                 onClick={() => setFilter("REGISTRAR_REJECTED")}
-                className="text-xs bg-red-600 hover:bg-red-700"
+                className="text-xs"
               >
                 <XCircle className="h-3 w-3 mr-1" />
                 Rejected ({statusCounts.REGISTRAR_REJECTED})
@@ -339,11 +359,16 @@ export default function ReGradeReview() {
                             <span className="flex items-center gap-1">
                               Grade Change:
                               <Badge variant="outline" className="mx-1 text-xs">
-                                {request.originalGrade?.gradeInLetter}
+                                {request.regradeStatus === "APPROVED"
+                                  ? request.gradeInLetter
+                                  : request.originalGrade?.gradeInLetter
+                                }
                               </Badge>
                               →
                               <Badge variant="outline" className="mx-1 text-xs">
-                                {request.gradeInLetter}
+                                {request.regradeStatus === "APPROVED"
+                                  ? request.originalGrade?.gradeInLetter
+                                  : request.gradeInLetter}
                               </Badge>
                             </span>
                             {/*   {deadlineInfo &&
@@ -424,7 +449,7 @@ export default function ReGradeReview() {
                           <Eye className="h-4 w-4 mr-2" />
                           Review
                         </Button>
-                {/*         {request.regradeStatus === "REGISTRAR_UNDER_REVIEW" && (
+                        {/*         {request.regradeStatus === "REGISTRAR_UNDER_REVIEW" && (
                           <Button
                             size="sm"
                             onClick={() => handleViewRequest(request)}

@@ -30,7 +30,10 @@ import {
 import { toast } from "sonner";
 import { useFetchRegrade } from "@/lib/react-query/hooks/useRegrade";
 import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
-import { useCreateRegradeRequest, useUpdateRegradeStatus } from "@/lib/react-query/mutations/useRegradeAssesment";
+import {
+  useCreateRegradeRequest,
+  useUpdateRegradeStatus,
+} from "@/lib/react-query/mutations/useRegradeAssesment";
 import { AssessmentCell } from "@/components/markList/assessmentCell";
 import { Assessment } from "@/utils/assessment";
 import { RegradeAssesment, RegradeAssesmentResponse } from "@/types/types";
@@ -41,14 +44,15 @@ interface ReGradeProps {
   request: RegradeAssesmentResponse | null;
   onClose: () => void;
   loading?: boolean;
+  onSuccess?: () => void;
 }
 
 export default function ReGrade({
   request,
   onClose,
   loading = false,
+  onSuccess,
 }: ReGradeProps) {
-
   const [searchTriggered, setSearchTriggered] = useState<boolean>(false);
   const [currentAssessment, setCurrentAssessment] =
     useState<RegradeAssesmentResponse | null>(null);
@@ -62,10 +66,8 @@ export default function ReGrade({
   } = useAssessments();
 
   // Initialize the re-grade request mutation
-  const createRegradeRequest = useCreateRegradeRequest();
   const updateRegradeStatus = useUpdateRegradeStatus();
 
- 
   // Handle assessment data when fetched
   useEffect(() => {
     if (request) {
@@ -96,7 +98,6 @@ export default function ReGrade({
       setCurrentAssessment(null);
     }
   }, [request, searchTriggered]);
-
 
   // Submit regrade request
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,43 +160,37 @@ export default function ReGrade({
     }
 
     try {
-    /*   await createRegradeRequest.mutateAsync({
-        id: currentAssessment.id,
-        regradeStatus: "DEPARTMENT_UNDER_REVIEW",
-        regradeReason: regradeReason.trim(),
-        teachingAssignmentId: currentAssessment.teachingAssignmentId!,
-        studentId: studentDbId,
-        regradeReason: regradeReason.trim(),
-        practical1,
-        practical2,
-        practical3,
-        practical1Type: currentAssessment.practical1Type,
-        practical2Type: currentAssessment.practical2Type,
-        practical3Type: currentAssessment.practical3Type,
-        totalPractical: totalPracticalCalculated,
-        practicalStatus: totalPracticalCalculated <= 70 ? "OK" : "Error",
-        theory,
-        theoryStatus:
-          theory !== null && theory <= 30
-            ? "OK"
-            : theory === null
-            ? "N/A"
-            : "Error",
-        totalMark: totalMarkCalculated,
-        gradeInLetter: calculateGrade(totalMarkCalculated),
-        comment,
-        //teachingAssignment: currentAssessment.teachingAssignment,
-      }); */
+      updateRegradeStatus.mutate(
+        {
+          id: currentAssessment.id,
+          regradeReason: regradeReason.trim(),
+          practical1,
+          practical2,
+          practical3,
+          theory,
+          totalMark: totalMarkCalculated,
+          practical1Type: currentAssessment.practical1Type,
+          practical2Type: currentAssessment.practical2Type,
+          practical3Type: currentAssessment.practical3Type,
+          totalPractical: totalPracticalCalculated,
+          gradeInLetter: calculateGrade(totalMarkCalculated),
+          regradeStatus: "DEPARTMENT_UNDER_REVIEW",
+        },
+        {
+          onSuccess: () => {
+            // Clear the form after successful submission
+            setRegradeReason("");
+            setCurrentAssessment(null);
 
-      await updateRegradeStatus.mutateAsync({
-        id: currentAssessment.id,
-        regradeStatus: "DEPARTMENT_UNDER_REVIEW",
-      });
+            // Call onSuccess callback to trigger refetch
+            if (onSuccess) {
+              onSuccess();
+            }
 
-      // Clear the form after successful submission
-      setRegradeReason("");
-      setCurrentAssessment(null);
-      
+            onClose();
+          },
+        }
+      );
     } catch (error) {
       console.error("Error creating re-grade request:", error);
       // Error is already handled by the mutation hook

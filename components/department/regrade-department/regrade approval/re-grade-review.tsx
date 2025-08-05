@@ -22,379 +22,11 @@ import {
 import {
   useRegradeRequests,
   useTeacherRegradeRequests,
+  useDepartmentRegradeRequests,
 } from "@/lib/react-query/hooks/useRegrade";
 import { RegradeAssesmentResponse } from "@/types/types";
 import ReGradeDetailPage from "./re-grade-detail-page";
 import { getLocalStorage } from "@/utils/localStorage";
-
-// Mock data in RegradeAssesmentResponse format
-/* const mockReGradeRequests: RegradeAssesmentResponse[] = [
-  {
-    id: 1,
-    regradeStatus: "DEPARTMENT_REQUESTED",
-    regradeReason:
-      "I believe there was an error in the calculation of my final grade. My assignments and exam scores should total to a B grade.",
-    teachingAssignmentId: 101,
-    studentId: 1001,
-    practical1: 25,
-    practical2: 20,
-    practical3: 18,
-    practical1Type: "Lab 1",
-    practical2Type: "Lab 2",
-    practical3Type: "Project",
-    totalPractical: 63,
-    practicalStatus: "OK",
-    theory: 22,
-    theoryStatus: "OK",
-    totalMark: 85,
-    gradeInLetter: "B",
-    comment: "Re-grade requested for final calculation",
-    originalGrade: {
-      id: 3001,
-      teachingAssignmentId: 101,
-      studentId: 1001,
-      practical1: 20,
-      practical2: 18,
-      practical3: 15,
-      practical1Type: "Lab 1",
-      practical2Type: "Lab 2",
-      practical3Type: "Project",
-      totalPractical: 53,
-      practicalStatus: "OK",
-      theory: 20,
-      theoryStatus: "OK",
-      totalMark: 73,
-      gradeInLetter: "C+",
-      comment: "Original assessment",
-      createdAt: new Date("2024-01-10T00:00:00Z"),
-      updatedAt: new Date("2024-01-10T00:00:00Z"),
-    },
-    student: {
-      id: 1001,
-      studentTempId: 2001,
-      userId: 3001,
-      placeOfBirthTown: "Addis Ababa",
-      placeOfBirthZone: "Zone 1",
-      placeOfBirthRegion: "Addis Ababa",
-      dateOfBirth: "2000-05-15",
-      addressKebele: "05",
-      addressWoreda: "Woreda 10",
-      addressTown: "Addis Ababa",
-      addressZone: "Zone 3",
-      addressRegion: "Addis Ababa",
-      phoneHome: "+251911234567",
-      phoneOffice: "",
-      maritalStatus: "Single",
-      departmentId: 1,
-      programId: 101,
-      admissionTypeId: 1,
-      listOfSlip: "2023-SIS-001",
-      registrationDate: "2023-09-01",
-      profilePicture: "",
-      currentStudyingYear: "2023/24",
-      currentStudyingSemester: "I",
-      currentStudyingLevel: "III",
-      createdAt: "2023-09-01T00:00:00Z",
-      updatedAt: "2024-01-01T00:00:00Z",
-      sectionId: 29,
-    },
-    user: {
-      id: 3001,
-      firstName: "John",
-      lastName: "Doe",
-      role: "STUDENT",
-      department: "Computer Science",
-      userMainId: "SIS/001/2023",
-      studentId: "SIS/001/2023",
-      userType: "STUDENT",
-    },
-    teachingAssignment: {
-      id: 101,
-      teacherId: 501,
-      sectionId: 29,
-      courseId: 201,
-      academicSemesterId: 1,
-      academicYearId: 1,
-      level: "III",
-      departmentId: 1,
-      course: {
-        id: 201,
-        collegeId: 1,
-        departmentId: 1,
-        level: "III",
-        courseCode: "COMP 2023",
-        title: "Data Structures and Algorithms",
-        theoryNhrs: 3,
-        practicalNhrs: 2,
-        cooperativeNhrs: 0,
-        totalNhrs: 5,
-        createdAt: "2024-01-01T00:00:00Z",
-      },
-      teacher: {
-        id: 501,
-        userId: 1501,
-        createdAt: "2024-01-01T00:00:00Z",
-        updatedAt: "2024-01-01T00:00:00Z",
-        user: {
-          id: 1501,
-          firstName: "Dr. Jane",
-          middleName: "M",
-          lastName: "Smith",
-          email: "jane.smith@university.edu",
-          phoneNumber: "+1234567890",
-          password: "hashed_password",
-          userType: "TEACHER",
-          gender: "Female",
-          nationality: "American",
-          userMainId: "EMP001",
-        },
-      },
-    },
-  },
-  {
-    id: 2,
-    regradeStatus: "APPROVED",
-    regradeReason:
-      "Midterm exam was graded incorrectly, missing points for partially correct answers.",
-    teachingAssignmentId: 102,
-    studentId: 1002,
-    practical1: 22,
-    practical2: 25,
-    practical3: 20,
-    practical1Type: "Assignment 1",
-    practical2Type: "Assignment 2",
-    practical3Type: "Project",
-    totalPractical: 67,
-    practicalStatus: "OK",
-    theory: 28,
-    theoryStatus: "OK",
-    totalMark: 95,
-    gradeInLetter: "A",
-    comment: "Grade updated after review",
-    originalGrade: {
-      id: 3002,
-      teachingAssignmentId: 102,
-      studentId: 1002,
-      practical1: 20,
-      practical2: 22,
-      practical3: 18,
-      practical1Type: "Assignment 1",
-      practical2Type: "Assignment 2",
-      practical3Type: "Project",
-      totalPractical: 60,
-      practicalStatus: "OK",
-      theory: 25,
-      theoryStatus: "OK",
-      totalMark: 85,
-      gradeInLetter: "B-",
-      comment: "Original assessment",
-      createdAt: new Date("2024-01-05T00:00:00Z"),
-      updatedAt: new Date("2024-01-05T00:00:00Z"),
-    },
-    student: {
-      id: 1002,
-      studentTempId: 2002,
-      userId: 3002,
-      placeOfBirthTown: "Bahir Dar",
-      placeOfBirthZone: "Zone 2",
-      placeOfBirthRegion: "Amhara",
-      dateOfBirth: "1999-08-22",
-      addressKebele: "03",
-      addressWoreda: "Woreda 05",
-      addressTown: "Bahir Dar",
-      addressZone: "Zone 2",
-      addressRegion: "Amhara",
-      phoneHome: "+251912345678",
-      phoneOffice: "",
-      maritalStatus: "Single",
-      departmentId: 2,
-      programId: 102,
-      admissionTypeId: 1,
-      listOfSlip: "2023-SIS-002",
-      registrationDate: "2023-09-01",
-      profilePicture: "",
-      currentStudyingYear: "2023/24",
-      currentStudyingSemester: "I",
-      currentStudyingLevel: "II",
-      createdAt: "2023-09-01T00:00:00Z",
-      updatedAt: "2024-01-01T00:00:00Z",
-      sectionId: 30,
-    },
-    user: {
-      id: 3002,
-      firstName: "Sarah",
-      lastName: "Johnson",
-      role: "STUDENT",
-      department: "Mathematics",
-      userMainId: "SIS/002/2023",
-      studentId: "SIS/002/2023",
-      userType: "STUDENT",
-    },
-    teachingAssignment: {
-      id: 102,
-      teacherId: 502,
-      sectionId: 30,
-      courseId: 202,
-      academicSemesterId: 1,
-      academicYearId: 1,
-      level: "II",
-      departmentId: 2,
-      course: {
-        id: 202,
-        collegeId: 1,
-        departmentId: 2,
-        level: "II",
-        courseCode: "MATH 2012",
-        title: "Linear Algebra",
-        theoryNhrs: 3,
-        practicalNhrs: 1,
-        cooperativeNhrs: 0,
-        totalNhrs: 4,
-        createdAt: "2024-01-01T00:00:00Z",
-      },
-      teacher: {
-        id: 502,
-        userId: 1502,
-        createdAt: "2024-01-01T00:00:00Z",
-        updatedAt: "2024-01-01T00:00:00Z",
-        user: {
-          id: 1502,
-          firstName: "Prof. Michael",
-          middleName: "R",
-          lastName: "Brown",
-          email: "michael.brown@university.edu",
-          phoneNumber: "+1234567891",
-          password: "hashed_password",
-          userType: "TEACHER",
-          gender: "Male",
-          nationality: "British",
-          userMainId: "EMP002",
-        },
-      },
-    },
-  },
-  {
-    id: 3,
-    regradeStatus: "REGISTRAR_REJECTED",
-    regradeReason: "I think my lab reports were undergraded.",
-    teachingAssignmentId: 103,
-    studentId: 1003,
-    practical1: 15,
-    practical2: 12,
-    practical3: 18,
-    practical1Type: "Lab Report 1",
-    practical2Type: "Lab Report 2",
-    practical3Type: "Final Project",
-    totalPractical: 45,
-    practicalStatus: "OK",
-    theory: 18,
-    theoryStatus: "OK",
-    totalMark: 63,
-    gradeInLetter: "C",
-    comment: "Grade confirmed after review",
-    originalGrade: {
-      id: 3003,
-      teachingAssignmentId: 103,
-      studentId: 1003,
-      practical1: 15,
-      practical2: 12,
-      practical3: 18,
-      practical1Type: "Lab Report 1",
-      practical2Type: "Lab Report 2",
-      practical3Type: "Final Project",
-      totalPractical: 45,
-      practicalStatus: "OK",
-      theory: 18,
-      theoryStatus: "OK",
-      totalMark: 63,
-      gradeInLetter: "C",
-      comment: "Grade confirmed after review",
-      createdAt: new Date("2024-01-05T00:00:00Z"),
-      updatedAt: new Date("2024-01-05T00:00:00Z"),
-    },
-    student: {
-      id: 1003,
-      studentTempId: 2003,
-      userId: 3003,
-      placeOfBirthTown: "Mekelle",
-      placeOfBirthZone: "Zone 4",
-      placeOfBirthRegion: "Tigray",
-      dateOfBirth: "2001-03-10",
-      addressKebele: "07",
-      addressWoreda: "Woreda 12",
-      addressTown: "Mekelle",
-      addressZone: "Zone 4",
-      addressRegion: "Tigray",
-      phoneHome: "+251913456789",
-      phoneOffice: "",
-      maritalStatus: "Single",
-      departmentId: 3,
-      programId: 103,
-      admissionTypeId: 1,
-      listOfSlip: "2023-SIS-003",
-      registrationDate: "2023-09-01",
-      profilePicture: "",
-      currentStudyingYear: "2023/24",
-      currentStudyingSemester: "I",
-      currentStudyingLevel: "IV",
-      createdAt: "2023-09-01T00:00:00Z",
-      updatedAt: "2024-01-01T00:00:00Z",
-      sectionId: 31,
-    },
-    user: {
-      id: 3003,
-      firstName: "Michael",
-      lastName: "Chen",
-      role: "STUDENT",
-      department: "Physics",
-      userMainId: "SIS/003/2023",
-      studentId: "SIS/003/2023",
-      userType: "STUDENT",
-    },
-    teachingAssignment: {
-      id: 103,
-      teacherId: 503,
-      sectionId: 31,
-      courseId: 203,
-      academicSemesterId: 1,
-      academicYearId: 1,
-      level: "IV",
-      departmentId: 3,
-      course: {
-        id: 203,
-        collegeId: 1,
-        departmentId: 3,
-        level: "IV",
-        courseCode: "PHYS 2015",
-        title: "Quantum Physics",
-        theoryNhrs: 4,
-        practicalNhrs: 2,
-        cooperativeNhrs: 0,
-        totalNhrs: 6,
-        createdAt: "2024-01-01T00:00:00Z",
-      },
-      teacher: {
-        id: 503,
-        userId: 1503,
-        createdAt: "2024-01-01T00:00:00Z",
-        updatedAt: "2024-01-01T00:00:00Z",
-        user: {
-          id: 1503,
-          firstName: "Dr. Alice",
-          middleName: "K",
-          lastName: "Davis",
-          email: "alice.davis@university.edu",
-          phoneNumber: "+1234567892",
-          password: "hashed_password",
-          userType: "TEACHER",
-          gender: "Female",
-          nationality: "Canadian",
-          userMainId: "EMP003",
-        },
-      },
-    },
-  },
-]; */
 
 type ReGradeStatus =
   | "all"
@@ -411,12 +43,13 @@ export default function ReGradeReview() {
   const departmentId = getLocalStorage("departmentId") || 0;
 
   /* TODO: Change to useDepartmentRegradeRequests */
-  const teacherId = 2;
+  //const teacherId = 2;
   const {
     data: allRequests,
     isLoading,
     error,
-  } = useTeacherRegradeRequests(Number(teacherId));
+    refetch,
+  } = useDepartmentRegradeRequests(Number(departmentId));
 
   const [filter, setFilter] = useState<ReGradeStatus>("all");
   const [selectedRequest, setSelectedRequest] =
@@ -425,7 +58,13 @@ export default function ReGradeReview() {
 
   // Frontend filtering
   const requests = allRequests?.filter((request: RegradeAssesmentResponse) => {
-    if (filter === "all") return true;
+    if (filter === "all") {
+      return [
+        "DEPARTMENT_UNDER_REVIEW",
+        "DEPARTMENT_REJECTED",
+        "REGISTRAR_UNDER_REVIEW",
+      ].includes(request.regradeStatus);
+    }
     return request.regradeStatus === filter;
   });
 
@@ -472,7 +111,25 @@ export default function ReGradeReview() {
   };
 
   const filteredRequests = allRequests?.filter((request) => {
-    if (filter === "all") return true;
+    if (filter === "all") {
+      return [
+        "DEPARTMENT_UNDER_REVIEW",
+        "DEPARTMENT_REJECTED",
+        "REGISTRAR_UNDER_REVIEW",
+      ].includes(request.regradeStatus);
+    }
+    if (filter === "DEPARTMENT_UNDER_REVIEW") {
+      return request.regradeStatus === "DEPARTMENT_UNDER_REVIEW";
+    }
+    if (filter === "DEPARTMENT_APPROVED") {
+      return (
+        request.regradeStatus === "DEPARTMENT_APPROVED" ||
+        request.regradeStatus === "REGISTRAR_UNDER_REVIEW"
+      );
+    }
+    if (filter === "DEPARTMENT_REJECTED") {
+      return request.regradeStatus === "DEPARTMENT_REJECTED";
+    }
     return request.regradeStatus === filter;
   });
 
@@ -519,7 +176,13 @@ export default function ReGradeReview() {
 
   const getStatusCounts = () => {
     return {
-      all: allRequests?.length,
+      all: allRequests?.filter((r) =>
+        [
+          "DEPARTMENT_UNDER_REVIEW",
+          "DEPARTMENT_REJECTED",
+          "REGISTRAR_UNDER_REVIEW",
+        ].includes(r.regradeStatus)
+      ).length,
       DEPARTMENT_PENDING: allRequests?.filter(
         (r) => r.regradeStatus === "DEPARTMENT_UNDER_REVIEW"
       ).length,
@@ -554,6 +217,7 @@ export default function ReGradeReview() {
         request={selectedRequest}
         onClose={handleCloseDetailPage}
         loading={false}
+        onSuccess={() => refetch()}
       />
     );
   }
@@ -582,22 +246,18 @@ export default function ReGradeReview() {
                 }
                 size="sm"
                 onClick={() => setFilter("DEPARTMENT_UNDER_REVIEW")}
-                className="text-xs bg-orange-600 hover:bg-orange-700"
+                className="text-xs"
               >
                 <Clock className="h-3 w-3 mr-1" />
                 Pending ({statusCounts.DEPARTMENT_PENDING})
               </Button>
               <Button
                 variant={
-                  filter === "DEPARTMENT_APPROVED" ||
-                  filter === "REGISTRAR_UNDER_REVIEW"
-                    ? "default"
-                    : "outline"
+                  filter === "DEPARTMENT_APPROVED" ? "default" : "outline"
                 }
                 size="sm"
-                //onClick={() => setFilter("DEPARTMENT_APPROVED")}
-                onClick={() => setFilter("REGISTRAR_UNDER_REVIEW")}
-                className="text-xs bg-green-600 hover:bg-green-700"
+                onClick={() => setFilter("DEPARTMENT_APPROVED")}
+                className="text-xs"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Approved ({statusCounts.DEPARTMENT_APPROVED})
@@ -608,7 +268,7 @@ export default function ReGradeReview() {
                 }
                 size="sm"
                 onClick={() => setFilter("DEPARTMENT_REJECTED")}
-                className="text-xs bg-red-600 hover:bg-red-700"
+                className="text-xs"
               >
                 <XCircle className="h-3 w-3 mr-1" />
                 Rejected ({statusCounts.DEPARTMENT_REJECTED})

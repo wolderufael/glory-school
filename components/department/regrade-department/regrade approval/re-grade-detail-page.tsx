@@ -27,36 +27,59 @@ import {
   User,
 } from "lucide-react";
 import { RegradeAssesmentResponse } from "@/types/types";
-import { useUpdateRegradeStatus } from "@/lib/react-query/mutations/useRegradeAssesment";
+import {
+  useUpdateRegradeStatus,
+  useUpdateRegradeDecision,
+} from "@/lib/react-query/mutations/useRegradeAssesment";
 
 interface ReGradeDetailPageProps {
   request: RegradeAssesmentResponse | null;
   onClose: () => void;
   loading?: boolean;
+  onSuccess?: () => void;
 }
 
 export default function ReGradeDetailPage({
   request,
   onClose,
   loading = false,
+  onSuccess,
 }: ReGradeDetailPageProps) {
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Mutation for updating re-grade status
-  const updateRegradeStatus = useUpdateRegradeStatus();
+  //const updateRegradeStatus = useUpdateRegradeStatus();
+  const updateRegradeDecision = useUpdateRegradeDecision();
 
   const handleSubmitDecision = () => {
     if (!request) return;
 
-    updateRegradeStatus.mutate({
-      id: request.id,
-      regradeStatus: decision === "approve" ? "REGISTRAR_UNDER_REVIEW" : "DEPARTMENT_REJECTED",
-      regradeReason: decision === "reject" ? rejectionReason : "Regrade request approved by department",
-    });
+    updateRegradeDecision.mutate(
+      {
+        id: request.id,
+        regradeStatus:
+          decision === "approve"
+            ? "REGISTRAR_UNDER_REVIEW"
+            : "REGRADE_REQUESTED",
+        regradeReason:
+          decision === "reject"
+            ? rejectionReason
+            : "Regrade request approved by department",
+      },
+      {
+        onSuccess: () => {
+          resetForm();
 
-    resetForm();
-    onClose();
+          // Call onSuccess callback to trigger refetch
+          if (onSuccess) {
+            onSuccess();
+          }
+
+          onClose();
+        },
+      }
+    );
   };
 
   const resetForm = () => {
@@ -172,7 +195,8 @@ export default function ReGradeDetailPage({
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {request.student.user.firstName} {request.student.user.lastName}
+                        {request.student.user.firstName}{" "}
+                        {request.student.user.lastName}
                       </p>
                       <p className="text-sm text-gray-600">
                         {request.student.user.studentId}
@@ -345,11 +369,13 @@ export default function ReGradeDetailPage({
                         }`}
                       >
                         (
-                        {request.totalMark! - request.originalGrade?.totalMark! >
+                        {request.totalMark! -
+                          request.originalGrade?.totalMark! >
                         0
                           ? "+"
                           : ""}
-                        {request.totalMark! - request.originalGrade?.totalMark!})
+                        {request.totalMark! - request.originalGrade?.totalMark!}
+                        )
                       </span>
                     </span>
                   </div>

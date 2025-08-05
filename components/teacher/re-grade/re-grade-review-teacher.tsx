@@ -30,7 +30,6 @@ import {
 } from "@/lib/react-query/hooks/useRegrade";
 import { getLocalStorage } from "@/utils/localStorage";
 
-
 type ReGradeStatus =
   | "all"
   | "REGRADE_REQUESTED"
@@ -43,9 +42,12 @@ type ReGradeStatus =
 
 export default function ReGradeReview() {
   const teacherId = getLocalStorage("teacherId") || 0;
-  const { data: allRequests, isLoading, error } = useTeacherRegradeRequests(
-    Number(teacherId)
-  );
+  const {
+    data: allRequests,
+    isLoading,
+    error,
+    refetch,
+  } = useTeacherRegradeRequests(Number(teacherId));
 
   const [filter, setFilter] = useState<ReGradeStatus>("all");
   const [selectedRequest, setSelectedRequest] =
@@ -196,6 +198,7 @@ export default function ReGradeReview() {
         request={selectedRequest}
         onClose={handleCloseAssessment}
         loading={false}
+        onSuccess={() => refetch()}
       />
     );
   }
@@ -219,23 +222,21 @@ export default function ReGradeReview() {
                 All ({statusCounts.all})
               </Button>
               <Button
-                variant={
-                  filter === "DEPARTMENT_UNDER_REVIEW" ? "default" : "outline"
-                }
+                variant={filter === "REGRADE_REQUESTED" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilter("REGRADE_REQUESTED")}
-                className="text-xs bg-orange-600 hover:bg-orange-700"
+                className="text-xs"
               >
                 <Clock className="h-3 w-3 mr-1" />
                 Pending ({statusCounts.REGRADE_REQUESTED})
               </Button>
               <Button
                 variant={
-                  filter === "DEPARTMENT_APPROVED" ? "default" : "outline"
+                  filter === "DEPARTMENT_UNDER_REVIEW" ? "default" : "outline"
                 }
                 size="sm"
                 onClick={() => setFilter("DEPARTMENT_UNDER_REVIEW")}
-                className="text-xs bg-green-600 hover:bg-green-700"
+                className="text-xs"
               >
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Approved ({statusCounts.DEPARTMENT_UNDER_REVIEW})
@@ -246,7 +247,7 @@ export default function ReGradeReview() {
                 }
                 size="sm"
                 onClick={() => setFilter("DEPARTMENT_REJECTED")}
-                className="text-xs bg-red-600 hover:bg-red-700"
+                className="text-xs"
               >
                 <XCircle className="h-3 w-3 mr-1" />
                 Rejected ({statusCounts.DEPARTMENT_REJECTED})
@@ -444,8 +445,7 @@ export default function ReGradeReview() {
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
                         </Button>
-                        {request.regradeStatus ===
-                          "REGRADE_REQUESTED" && (
+                        {request.regradeStatus === "REGRADE_REQUESTED" && (
                           <Button
                             size="sm"
                             onClick={() => handleReGradeRequest(request)}
