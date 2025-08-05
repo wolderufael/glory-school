@@ -322,7 +322,7 @@ const ListTable = () => {
           practical3 === null ||
           theory === null
             ? "NG"
-            : calculateGrade(totalMark);
+            : calculateGrade(totalMark, totalPractical, theory);
 
      
 
@@ -537,7 +537,7 @@ const ListTable = () => {
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Grade Guardian
+              Grade Guardian 
             </h1>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -903,7 +903,7 @@ const ListTable = () => {
                             practical3 === null ||
                             theory === null
                               ? "NG"
-                              : calculateGrade(totalMark);
+                              : calculateGrade(totalMark, totalPractical, theory);
                           const fullName = student?.user?.firstName
                             ? `${student.user.firstName} ${
                                 student.user.middleName ?? ""

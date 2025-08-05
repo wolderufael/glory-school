@@ -50,7 +50,11 @@ export const useAssessments = () => {
           (data.practical1 || 0) +
             (data.practical2 || 0) +
             (data.practical3 || 0) +
-            (data.theory || 0)
+            (data.theory || 0),
+          (data.practical1 || 0) +
+            (data.practical2 || 0) +
+            (data.practical3 || 0),
+          (data.theory || 0)
         ),
         practicalStatus: "submitted",
         theoryStatus: "submitted",
@@ -102,7 +106,11 @@ export const useAssessments = () => {
           (data.practical1 || 0) +
             (data.practical2 || 0) +
             (data.practical3 || 0) +
-            (data.theory || 0)
+            (data.theory || 0),
+          (data.practical1 || 0) +
+            (data.practical2 || 0) +
+            (data.practical3 || 0),
+          (data.theory || 0)
         ),
         practicalStatus: "submitted",
         theoryStatus: "submitted",
@@ -164,7 +172,11 @@ export const useAssessments = () => {
           (assessment.practical1 || 0) +
             (assessment.practical2 || 0) +
             (assessment.practical3 || 0) +
-            (assessment.theory || 0)
+            (assessment.theory || 0),
+          (assessment.practical1 || 0) +
+            (assessment.practical2 || 0) +
+            (assessment.practical3 || 0),
+          (assessment.theory || 0)
         ),
         practicalStatus: "submitted" as string,
         theoryStatus: "submitted" as string,
@@ -221,13 +233,13 @@ export const useAssessments = () => {
             : updated.practical3 || 0;
         updated.totalPractical = practical1 + practical2 + practical3;
         updated.totalMark = updated.totalPractical + (updated.theory || 0);
-        updated.gradeInLetter = calculateGrade(updated.totalMark);
+        updated.gradeInLetter = calculateGrade(updated.totalMark,updated.totalPractical,updated.theory||0);
       }
 
       if (field === "theory") {
         updated.totalMark =
           (updated.totalPractical || 0) + (value === null ? 0 : Number(value));
-        updated.gradeInLetter = calculateGrade(updated.totalMark);
+        updated.gradeInLetter = calculateGrade(updated.totalMark,updated.totalPractical||0,updated.theory||0);
       }
 
       return { ...prev, [studentId]: updated };

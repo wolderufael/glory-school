@@ -48,7 +48,7 @@ export const useMarks = () => {
           field === "practical" ? Number(value) : updatedMark.practical;
         const theory = field === "theory" ? Number(value) : updatedMark.theory;
         updatedMark.total = practical + theory;
-        updatedMark.grade_in_letter = calculateGrade(updatedMark.total);
+        updatedMark.grade_in_letter = calculateGrade(updatedMark.total,practical,theory);
       }
 
       return { ...prev, [studentId]: updatedMark };

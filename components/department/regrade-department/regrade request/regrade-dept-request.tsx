@@ -294,7 +294,7 @@ export default function RegradeDeptRequest() {
             ? "N/A"
             : "Error",
         totalMark: totalMarkCalculated,
-        gradeInLetter: calculateGrade(totalMarkCalculated),
+        gradeInLetter: calculateGrade(totalMarkCalculated, totalPracticalCalculated, theory),
         comment,
         //teachingAssignment: currentAssessment.teachingAssignment,
       });
@@ -805,7 +805,7 @@ export default function RegradeDeptRequest() {
                               (practical2 ?? 0) +
                               (practical3 ?? 0);
                             const totalMark = totalPractical + (theory ?? 0);
-                            const dynamicGrade = calculateGrade(totalMark);
+                            const dynamicGrade = calculateGrade(totalMark,totalPractical,theory);
 
                             // Dynamic status calculations
                             const practicalStatus =

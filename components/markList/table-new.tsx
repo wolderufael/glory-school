@@ -126,7 +126,7 @@ const ListTable = () => {
           practical3 === null ||
           theory === null
             ? "NG"
-            : calculateGrade(totalMark);
+            : calculateGrade(totalMark,totalPractical,theory);
 
         return {
           teachingAssignmentId: selectedTeachingAssignmentId,
@@ -170,7 +170,7 @@ const ListTable = () => {
       // Change status from DRAFT to SUBMISSION_REQUESTED (or UNDER_REVIEW based on your workflow)
       await updateAssessmentStatusMutation.mutateAsync({
         id: statusInfo.assessmentGroupId,
-        status: "UNDER_REVIEW", // Change to SUBMISSION_REQUESTED if you want an intermediate step
+        status: "SUBMISSION_REQUESTED", // Change to SUBMISSION_REQUESTED if you want an intermediate step
       });
 
       // Refresh the data to get updated status
@@ -585,7 +585,7 @@ const ListTable = () => {
                           practical3 === null ||
                           theory === null
                             ? "NG"
-                            : calculateGrade(totalMark);
+                            : calculateGrade(totalMark,totalPractical,theory);
                         const fullName = student?.user?.firstName
                           ? `${student.user.firstName} ${
                               student.user.middleName ?? ""

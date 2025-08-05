@@ -174,7 +174,7 @@ export default function ReGrade({
           practical2Type: currentAssessment.practical2Type,
           practical3Type: currentAssessment.practical3Type,
           totalPractical: totalPracticalCalculated,
-          gradeInLetter: calculateGrade(totalMarkCalculated),
+          gradeInLetter: calculateGrade(totalMarkCalculated,totalPracticalCalculated,theory||0),
           regradeStatus: "DEPARTMENT_UNDER_REVIEW",
         },
         {
@@ -427,7 +427,7 @@ export default function ReGrade({
                               (practical2 ?? 0) +
                               (practical3 ?? 0);
                             const totalMark = totalPractical + (theory ?? 0);
-                            const dynamicGrade = calculateGrade(totalMark);
+                            const dynamicGrade = calculateGrade(totalMark,totalPractical,theory||0);
 
                             // Dynamic status calculations
                             const practicalStatus =
