@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { calculateGrade } from "@/utils/calculateGrade";
 
 export interface StudentMark {
   student_main_id: string;
@@ -54,19 +55,7 @@ export const useMarks = () => {
     });
   };
 
-  const calculateGrade = (total: number): string => {
-    if (total >= 90) return "A+";
-    if (total >= 85) return "A";
-    if (total >= 80) return "A-";
-    if (total >= 75) return "B+";
-    if (total >= 70) return "B";
-    if (total >= 65) return "B-";
-    if (total >= 60) return "C+";
-    if (total >= 55) return "C";
-    if (total >= 50) return "C-";
-    if (total >= 45) return "D";
-    return "F";
-  };
+ 
 
   const submitMarks = async () => {
     setIsSubmitting(true);

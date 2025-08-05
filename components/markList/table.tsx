@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import { useTeachingAssignment } from "@/lib/react-query/hooks/useTeachingAssignment";
 import { toast } from "sonner";
+import { calculateGrade } from "@/utils/calculateGrade";
 
 interface StudentMark {
   student_main_id: string;
@@ -454,19 +455,7 @@ const ListTable = () => {
     return [saveButton, secondButton];
   };
 
-  const calculateGrade = (total: number): string => {
-    if (total > 100) return "Error";
-    if (total >= 95) return "A+";
-    if (total >= 92) return "A";
-    if (total >= 89) return "A-";
-    if (total >= 86) return "B+";
-    if (total >= 83) return "B";
-    if (total >= 80) return "B-";
-    if (total >= 77) return "C+";
-    if (total >= 74) return "C";
 
-    return "F";
-  };
 
   const validatePracticalMarks = (
     studentId: number,

@@ -20,6 +20,7 @@ import { ModuleInfoForm } from "./moduleInfoForm";
 import { AssessmentCell } from "./assessmentCell";
 import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
 import { useUpdateAssessmentStatus } from "@/lib/react-query/mutations/useAssessmentStatus";
+import { calculateGrade } from "@/utils/calculateGrade";
 import {
   GraduationCap,
   Users,
@@ -290,19 +291,7 @@ const ListTable = () => {
     return assessments[numericStudentId]?.gradeInLetter || "F";
   };
 
-  const calculateGrade = (total: number): string => {
-    if (total > 100) return "Error";
-    if (total >= 95) return "A+";
-    if (total >= 92) return "A";
-    if (total >= 89) return "A-";
-    if (total >= 86) return "B+";
-    if (total >= 83) return "B";
-    if (total >= 80) return "B-";
-    if (total >= 77) return "C+";
-    if (total >= 74) return "C";
-    if (total === 0) return "NA";
-    return "F";
-  };
+ 
 
   const getGradeColor = (grade: string) => {
     switch (grade) {

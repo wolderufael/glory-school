@@ -37,6 +37,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getLocalStorage } from "@/utils/localStorage";
 import { SelectedTeacher } from "../../teacher-assignment/AssignmentConfirmDialog";
 import { Teacher, useTeachers } from "@/lib/react-query/queries/getTeachers";
+import { calculateGrade } from "@/utils/calculateGrade";
 
 export default function RegradeDeptRequest() {
   //const teacherId = getLocalStorage("teacherId") || "";
@@ -310,20 +311,6 @@ export default function RegradeDeptRequest() {
     }
   };
 
-  // Helper function to calculate grade based on total marks
-  const calculateGrade = (total: number): string => {
-    if (total > 100) return "Error";
-    if (total >= 95) return "A+";
-    if (total >= 92) return "A";
-    if (total >= 89) return "A-";
-    if (total >= 86) return "B+";
-    if (total >= 83) return "B";
-    if (total >= 80) return "B-";
-    if (total >= 77) return "C+";
-    if (total >= 74) return "C";
-
-    return "F";
-  };
 
   const getGradeColor = (grade: string) => {
     switch (grade) {

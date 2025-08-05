@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { calculateGrade } from "@/utils/calculateGrade";
 import {
   Assessment,
   AssessmentSubmission,
@@ -233,19 +234,7 @@ export const useAssessments = () => {
     });
   };
 
-  const calculateGrade = (total: number): string => {
-    if (total >= 90) return "A+";
-    if (total >= 85) return "A";
-    if (total >= 80) return "A-";
-    if (total >= 75) return "B+";
-    if (total >= 70) return "B";
-    if (total >= 65) return "B-";
-    if (total >= 60) return "C+";
-    if (total >= 55) return "C";
-    if (total >= 50) return "C-";
-    if (total >= 45) return "D";
-    return "F";
-  };
+
 
   return {
     assessments,

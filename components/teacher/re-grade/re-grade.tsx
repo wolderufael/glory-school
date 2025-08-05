@@ -39,6 +39,7 @@ import { Assessment } from "@/utils/assessment";
 import { RegradeAssesment, RegradeAssesmentResponse } from "@/types/types";
 import { Textarea } from "@/components/ui/textarea";
 import { getLocalStorage } from "@/utils/localStorage";
+import { calculateGrade } from "@/utils/calculateGrade";
 
 interface ReGradeProps {
   request: RegradeAssesmentResponse | null;
@@ -198,19 +199,7 @@ export default function ReGrade({
   };
 
   // Helper function to calculate grade based on total marks
-  const calculateGrade = (total: number): string => {
-    if (total > 100) return "Error";
-    if (total >= 95) return "A+";
-    if (total >= 92) return "A";
-    if (total >= 89) return "A-";
-    if (total >= 86) return "B+";
-    if (total >= 83) return "B";
-    if (total >= 80) return "B-";
-    if (total >= 77) return "C+";
-    if (total >= 74) return "C";
 
-    return "F";
-  };
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
