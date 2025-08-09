@@ -31,11 +31,67 @@ interface TempStudent {
   departmentId: number;
   generatedId?: string;
   studentMainId?: string;
-  department?: {
+  grade?: {
     name: string;
   };
   password?: string;
 }
+
+const grade = [
+  {
+    id: 1,
+    schoolId: 1,
+    name: "Grade 9",
+    code: "G9",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 2,
+    schoolId: 1,
+    name: "Grade 10",
+    code: "G10",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 3,
+    schoolId: 1,
+    name: "Grade 11",
+    code: "G11",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 4,
+    schoolId: 1,
+    name: "Grade 12",
+    code: "G12",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+];
+
+const tempStudents = [
+  {
+    id: 1,
+    registerId: 1,
+    academicYearId: 1,
+    firstName: "John",
+    middleName: "Doe",
+    lastName: "Grade 9",
+    departmentId: 1,
+    studentMainId: "GS/144/2025",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 2,
+    registerId: 1,
+    academicYearId: 1,
+    firstName: "Jane",
+    middleName: "Smith",
+    lastName: "Grade 10",
+    departmentId: 2,
+    studentMainId: "GS/145/2025",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+];
 
 export function StudentForm() {
   const [students, setStudents] = useState<any[]>([]);
@@ -72,14 +128,14 @@ export function StudentForm() {
   useEffect(() => {
     async function fetchDepartments() {
       try {
-        const res = await fetch(
+        /*   const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
         );
         if (!res.ok) throw new Error("Failed to fetch departments");
         const data = await res.json();
-        console.log("Departments:", data);
+        console.log("Departments:", data); */
 
-        setDepartmentList(data);
+        setDepartmentList(grade);
       } catch (e) {
         console.error("Error fetching departments:", e);
       }
@@ -92,12 +148,12 @@ export function StudentForm() {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const res = await fetch(
+        /* const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents?academicYearId=${academicYearId}`
         );
         if (!res.ok) throw new Error("Failed to fetch students");
-        const data = await res.json();
-        setStudents(data);
+        const data = await res.json(); */
+        setStudents(tempStudents);
       } catch (e) {
         console.error("Error fetching students:", e);
         toast.error("Failed to fetch students");
@@ -203,7 +259,7 @@ export function StudentForm() {
       }
       setErrors({});
       // Post to DB
-      const res = await fetch(
+      /*  const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/tempStudents`,
         {
           method: "POST",
@@ -223,9 +279,21 @@ export function StudentForm() {
       if (!updatedRes.ok) {
         throw new Error("Failed to fetch updated students list");
       }
-      const updatedStudents = await updatedRes.json();
+      const updatedStudents = await updatedRes.json(); */
       //setIsSubmitted(true);
-      setStudents(updatedStudents);
+
+      // Generate a simple 3-digit ID for the new student
+      const nextId =
+        Math.max(
+          ...students.map((s) => Number(s.id) || 0),
+          ...tempStudents.map((s) => Number(s.id) || 0)
+        ) + 1;
+      const newStudent = {
+        ...formData,
+        id: nextId,
+      };
+
+      setStudents([...tempStudents, newStudent]);
       setFormData((prev) => ({
         ...prev,
         id: "",
@@ -254,7 +322,7 @@ export function StudentForm() {
     }));
   };
 
-  const handleGenerateAllIds = async () => {
+  /*  const handleGenerateAllIds = async () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/generate-ids`,
@@ -284,7 +352,7 @@ export function StudentForm() {
       toast.error("Failed to generate student IDs");
       console.error("Error generating IDs:", error);
     }
-  };
+  }; */
 
   const handleBulkCreate = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -452,7 +520,7 @@ export function StudentForm() {
 
             <div className="relative" ref={dropdownRef}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department
+                Grade
               </label>
               <input
                 type="text"
@@ -510,12 +578,12 @@ export function StudentForm() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800">Student List</h2>
-          <Button
+          {/*     <Button
             onClick={handleGenerateAllIds}
             className="bg-blue-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             Generate All IDs
-          </Button>
+          </Button> */}
         </div>
 
         <div className="overflow-auto max-h-[calc(100vh-24rem)]">
@@ -535,7 +603,7 @@ export function StudentForm() {
                   Last Name
                 </TableHead>
                 <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
-                  Department
+                  Grade
                 </TableHead>
                 <TableHead className="p-3 text-sm font-semibold text-gray-600 whitespace-nowrap">
                   Generated ID
@@ -571,7 +639,7 @@ export function StudentForm() {
                       {student.lastName}
                     </TableCell>
                     <TableCell className="p-3 text-sm text-gray-600">
-                      {student.department?.name ||
+                      {student.grade?.name ||
                         departmentList.find(
                           (d) => d.id === student.departmentId
                         )?.name ||

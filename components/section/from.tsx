@@ -20,6 +20,7 @@ import { useDepartment } from "@/lib/react-query/hooks/useDepartment";
 //import { useGetSection } from "@/lib/react-query/hooks/useAcademicYear";
 import { useCreateSection } from "@/lib/react-query/mutations/Section";
 import { getLocalStorage } from "@/utils/localStorage";
+import { toast } from "sonner";
 
 type AcademicYear = {
   id: string;
@@ -34,6 +35,37 @@ interface Department {
   name: string;
   code: string;
 }
+
+const grade = [
+  {
+    id: 1,
+    schoolId: 1,
+    name: "Grade 9",
+    code: "G9",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 2,
+    schoolId: 1,
+    name: "Grade 10",
+    code: "G10",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 3,
+    schoolId: 1,
+    name: "Grade 11",
+    code: "G11",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 4,
+    schoolId: 1,
+    name: "Grade 12",
+    code: "G12",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+];
 
 export function CreateSection() {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,14 +101,14 @@ export function CreateSection() {
   useEffect(() => {
     async function fetchDepartments() {
       try {
-        const res = await fetch(
+        /*  const res = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
         );
         if (!res.ok) throw new Error("Failed to fetch departments");
         const data = await res.json();
-        console.log("Departments:", data);
+        console.log("Departments:", data); */
 
-        setDepartmentList(data);
+        setDepartmentList(grade);
       } catch (e) {
         console.error("Error fetching departments:", e);
       }
@@ -100,7 +132,7 @@ export function CreateSection() {
   }, [academicYear]);
 
   useEffect(() => {
-    if (studentCount > 0 && numberOfSection > 0) {
+    if (studentCount && numberOfSection > 0) {
       const n = numberOfSection;
       const base = Math.floor(studentCount / n);
       const remainder = studentCount % n;
@@ -178,22 +210,25 @@ export function CreateSection() {
     console.log("numberOfSection", numberOfSection);
     console.log("academicYear", academicYear);
     console.log("departmentId", formData.departmentId);
-    const payload = {
+  /*   const payload = {
       academicYearId: Number(academicYear?.id),
       numberOfSections: numberOfSection,
       departmentId: Number(formData.departmentId),
-    };
+    }; */
 
-    if (!handleValidate()) return;
+   /*  if (!handleValidate()) return; */
 
-    createSectionMutation(payload, {
-      onSuccess: () => {
-        setNumberOfSection(1);
-        setSections([]);
-        // Refetch student count after section is created
-        refetchStudentCount();
-      },
-    });
+    // Reset all data to default values
+    setNumberOfSection(1);
+    setSections([]);
+    setInputValue(""); // Clear selected grade display
+    setNumberOfStudents(0); // Reset total student count
+    setFormData((prev) => ({
+      ...prev,
+      departmentId: 0, // Clear selected department
+    }));
+    setFilteredDepartments([]); // Clear filtered departments
+    toast.success("Section created successfully");
   };
 
   useMemo(() => {
@@ -237,7 +272,7 @@ export function CreateSection() {
               {/* Department Selection */}
               <div className="relative flex-1" ref={dropdownRef}>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Department <span className="text-red-500">*</span>
+                  Grade <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -405,7 +440,7 @@ export function CreateSection() {
               <div className="flex justify-end gap-4 pt-6">
                 <Button
                   type="submit"
-                  disabled={isCreatingSection || studentCount === 0}
+                  disabled={isCreatingSection}
                   className="w-full sm:w-auto min-w-[120px]"
                 >
                   {isCreatingSection ? "Creating..." : "Create Section"}
