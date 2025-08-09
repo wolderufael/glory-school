@@ -64,7 +64,7 @@ export default function SchoolPortal() {
       title: "Apply for Admission",
       description:
         "New applicants who aspire to join Wolaita Sodo Agricultural College can apply",
-      image: "/wsu2.jpg",
+      image: "/school0.jpg",
       href: "/admission",
       color: "from-green-500 to-green-600",
     },
@@ -72,7 +72,7 @@ export default function SchoolPortal() {
       title: "Campus Tour",
       description:
         "Take an immersive 360° tour of our campus facilities, labs, and learning spaces from anywhere",
-      image: "/wsu3.jpg",
+      image: "/school5.jpg",
       href: "/virtual-tour",
       color: "from-orange-500 to-orange-600",
       icon: "tour",
@@ -96,7 +96,7 @@ export default function SchoolPortal() {
             >
               <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
                 <Image
-                  src="/wol1.jpg"
+                  src="/glory-school.jpg"
                   alt="Logo"
                   width={78}
                   height={78}
@@ -105,10 +105,10 @@ export default function SchoolPortal() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  WOLAITA SODO
+                  GLORY SCHOOL
                 </h1>
                 <p className="text-sm text-blue-600 font-medium">
-                  AGRICULTURAL COLLEGE
+                  
                 </p>
               </div>
             </motion.div>
@@ -298,7 +298,7 @@ export default function SchoolPortal() {
                       href: "/student",
                       icon: GraduationCap,
                     },
-                    { name: "Faculty Portal", href: "/registrar", icon: Users },
+                    { name: "Parent Portal", href: "/registrar", icon: Users },
                   ].map((link, index) => (
                     <motion.div
                       key={link.name}
@@ -340,9 +340,9 @@ export default function SchoolPortal() {
                 Contact Information
               </h3>
               <div className="space-y-2 text-blue-100">
-                <p>Wolaita Sodo Agricultural College</p>
-                <p>Wolaita Sodo, Ethiopia</p>
-                <p>Email: info@wsac.edu.et</p>
+                <p>Glory School</p>
+                <p>Addis Ababa, Ethiopia</p>
+                <p>Email: info@gloryschool.edu.et</p>
                 <p>Phone: +251 123 456 789</p>
               </div>
             </div>
@@ -388,7 +388,7 @@ export default function SchoolPortal() {
           </div>
           <div className="mt-8 pt-8 border-t border-blue-700">
             <p className="text-center text-blue-100">
-              © {new Date().getFullYear()} Wolaita Sodo Agricultural College.
+              © {new Date().getFullYear()} Glory School.
               All rights reserved.
             </p>
           </div>

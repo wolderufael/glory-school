@@ -4,9 +4,9 @@ import QueryProvider from "@/lib/providers/query-provider";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Wolaita Sodo Agricultural College Student Portal",
+  title: "Glory School Portal",
   description:
-    "Student Information System for Wolaita Sodo Agricultural College",
+    "Student Information System for Glory School",
 };
 
 export default function RootLayout({

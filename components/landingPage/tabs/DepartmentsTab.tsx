@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users,
   ArrowLeft,
@@ -19,115 +19,145 @@ import {
   MapPin,
   ArrowRight,
   Building2,
-} from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface Department {
-  id: number
-  collegeId: number
-  name: string
-  code: string
-  createdAt: string
+  id: number;
+  collegeId: number;
+  name: string;
+  code: string;
+  createdAt: string;
 }
 
-// Map of department codes to their respective icons and colors
+// Map of department codes to icons and colors for a high school
 const departmentConfig = {
-  ANH: {
-    icon: Stethoscope,
+  MTH: {
+    icon: BookOpen,
     color: "blue",
-    fullName: "Animal Health",
-    description: "Veterinary care and animal health management",
+    fullName: "Mathematics",
+    description: "Algebra, geometry, and advanced problem-solving",
   },
-  ANP: {
-    icon: Dog,
+  SCI: {
+    icon: Droplets,
     color: "green",
-    fullName: "Animal Production",
-    description: "Livestock breeding and production systems",
+    fullName: "Science",
+    description: "Biology, chemistry, and physics fundamentals",
   },
-  CAA: {
+  ENG: {
     icon: BookOpen,
     color: "purple",
-    fullName: "Cooperative & Agricultural Administration",
-    description: "Agricultural business and cooperative management",
+    fullName: "English Language",
+    description: "Reading, writing, and communication skills",
   },
-  CRP: {
-    icon: Leaf,
+  SOC: {
+    icon: Building2,
     color: "yellow",
-    fullName: "Crop Production",
-    description: "Sustainable crop cultivation and management",
+    fullName: "Social Studies",
+    description: "History, civics, and geography",
   },
-  IRD: {
-    icon: Droplets,
+  ICT: {
+    icon: Phone,
     color: "cyan",
-    fullName: "Irrigation & Rural Development",
-    description: "Water management and rural infrastructure",
+    fullName: "ICT",
+    description: "Computer literacy, coding, and digital citizenship",
   },
-  NRC: {
-    icon: TreePine,
+  ART: {
+    icon: Leaf,
     color: "emerald",
-    fullName: "Natural Resource Conservation",
-    description: "Environmental conservation and resource management",
+    fullName: "Arts",
+    description: "Visual arts, music, and performing arts",
   },
-} as const
+} as const;
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6 },
-}
+};
 
 export default function DepartmentsPage() {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  
-  // Provide a valid departmentId, e.g., 1 or fetch dynamically as needed
-  // const { data, isLoading, error } = useDepartment(1)
-  // const departments = Array.isArray(data?.departments) ? data.departments : data || []
-
-
-   useEffect(() => {
-    async function fetchDepartments() {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
-        );
-        if (!res.ok) throw new Error("Failed to fetch departments");
-        const data = await res.json();
-
-        setDepartments(data);
-      } catch (e) {
-        console.error("Error fetching departments:", e);
-      }
-    }
-    fetchDepartments();
-  }, []);
+  const [departments] = useState<Department[]>([
+    {
+      id: 1,
+      collegeId: 0,
+      name: "Mathematics",
+      code: "MTH",
+      createdAt: "2024-01-01",
+    },
+    {
+      id: 2,
+      collegeId: 0,
+      name: "Science",
+      code: "SCI",
+      createdAt: "2024-01-01",
+    },
+    {
+      id: 3,
+      collegeId: 0,
+      name: "English Language",
+      code: "ENG",
+      createdAt: "2024-01-01",
+    },
+    {
+      id: 4,
+      collegeId: 0,
+      name: "Social Studies",
+      code: "SOC",
+      createdAt: "2024-01-01",
+    },
+    { id: 5, collegeId: 0, name: "ICT", code: "ICT", createdAt: "2024-01-01" },
+    { id: 6, collegeId: 0, name: "Arts", code: "ART", createdAt: "2024-01-01" },
+  ]);
 
   const departmentStats = [
     {
-      title: "Total Departments",
+      title: "Departments",
       value: departments.length.toString(),
       icon: Users,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
-    { title: "Faculty Members", value: "85", icon: BookOpen, color: "text-green-600", bg: "bg-green-50" },
-    { title: "Students Enrolled", value: "2000+", icon: Stethoscope, color: "text-orange-600", bg: "bg-orange-50" },
-  ]
+    {
+      title: "Teachers",
+      value: "85",
+      icon: BookOpen,
+      color: "text-green-600",
+      bg: "bg-green-50",
+    },
+    {
+      title: "Students Enrolled",
+      value: "2000+",
+      icon: Stethoscope,
+      color: "text-orange-600",
+      bg: "bg-orange-50",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <Link
+            href="/"
+            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Our Departments</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Our Departments
+              </h1>
               <p className="text-gray-600">
-                Learn about our specialized departments and their contributions to agricultural education and research
+                Explore our high school departments and subject areas that build
+                a strong academic foundation
               </p>
             </div>
             <Users className="h-8 w-8 text-blue-600" />
@@ -153,7 +183,9 @@ export default function DepartmentsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {stat.value}
+                      </p>
                     </div>
                     <div className={`p-3 rounded-full ${stat.bg}`}>
                       <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -168,8 +200,13 @@ export default function DepartmentsPage() {
         <div className="grid lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
             {/* Departments Grid */}
-            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Academic Departments</h2>
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Academic Departments
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {departments.length === 0 ? (
                   // Loading skeletons
@@ -185,13 +222,17 @@ export default function DepartmentsPage() {
                   ))
                 ) : departments.length > 0 ? (
                   // Actual department cards
-                  departments.map((dept: Department, index:number) => {
-                    const config = departmentConfig[dept.code as keyof typeof departmentConfig]
-                    const Icon = config?.icon || BookOpen
-                    const color = config?.color || "blue"
-                    const fullName = config?.fullName || dept.name
+                  departments.map((dept: Department, index: number) => {
+                    const config =
+                      departmentConfig[
+                        dept.code as keyof typeof departmentConfig
+                      ];
+                    const Icon = config?.icon || BookOpen;
+                    const color = config?.color || "blue";
+                    const fullName = config?.fullName || dept.name;
                     const description =
-                      config?.description || `Specialized education and research in ${dept.name.toLowerCase()}`
+                      config?.description ||
+                      `Specialized education and research in ${dept.name.toLowerCase()}`;
 
                     return (
                       <motion.div
@@ -221,16 +262,18 @@ export default function DepartmentsPage() {
                                     </Badge>
                                   </div>
                                 </div>
-                                <p className="text-gray-600 text-sm mb-4">{description}</p>
+                                <p className="text-gray-600 text-sm mb-4">
+                                  {description}
+                                </p>
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-4 text-xs text-gray-500">
                                     <div className="flex items-center">
                                       <Users className="h-3 w-3 mr-1" />
-                                      <span>15 Faculty</span>
+                                      <span>15 Teachers</span>
                                     </div>
                                     <div className="flex items-center">
                                       <BookOpen className="h-3 w-3 mr-1" />
-                                      <span>8 Programs</span>
+                                      <span>8 Classes</span>
                                     </div>
                                   </div>
                                   <Button
@@ -247,7 +290,7 @@ export default function DepartmentsPage() {
                           </CardContent>
                         </Card>
                       </motion.div>
-                    )
+                    );
                   })
                 ) : (
                   // No departments found
@@ -262,7 +305,11 @@ export default function DepartmentsPage() {
 
           <div className="space-y-6">
             {/* Contact Information */}
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
               <Card className="border-0 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-lg">Contact Information</CardTitle>
@@ -271,8 +318,12 @@ export default function DepartmentsPage() {
                   <div className="flex items-center space-x-3">
                     <MapPin className="h-5 w-5 text-blue-600" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Address</p>
-                      <p className="text-xs text-gray-600">Wolaita Sodo, Ethiopia</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Address
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        Addis Ababa, Ethiopia
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -286,7 +337,9 @@ export default function DepartmentsPage() {
                     <Mail className="h-5 w-5 text-blue-600" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Email</p>
-                      <p className="text-xs text-gray-600">departments@wsac.edu.et</p>
+                      <p className="text-xs text-gray-600">
+                        departments@gloryschool.edu.et
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -296,5 +349,5 @@ export default function DepartmentsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

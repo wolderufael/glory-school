@@ -14,53 +14,53 @@ interface SlideImage {
 const schoolImages: SlideImage[] = [
   {
     id: 1,
-    url: "/wsu2.jpg",
+    url: "/school1.jpg",
     alt: "Students studying in university library",
     credit: "Photo by Priscilla Du Preez on Unsplash",
   },
   {
     id: 2,
-    url: "/wsu8.jpg",
+    url: "/school2.jpg",
     alt: "University campus building exterior",
     credit: "Photo by Vasily Koloda on Unsplash",
   },
   {
     id: 3,
-    url: "/wsu3.jpg",
+    url: "/school3.jpg",
     alt: "Students collaborating on agricultural research",
     credit: "Photo by ThisisEngineering RAEng on Unsplash",
   },
   {
     id: 4,
-    url: "/wsu4.jpg",
+    url: "/school4.jpg",
     alt: "Agricultural field and farming landscape",
     credit: "Photo by Zoe Schaeffer on Unsplash",
   },
   {
     id: 5,
-    url: "/wsu5.jpg",
+    url: "/school5.jpg",
     alt: "Students in graduation ceremony",
     credit: "Photo by Vasily Koloda on Unsplash",
   },
   {
     id: 6,
-    url: "/wsu6.jpg",
+    url: "/school6.jpg",
     alt: "Modern university campus courtyard",
     credit: "Photo by Kimberly Farmer on Unsplash",
   },
   {
     id: 7,
-    url: "/wsu9.jpg",
+    url: "/school7.jpg",
     alt: "Students in graduation ceremony",
     credit: "Photo by Vasily Koloda on Unsplash",
   },
   {
     id: 8,
-    url: "/wsu10.jpg",
+    url: "/school8.jpg",
     alt: "Modern university campus courtyard",
     credit: "Photo by Kimberly Farmer on Unsplash",
   },
-]
+];
 
 interface BackgroundSliderProps {
   autoSlideInterval?: number
