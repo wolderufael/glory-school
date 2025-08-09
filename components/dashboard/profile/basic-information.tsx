@@ -428,7 +428,7 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
               />
               <DataItem
                 label="College"
-                value={"Wolaita Sodo Agricultural College"}
+                value={"Glory School"}
                 icon={<HomeIcon className="text-indigo-600" />}
               />
               <DataItem

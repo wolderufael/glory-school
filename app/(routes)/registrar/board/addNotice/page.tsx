@@ -10,12 +10,14 @@ interface College {
   name: string;
 }
 
+const colleges = [{id: 1, name: "Glory School"}]
+
 const RegistrarAddNoticePage = () => {
   const [collegeList, setCollegeList] = useState<College[]>([]);
   const router = useRouter();
 
   // Fetch colleges on mount
-  useEffect(() => {
+ /*  useEffect(() => {
     async function fetchColleges() {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/colleges`, {
@@ -33,12 +35,12 @@ const RegistrarAddNoticePage = () => {
       }
     }
     fetchColleges();
-  }, []);
+  }, []); */
 
   return (
     <div className="container mx-auto py-8">
       <AddNoticeForm
-        colleges={collegeList}
+        colleges={colleges}
         departments={[]} 
         onNoticeAdded={() => {
           /* toast.success('Notice added successfully!'); */

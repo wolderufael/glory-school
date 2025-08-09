@@ -63,7 +63,7 @@ export default function SchoolPortal() {
     {
       title: "Apply for Admission",
       description:
-        "New applicants who aspire to join Wolaita Sodo Agricultural College can apply",
+        "New applicants who aspire to join Glory School can apply",
       image: "/school0.jpg",
       href: "/admission",
       color: "from-green-500 to-green-600",

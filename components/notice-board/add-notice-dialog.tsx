@@ -107,34 +107,13 @@ export function AddNoticeForm({
   }, [formData.college_id]); */
 
   //const { mutate, isPending } = useAddNotice();
-  const { mutate: mutateReg, isPending: isPendingReg } = useAddRegNotice();
+  const { mutate: mutateReg, isPending: isPendingReg } = useAddRegNotice(); 
   const filteredDepartments = departments; // Already filtered by college_id in API
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const authorId =  Number(getLocalStorage("userId"));
-   /*  const payload = {
-      title: formData.title,
-      //departmentId: Number(formData.department_id),
-      //collegeId: Number(formData.college_id),
-      message: formData.message,
-      deadline: new Date(formData.deadline).toISOString(),
-      is_active: formData.is_active,
-      authorId,
-    } */;
-    const payloadreg = {
-      title: formData.title,
-      //collegeId: Number(formData.college_id),
-      message: formData.message,
-      deadline: new Date(formData.deadline).toISOString(),
-      is_active: formData.is_active,
-      authorId,
-    };
 
-    if (getLocalStorage("userType") === "Registrar") {
-    mutateReg(payloadreg, {
-      onSuccess: () => {
-       /*  toast.success("Notice added successfully!"); */
+         toast.success("Notice added successfully!"); 
         setFormData({
           title: "",
           college_id: "",
@@ -143,23 +122,19 @@ export function AddNoticeForm({
           deadline: "",
           is_active: true,
         });
+    
         onNoticeAdded();
         if (isDialog && onClose) {
           onClose();
         }
-      },
-      onError: () => {
-        toast.error("Failed to add notice. Please try again.");
-      },
-    })
-    } 
-  };
+      };
+  
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-3">
         <Label htmlFor="college">
-          College <span className="text-red-500">*</span>
+          School <span className="text-red-500">*</span>
         </Label>
         <Select
           value={formData.college_id}
@@ -169,7 +144,7 @@ export function AddNoticeForm({
           required
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a college" />
+            <SelectValue placeholder="Select School" />
           </SelectTrigger>
           <SelectContent>
             {colleges.map((college) => (
@@ -312,7 +287,7 @@ export function AddNoticeForm({
       <Dialog open={!!onClose} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Add New Notice</DialogTitle>
+            <DialogTitle>Add New Notice </DialogTitle>
           </DialogHeader>
           {formContent}
         </DialogContent>

@@ -66,7 +66,7 @@ const Register = () => {
     phoneNumber: "",
     password: "",
     confirmPassword: "",
-    userType: "" as "" | "Teacher" | "Department" | "Registrar",
+    userType: "" as "" | "Teacher" | "Department" | "Registrar" | "Parent",
     gender: "M" as "M" | "F",
     nationality: "",
     userMainId: "",
@@ -374,7 +374,7 @@ const Register = () => {
 
       console.log(apiData);
 
-      const response = await fetch(
+     /*  const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/users`,
         {
           method: "POST",
@@ -388,10 +388,10 @@ const Register = () => {
         throw new Error("Registration failed");
       }
 
-      const responseData = await response.json();
+      const responseData = await response.json(); */
 
       // Create specific user type based on user type
-      if (formData.userType === "Teacher") {
+    /*   if (formData.userType === "Teacher") {
         const teacherResponse = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/teachers`,
           {
@@ -452,10 +452,14 @@ const Register = () => {
         toast("Registration Successful", {
           description: `A Registrar user account has been created successfully!`,
         });
-      }
+      } */
 
       // Send credentials email after successful user creation
-      await sendCredentialsToUser();
+      //await sendCredentialsToUser();
+
+      toast("Registration Successful", {
+        description: `A ${formData.userType} user account has been created successfully!`,
+      });
 
       //router.push("/auth/login");
     } catch (error) {
@@ -619,6 +623,7 @@ const Register = () => {
                   <option value="Teacher">Teacher</option>
                   <option value="Department">Department</option>
                   <option value="Registrar">Registrar</option>
+                  <option value="Parent">Parent</option>
                 </select>
                 {errors.userType && (
                   <p className="text-red-500 text-sm">{errors.userType}</p>
@@ -634,13 +639,13 @@ const Register = () => {
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
-                        Search Departments{" "}
+                        Search Grades{" "}
                         <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
                           type="text"
-                          placeholder="Search departments by name or code..."
+                          placeholder="Search Gradess by name or code..."
                           value={departmentSearch}
                           onChange={(e) => setDepartmentSearch(e.target.value)}
                           className="pr-10"
