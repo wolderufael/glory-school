@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@radix-ui/react-select";
@@ -70,6 +70,8 @@ const PaymentPage = () => {
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("telebirr");
 
+  const router = useRouter();
+
   const selectedStudent = useMemo(
     () => demoChildren.find(c => c.id === selectedStudentId) || demoChildren[0],
     [selectedStudentId]
@@ -122,13 +124,11 @@ const PaymentPage = () => {
     }
   };
 
-  const handlePayment = () => {
-    alert(`Payment initiated for ${selectedStudent.name}: 
-${selectedMonths.length} months | Total: ETB ${totalAmount.toLocaleString()}
-Payment method: ${paymentMethod}`);
-redirect('/parent')
-    // In real app: redirect to payment gateway
+  const handleCheckout = () => {
+    // Redirect to checkout page with selected data
+    router.push(`/parent/payment/checkout?studentId=${selectedStudentId}&months=${selectedMonths.join(",")}&total=${totalAmount}&method=${paymentMethod}`);
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
@@ -226,26 +226,15 @@ redirect('/parent')
                   </Select>
                 </div>
 
-            <Dialog>
-             <DialogTrigger>
+
                 <Button 
                   className="w-full py-6 text-lg font-bold shadow-lg"
                   disabled={selectedMonths.length === 0}
-                  onClick={()=>setIsOpen(true)}
+                  onClick={handleCheckout}
                 >
                   Pay Now
                 </Button>
-                </DialogTrigger>
-                    <DialogContent  >
-                        <DialogHeader>
-                            <DialogTitle>Payment Confirmation</DialogTitle>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                            <Button variant="default" onClick={handlePayment}>Confirm Payment</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                    </Dialog>
+          
               </div>
             </CardContent>
           </Card>
@@ -327,27 +316,14 @@ redirect('/parent')
                         {selectedMonths.length} months selected • Total: ETB {totalAmount.toLocaleString()}
                       </p>
                     </div>
-                    <Dialog>
-                   <DialogTrigger>
-             
+                   
                       <Button 
                       className="min-w-[200px] py-5 text-base font-bold"
-                      onClick={()=>setIsOpen(true)}
+                      onClick={handleCheckout}
 
                     >
                       Confirm Payment
                     </Button>
-                    </DialogTrigger>
-                    <DialogContent >
-                        <DialogHeader>
-                            <DialogTitle>Payment Confirmation</DialogTitle>
-                        </DialogHeader>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                            <Button variant="default" onClick={handlePayment}>Confirm Payment</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                    </Dialog>
                   </div>
                 </div>
               )}
