@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useSlip } from "@/lib/react-query/hooks/useSlip";
 import { RegistrationSlipCard } from "./registration-slip-card";
 import { getLocalStorage } from "@/utils/localStorage";
@@ -32,26 +33,40 @@ export interface StudentRegistration {
 }
 
 export default function CourseRegistration() {
-  const {
-    data: slips,
-    isLoading,
-    error,
-  } = useSlip(getLocalStorage("studentId")?.toString() || "");
+  const studentId = getLocalStorage("studentId")?.toString() || "";
+  const { data: slips, isLoading, error } = useSlip(studentId);
 
-  console.log("slips", slips);
+  console.log("studentId:", studentId);
+  console.log("slips:", slips);
+  console.log("isLoading:", isLoading);
+  console.log("error:", error);
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading registration slips...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error loading registration data</div>;
+    console.error("Error loading slips:", error);
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-600">
+          Error loading registration data: {error.message}
+        </div>
+      </div>
+    );
   }
 
   if (!slips || slips.length === 0) {
-    return <div>No registration slips found</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">No registration slips found</div>
+      </div>
+    );
   }
-
- 
 
   // Sort slips by level (Roman numerals) in descending order
   const sortedSlips = [...slips].sort((a, b) => {

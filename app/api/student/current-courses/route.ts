@@ -5,21 +5,39 @@ export async function GET() {
   const courses = [
     {
       id: "1",
-      name: "Identifying and Handling Basic Veterinary Tools and Equipment",
-      code: "AGR ANH2 M01 0422 ",
-      creditHours: 3,
+      name: "Biology",
+      code: "BIO-10-01",
+      creditHours: 4,
     },
     {
       id: "2",
-      name: "Applying 5S Proceduress",
-      code: "AGR ANH2 M02 0422 ",
-      creditHours: 3,
+      name: "Mathematics",
+      code: "MATH-10-02",
+      creditHours: 4,
     },
     {
       id: "3",
-      name: "Handling and Restraining Animals",
-      code: "AGR ANH2 M04 0422 ",
+      name: "English Literature",
+      code: "ENG-10-01",
       creditHours: 3,
+    },
+    {
+      id: "4",
+      name: "History",
+      code: "HIST-10-01",
+      creditHours: 3,
+    },
+    {
+      id: "5",
+      name: "Chemistry",
+      code: "CHEM-10-01",
+      creditHours: 4,
+    },
+    {
+      id: "6",
+      name: "Physical Education",
+      code: "PE-10-01",
+      creditHours: 1,
     },
   ];
 

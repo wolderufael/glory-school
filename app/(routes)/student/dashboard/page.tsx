@@ -30,11 +30,11 @@ export default function DashboardPage() {
     department: studentInfo?.department?.name || "Not assigned",
     year: studentInfo?.currentStudyingYear || "Not assigned",
     section: studentInfo?.section?.name || "Not assigned",
-    academicYear: studentInfo?.listOfSlip || "Not assigned",
+    academicYear: studentInfo?.academicYear || "Not assigned",
     semester: `Semester ${
       studentInfo?.currentStudyingSemester || "Not assigned"
     }`,
-    program: studentInfo?.program?.name || "Not assigned",
+    //program: studentInfo?.program?.name || "Not assigned",
   };
 
   // Check if should show reregistration component

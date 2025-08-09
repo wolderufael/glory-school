@@ -7,7 +7,7 @@ interface StudentInfo {
   section: string;
   academicYear: string;
   semester: string;
-  program: string;
+  //program: string;
 }
 
 interface StudentInfoCardProps {
@@ -55,17 +55,12 @@ export function StudentInfoCard({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Department:</span>
+              <span className="text-sm text-gray-600">Grade:</span>
               <span className="text-sm font-semibold text-gray-900">
                 {data.department}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Year:</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {data.year}
-              </span>
-            </div>
+           
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Section:</span>
               <span className="text-sm font-semibold text-gray-900">
@@ -77,7 +72,7 @@ export function StudentInfoCard({
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Academic Year:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {getLocalStorage("academicYearName")}
+                {getLocalStorage("academicYearId")}
               </span>
             </div>
             <div className="flex justify-between">
@@ -86,12 +81,7 @@ export function StudentInfoCard({
                 {getLocalStorage("currentStudyingSemester")}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Program:</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {data.program}
-              </span>
-            </div>
+           
           </div>
         </div>
       </CardContent>

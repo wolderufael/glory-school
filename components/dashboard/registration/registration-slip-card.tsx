@@ -161,9 +161,9 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
                 <TableHead className="border border-black p-1 text-center font-bold">
                   MODULE CODE
                 </TableHead>
-                <TableHead className="border border-black p-1 text-center font-bold">
+               {/*  <TableHead className="border border-black p-1 text-center font-bold">
                   Level
-                </TableHead>
+                </TableHead> */}
                 <TableHead className="border border-black p-1 text-center font-bold">
                   Nominal Hour
                 </TableHead>
@@ -181,9 +181,9 @@ export function RegistrationSlipCard({ slip }: RegistrationSlipCardProps) {
                   <TableCell className="border border-black p-1 text-center">
                     {module.code}
                   </TableCell>
-                  <TableCell className="border border-black p-1 text-center">
+                 {/*  <TableCell className="border border-black p-1 text-center">
                     {module.level}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell className="border border-black p-1 text-center">
                     {module.nominalHour}
                   </TableCell>

@@ -18,9 +18,7 @@ const renderDownloadableFile = (
   if (!file) return null;
 
   const isFile = isBrowserFile(file);
-  const url = isFile
-    ? URL.createObjectURL(file)
-    : getBackendFileUrl(file as string);
+  const filePath = isFile ? file.name : (file as string);
 
   return (
     <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-indigo-100 hover:border-indigo-200 transition-colors max-sm:flex-col max-sm:items-start max-sm:gap-3">
@@ -32,6 +30,7 @@ const renderDownloadableFile = (
           <p className="text-sm font-medium text-gray-900 max-sm:truncate max-sm:max-w-[200px]">
             {label}
           </p>
+          <p className="text-xs text-gray-500 mt-1">{filePath}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 max-sm:w-full max-sm:justify-between">
@@ -40,21 +39,66 @@ const renderDownloadableFile = (
           size="sm"
           className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
           onClick={() => {
-            if (typeof window !== "undefined") {
+            if (isFile) {
+              // For File objects, create a temporary URL to view
+              const url = URL.createObjectURL(file);
               window.open(url, "_blank");
+              // Clean up the URL after a delay
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } else {
+              // For file paths, open the actual file with proper title
+              const fileName = filePath.split("/").pop() || "Document";
+              const newWindow = window.open("", "_blank");
+              if (newWindow) {
+                newWindow.document.write(`
+                  <!DOCTYPE html>
+                  <html>
+                    <head>
+                      <title>${fileName}</title>
+                      <style>
+                        body { margin: 0; padding: 0; }
+                        iframe { width: 100%; height: 100vh; border: none; }
+                      </style>
+                    </head>
+                    <body>
+                      <iframe src="${filePath}" type="application/pdf"></iframe>
+                    </body>
+                  </html>
+                `);
+                newWindow.document.close();
+              }
             }
           }}
         >
           <Eye className="h-4 w-4" />
           <span className="ml-1">View</span>
         </Button>
-        <a
-          href={url}
-          download
+        <button
+          onClick={() => {
+            if (isFile) {
+              // For File objects, create a download link
+              const url = URL.createObjectURL(file);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = file.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            } else {
+              // For file paths, create a download link
+              const a = document.createElement("a");
+              a.href = filePath;
+              a.download = filePath.split("/").pop() || "download";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+          }}
           className="p-2 hover:bg-indigo-50 rounded-full transition-colors"
         >
           <Download className="h-5 w-5 text-indigo-600" />
-        </a>
+        </button>
       </div>
     </div>
   );
@@ -99,19 +143,19 @@ export function EducationalBackground({
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {renderDownloadableFile(
-                  transcriptFiles?.grade9FilePath,
+                  transcriptFiles?.grade5FilePath,
                   "Grade 9 Transcript"
                 )}
                 {renderDownloadableFile(
-                  transcriptFiles?.grade10FilePath,
+                  transcriptFiles?.grade6FilePath,
                   "Grade 10 Transcript"
                 )}
                 {renderDownloadableFile(
-                  transcriptFiles?.grade11FilePath,
+                  transcriptFiles?.grade7FilePath,
                   "Grade 11 Transcript"
                 )}
                 {renderDownloadableFile(
-                  transcriptFiles?.grade12FilePath,
+                  transcriptFiles?.grade8FilePath,
                   "Grade 12 Transcript"
                 )}
                 {renderDownloadableFile(
@@ -147,7 +191,7 @@ export function EducationalBackground({
             </div>
 
             {/* Post-Secondary */}
-            {pastSecondaryData && (
+  {/*           {pastSecondaryData && (
               <>
                 <Separator className="my-6" />
                 <div>
@@ -177,7 +221,7 @@ export function EducationalBackground({
                   </div>
                 </div>
               </>
-            )}
+            )} */}
           </div>
         </CardContent>
       </Card>

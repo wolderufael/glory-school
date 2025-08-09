@@ -190,8 +190,9 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
             <div className="w-40 h-40 rounded-full overflow-hidden ring-4 ring-indigo-100 mb-6">
               <img
                 src={
-                  getBackendFileUrl(studentData?.profilePicture) ||
-                  "/default-avatar.png"
+                  /* getBackendFileUrl(studentData?.profilePicture) ||
+                  "/default-avatar.png" */
+                  studentData?.profilePicture
                 }
                 alt="Profile"
                 className="w-full h-full object-cover"
@@ -384,8 +385,8 @@ export function BasicInformation({ studentData }: BasicInformationProps) {
                     icon={<CalendarIcon className="text-indigo-600" />}
                   />
                   <DataItem
-                    label="Level"
-                    value={studentData?.currentStudyingLevel}
+                    label="Grade"
+                    value={studentData?.department?.name}
                     icon={<PersonIcon className="text-indigo-600" />}
                   />
                   <DataItem

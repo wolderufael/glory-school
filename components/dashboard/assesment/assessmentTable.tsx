@@ -10,14 +10,39 @@ import { useStudentAssessment } from "@/lib/react-query/hooks/useStudentAssessme
 import { StudentAssessment } from "@/types/assessment";
 
 export default function AssessmentTab({ studentId }: { studentId: number }) {
-  const { data: assessments, isLoading } = useStudentAssessment(studentId);
+  const {
+    data: assessments,
+    isLoading,
+    error,
+  } = useStudentAssessment(studentId);
+
+
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading assessment data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("Error loading assessments:", error);
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg text-red-600">
+          Error loading assessment data: {error.message}
+        </div>
+      </div>
+    );
   }
 
   if (!assessments || assessments.length === 0) {
-    return <div>No assessment data available</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">No assessment data available</div>
+      </div>
+    );
   }
 
   return (
