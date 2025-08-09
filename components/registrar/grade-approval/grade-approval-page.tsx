@@ -63,16 +63,6 @@ export function GradeApprovalPage() {
               Review and approve teacher-submitted grades
             </p>
           </div>
-{/*           <Button
-            onClick={handleRefresh}
-            disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button> */}
         </div>
 
         {/* Department Bulk Actions */}

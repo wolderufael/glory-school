@@ -15,8 +15,8 @@ const activities = [
   {
     id: 1,
     type: "enrollment",
-    title: "New Student Enrollment",
-    description: "John Doe enrolled in Computer Science program",
+    title: "New Student Registration",
+    description: "Sarah Ahmed registered for Grade 9 (Section A)",
     timestamp: "2 minutes ago",
     icon: UserPlus,
     color: "bg-green-500",
@@ -24,9 +24,9 @@ const activities = [
   },
   {
     id: 2,
-    type: "course",
-    title: "Course Schedule Updated",
-    description: "Data Structures (CS-201) schedule changed to Mon 10:00 AM",
+    type: "schedule",
+    title: "Class Schedule Updated",
+    description: "Mathematics (Grade 10-B) moved to Room 205, Period 3",
     timestamp: "15 minutes ago",
     icon: Calendar,
     color: "bg-blue-500",
@@ -35,8 +35,9 @@ const activities = [
   {
     id: 3,
     type: "grade",
-    title: "Grade Submission",
-    description: "Prof. Smith submitted grades for Calculus I",
+    title: "Grade Report Submitted",
+    description:
+      "Mr. Johnson submitted Quarter 1 grades for Chemistry Grade 11",
     timestamp: "1 hour ago",
     icon: FileText,
     color: "bg-purple-500",
@@ -45,8 +46,8 @@ const activities = [
   {
     id: 4,
     type: "course",
-    title: "New Course Added",
-    description: "Machine Learning (CS-401) added to course catalog",
+    title: "New Subject Added",
+    description: "Computer Programming elective added for Grade 12 students",
     timestamp: "2 hours ago",
     icon: BookOpen,
     color: "bg-indigo-500",
@@ -55,8 +56,8 @@ const activities = [
   {
     id: 5,
     type: "enrollment",
-    title: "Bulk Enrollment",
-    description: "25 students enrolled in Engineering program",
+    title: "Class Section Created",
+    description: "Grade 9 Section C created with 30 student capacity",
     timestamp: "3 hours ago",
     icon: UserPlus,
     color: "bg-green-500",
@@ -65,8 +66,8 @@ const activities = [
   {
     id: 6,
     type: "system",
-    title: "System Maintenance",
-    description: "Database backup completed successfully",
+    title: "Attendance System Update",
+    description: "Daily attendance records synchronized successfully",
     timestamp: "4 hours ago",
     icon: CheckCircle,
     color: "bg-gray-500",
