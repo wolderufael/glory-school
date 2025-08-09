@@ -79,26 +79,195 @@ export function Results() {
   };
 
   useEffect(() => {
-    const fetchResults = async () => {
-      const studentId = localStorage.getItem("studentId");
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/assessments/gpa/${studentId}`
-        );
+    // Mock high school grade data for Grade 10
+    const mockGradeData = [
+      {
+        semester: {
+          name: "First Semester",
+          id: 1,
+        },
+        academicYear: {
+          name: "2024/2025",
+          id: 1,
+        },
+        level: "10",
+        section: {
+          sectionName: "10-A",
+          id: 1,
+        },
+        gpa: 3.12,
+        cgpa: 3.12,
+        totalCredits: 27,
+        courses: [
+          {
+            courseCode: "MATH-10",
+            title: "Mathematics",
+            totalNhrs: 4,
+            totalMark: 78,
+            gradeInLetter: "B+",
+          },
+          {
+            courseCode: "PHYS-10",
+            title: "Physics",
+            totalNhrs: 3,
+            totalMark: 71,
+            gradeInLetter: "B-",
+          },
+          {
+            courseCode: "CHEM-10",
+            title: "Chemistry",
+            totalNhrs: 3,
+            totalMark: 74,
+            gradeInLetter: "B",
+          },
+          {
+            courseCode: "BIOL-10",
+            title: "Biology",
+            totalNhrs: 3,
+            totalMark: 82,
+            gradeInLetter: "A-",
+          },
+          {
+            courseCode: "ENG-10",
+            title: "English Language",
+            totalNhrs: 4,
+            totalMark: 86,
+            gradeInLetter: "A-",
+          },
+          {
+            courseCode: "AMH-10",
+            title: "Amharic",
+            totalNhrs: 2,
+            totalMark: 68,
+            gradeInLetter: "C+",
+          },
+          {
+            courseCode: "HIST-10",
+            title: "History",
+            totalNhrs: 2,
+            totalMark: 72,
+            gradeInLetter: "B-",
+          },
+          {
+            courseCode: "GEOG-10",
+            title: "Geography",
+            totalNhrs: 2,
+            totalMark: 76,
+            gradeInLetter: "B",
+          },
+          {
+            courseCode: "CIVIC-10",
+            title: "Civics and Ethics",
+            totalNhrs: 2,
+            totalMark: 69,
+            gradeInLetter: "C+",
+          },
+          {
+            courseCode: "IT-10",
+            title: "Information Technology",
+            totalNhrs: 2,
+            totalMark: 73,
+            gradeInLetter: "B-",
+          },
+        ],
+      },
+      {
+        semester: {
+          name: "Second Semester",
+          id: 2,
+        },
+        academicYear: {
+          name: "2024/2025",
+          id: 1,
+        },
+        level: "10",
+        section: {
+          sectionName: "10-A",
+          id: 1,
+        },
+        gpa: 3.25,
+        cgpa: 3.18,
+        totalCredits: 27,
+        courses: [
+          {
+            courseCode: "MATH-10",
+            title: "Mathematics",
+            totalNhrs: 4,
+            totalMark: 76,
+            gradeInLetter: "B",
+          },
+          {
+            courseCode: "PHYS-10",
+            title: "Physics",
+            totalNhrs: 3,
+            totalMark: 68,
+            gradeInLetter: "C+",
+          },
+          {
+            courseCode: "CHEM-10",
+            title: "Chemistry",
+            totalNhrs: 3,
+            totalMark: 72,
+            gradeInLetter: "B-",
+          },
+          {
+            courseCode: "BIOL-10",
+            title: "Biology",
+            totalNhrs: 3,
+            totalMark: 80,
+            gradeInLetter: "B+",
+          },
+          {
+            courseCode: "ENG-10",
+            title: "English Language",
+            totalNhrs: 4,
+            totalMark: 84,
+            gradeInLetter: "A-",
+          },
+          {
+            courseCode: "AMH-10",
+            title: "Amharic",
+            totalNhrs: 2,
+            totalMark: 66,
+            gradeInLetter: "C",
+          },
+          {
+            courseCode: "HIST-10",
+            title: "History",
+            totalNhrs: 2,
+            totalMark: 70,
+            gradeInLetter: "B-",
+          },
+          {
+            courseCode: "GEOG-10",
+            title: "Geography",
+            totalNhrs: 2,
+            totalMark: 74,
+            gradeInLetter: "B",
+          },
+          {
+            courseCode: "PE-10",
+            title: "Physical Education",
+            totalNhrs: 2,
+            totalMark: 80,
+            gradeInLetter: "B+",
+          },
+          {
+            courseCode: "ART-10",
+            title: "Art and Music",
+            totalNhrs: 2,
+            totalMark: 84,
+            gradeInLetter: "A-",
+          },
+        ],
+      },
+    ];
 
-        if (!response.ok) throw new Error("Network response was not ok");
-
-        const data = await response.json();
-        if (!data || !Array.isArray(data))
-          throw new Error("Invalid data format");
-
-        setResults(data);
-      } catch (error) {
-        console.error("Error fetching results:", error);
-      }
-    };
-
-    fetchResults();
+    // Set mock data with a slight delay to simulate loading
+    setTimeout(() => {
+      console.log("Setting mock grade data:", mockGradeData);
+      setResults(mockGradeData);
+    }, 500);
   }, []);
 
   return (

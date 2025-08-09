@@ -41,49 +41,6 @@ export const sectionData = [
   },
 ];
 
- export const mockStudentData1 = {
-   id: 1,
-   userId: 101,
-   studentMainId: "GS/2024/001",
-   firstName: "Sarah",
-   middleName: "Jane",
-   lastName: "Johnson",
-   dateOfBirth: "2007-03-15",
-   gender: "Female",
-   phone: "+1234567890",
-   email: "sarah.johnson@student.gloryschool.edu",
-   address: "123 Main Street, Springfield",
-   departmentId: 1,
-   sectionId: 8,
-   currentStudyingLevel: "10th Grade",
-   currentStudyingYear: "2024/25",
-   currentStudyingSemester: "1",
-   admissionDate: "2024-09-01",
-   createdAt: "2024-09-01T08:00:00Z",
-   updatedAt: "2024-09-01T08:00:00Z",
-   section: {
-     id: 8,
-     name: "10A",
-   },
-   academicYear: "2024/25",
-   user: {
-     id: 101,
-     firstName: "Sarah",
-     middleName: "Jane",
-     lastName: "Johnson",
-     email: "sarah.johnson@student.gloryschool.edu",
-     phoneNumber: "+1234567890",
-     userType: "Student",
-     gender: "Female",
-     nationality: "American",
-     userMainId: "GS/2024/001",
-   },
-   department: {
-     id: 1,
-     name: "Grade 10",
-     code: "SCI",
-   },
-};
  
 export const mockStudentData= {
   id: 1,

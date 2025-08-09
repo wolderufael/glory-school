@@ -28,7 +28,7 @@ export default function Diploma() {
               {/* College Logo */}
               <div className="flex-shrink-0 flex items-center">
                 <Image
-                  src="/wol1.jpg"
+                  src="/glory-school.jpg"
                   alt="College Logo"
                   width={80}
                   height={80}
@@ -39,16 +39,16 @@ export default function Diploma() {
               {/* Ministry Header - Center */}
               <div className="text-center flex-1 px-4">
                 <div className="text-green-600 font-bold text-base">
-                  በግብርና ሚኒሥቴር
+                  በአዲስ አበባ ትምህርት ቢሮ
                 </div>
                 <div className="text-green-600 font-bold text-lg">
-                  MINISTRY OF AGRICULTURE
+                  ADDIS ABABA EDUCATION BUREAU
                 </div>
                 <div className="text-blue-600 font-bold text-base mt-1">
-                  ዎላይታ ሶዶ ግብርና ኮሌጅ
+                  ግሎሪ ትምህርት ቤት
                 </div>
                 <div className="text-blue-600 font-bold text-lg">
-                  Wolaita Sodo Agricultural College
+                  Glory School
                 </div>
                 <div className="text-green-600 font-bold text-base">
                   ሬጅስትራር ጽ/ቤት
@@ -58,19 +58,21 @@ export default function Diploma() {
                 </div>
 
                 {/* Contact Information */}
-                                  <div className="text-blue-600 text-xs mt-1 flex items-center justify-center gap-1">
-                    <Phone className="font-bold w-3 h-3" />
-                    <span>+251465511470</span>
-                    <span>
-                      {" "}
-                      <span className="font-bold">ፋክስ/Fax:</span> +251465515285
-                    </span>
-                    <Mail className="font-bold w-3 h-3" />
-                    <span>120</span>
-                  </div>
-                <div className="text-green-600 text-xs">ዎላይታ ሶዶ፣ ኢትዮጵያ</div>
+                <div className="text-blue-600 text-xs mt-1 flex items-center justify-center gap-1">
+                  <Phone className="font-bold w-3 h-3" />
+                  <span>+251465511470</span>
+                  <span>
+                    {" "}
+                    <span className="font-bold">ፋክስ/Fax:</span> +251465515285
+                  </span>
+                  <Mail className="font-bold w-3 h-3" />
+                  <span>120</span>
+                </div>
                 <div className="text-green-600 text-xs">
-                  Wolaita Sodo, Ethiopia
+                  አዲስ አበባ፣ ኢትዮጵያ
+                </div>
+                <div className="text-green-600 text-xs">
+                  Addis Ababa, Ethiopia
                 </div>
               </div>
 
@@ -98,22 +100,13 @@ export default function Diploma() {
                   </div>
                 </div>
                 <div className="mb-3">
-                  ሰልጣኝ{" "}
                   <span className="font-bold">
-                    {user?.firstName || "SOLOMON"}{" "}
-                    {user?.lastName || "MARKOS KARA"}{" "}
+                    {"አበበ"} {"ከበደ"}{" "}
                   </span>
-                  በ
-                  <span className="font-bold">
-                    {studentInfo.department.name}
-                  </span>{" "}
-                  ለደርጃ{" "}
-                  <span className="font-bold">
-                    {studentInfo.currentStudyingLevel}
-                  </span>{" "}
-                  የሚያበቃውን ስልጠና ከመጋቢት ወር 2015 አ.ም እስከ ሐምሌ 03/2017 አ.ም ድረስ{" "}
-                  <span className="font-bold">በመደበኛ ስልጠና መርሃ-ግብር</span> በመከታተል
-                  በስኬት አጠናቋል/አጠናቃለች።
+                  የሁለተኛ ደረጃ ትምህርቱን የተካተቱ የትምህርት አይነቶች በሙሉ በስኬት{" "}
+                  <span className="font-bold">በግሎሪ ትምህርት ቤት</span> በማጠናቀቁ በ ቀን{" "}
+                  <span className="font-bold"> 03/11/2017 </span> ይህ የምስክር ወረቀት
+                  ተሰጦታል ።
                 </div>
               </div>
 
@@ -125,15 +118,15 @@ export default function Diploma() {
                     Training Completion Certificate
                   </div>
                 </div>
-                <div className="mb-3">
-                  Trainee{" "}
+                {/* <div className="mb-3">
+                  Student{" "}
                   <span className="font-bold">
-                    {user?.firstName || "SOLOMON"}{" "}
-                    {user?.lastName || "MARKOS KARA"}{" "}
+                    {studentInfo?.user?.firstName || "SOLOMON"}{" "}
+                    {studentInfo?.user?.lastName || "MARKOS KARA"}{" "}
                   </span>
                   has successfully accomplished{" "}
-                  <span className="font-bold">Regular Training Program</span> in
-                  the occupational standard of{" "}
+                  <span className="font-bold">High Shoool</span> in the
+                  occupational standard of{" "}
                   <span className="font-bold">
                     {studentInfo.department.name}
                   </span>{" "}
@@ -142,6 +135,23 @@ export default function Diploma() {
                     Level-{studentInfo.currentStudyingLevel}
                   </span>{" "}
                   from march 2022 to July 10, 2023.
+                </div> */}
+                <div className="mb-3">
+                  This is to certify that{" "}
+                  <span className="font-bold">
+                    {studentInfo?.user?.firstName || "SOLOMON"}{" "}
+                    {studentInfo?.user?.lastName || "MARKOS KARA"}{" "}
+                  </span>
+                  has successfully completed the prescribed course of study and
+                  fulfilled all academic requirements set forth by{" "}
+                  <span className="font-bold">Glory School</span>. In
+                  recognition of their dedication, perseverance, and
+                  achievement, this certificate is awarded on this day,{" "}
+                  <span className="font-bold">
+                    {new Date().toLocaleDateString()}
+                  </span>
+                  , as a testament to their readiness to pursue higher education
+                  and contribute meaningfully to society.
                 </div>
               </div>
             </div>
@@ -150,12 +160,12 @@ export default function Diploma() {
             <div className="flex justify-between mt-auto pt-6">
               <div className="text-center">
                 <div className="border-t-2 border-black w-40 mb-1"></div>
-                <div className="font-bold text-base">College Registrar</div>
+                <div className="font-bold text-base">School Registrar</div>
               </div>
 
               <div className="text-center">
                 <div className="border-t-2 border-black w-40 mb-1"></div>
-                <div className="font-bold text-base">College Dean</div>
+                <div className="font-bold text-base">School Director</div>
               </div>
             </div>
           </div>

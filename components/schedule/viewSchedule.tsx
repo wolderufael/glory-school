@@ -1,12 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   Search,
   Download,
@@ -22,268 +34,361 @@ import {
   BookOpen,
   User,
   Loader2,
-} from "lucide-react"
-import { getLocalStorage } from "@/utils/localStorage"
-import { format } from "date-fns"
-import { toast } from "sonner"
+} from "lucide-react";
+import { getLocalStorage } from "@/utils/localStorage";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
-interface Department {
-  id: number
-  name: string
-  code: string
+interface Grade {
+  id: number;
+  name: string;
+  code: string;
 }
 
 interface Section {
-  id: number
-  sectionName: string
-  level: string
-  departmentId: number
-  department?: string
+  id: number;
+  sectionName: string;
+  grade: string;
+  gradeId: number;
+  department?: string;
 }
 
 interface Schedule {
-  id: number
-  sectionId: number
-  academicYearId: number
-  academicSemesterId: number
-  departmentId: number
-  level: string
-  schedulePath: string
-  createdAt: string
+  id: number;
+  sectionId: number;
+  academicYearId: number;
+  academicSemesterId: number;
+  gradeId: number;
+  grade: string;
+  schedulePath: string;
+  createdAt: string;
   // Derived fields for UI
-  fileName?: string
-  departmentName?: string
-  sectionName?: string
+  fileName?: string;
+  gradeName?: string;
+  sectionName?: string;
 }
 
 interface FilterCriteria {
-  departmentId: string
-  level: string
-  sectionId: string
-  searchQuery: string
+  gradeId: string;
+  sectionId: string;
+  searchQuery: string;
 }
 
-const LEVELS = [
-  { value: "I", label: "Level I" },
-  { value: "II", label: "Level II" },
-  { value: "III", label: "Level III" },
-  { value: "IV", label: "Level IV" },
-  { value: "V", label: "Level V" },
-] as const
+const GRADES = [
+  { value: "9", label: "Grade 9" },
+  { value: "10", label: "Grade 10" },
+  { value: "11", label: "Grade 11" },
+  { value: "12", label: "Grade 12" },
+] as const;
 
 const ViewSchedule = () => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [departmentList, setDepartmentList] = useState<Department[]>([])
-  const [allSections, setAllSections] = useState<Section[]>([])
-  const [filteredSections, setFilteredSections] = useState<Section[]>([])
-  const [schedules, setSchedules] = useState<Schedule[]>([])
-  const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([])
+  const [isLoading, setIsLoading] = useState(false);
+  const [gradeList, setGradeList] = useState<Grade[]>([]);
+  const [allSections, setAllSections] = useState<Section[]>([]);
+  const [filteredSections, setFilteredSections] = useState<Section[]>([]);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
 
   const [filters, setFilters] = useState<FilterCriteria>({
-    departmentId: "all",
-    level: "all",
+    gradeId: "all",
     sectionId: "all",
     searchQuery: "",
-  })
+  });
 
   // Get user info from localStorage
-  const userType = typeof window !== "undefined" ? getLocalStorage("userType") : undefined
-  const userId = typeof window !== "undefined" ? getLocalStorage("userId") : undefined
-  const userDepartmentId = typeof window !== "undefined" ? getLocalStorage("userDepartmentId") : undefined
+  const userType =
+    typeof window !== "undefined" ? getLocalStorage("userType") : undefined;
+  const userId =
+    typeof window !== "undefined" ? getLocalStorage("userId") : undefined;
 
-  // Fetch departments
-  const fetchDepartments = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/departments`)
-      if (!res.ok) throw new Error("Failed to fetch departments")
-      const data = await res.json()
-      setDepartmentList(data)
-    } catch (e) {
-      console.error("Error fetching departments:", e)
-      toast("Error", {
-        description: "Failed to fetch departments",
-        className: 'text-red-50'
-      })
-    }
-  }
+  // Mock data initialization
+  const initializeMockData = () => {
+    setIsLoading(true);
 
+    // Mock grades data
+    const mockGrades: Grade[] = [
+      { id: 9, name: "Grade 9", code: "GR9" },
+      { id: 10, name: "Grade 10", code: "GR10" },
+      { id: 11, name: "Grade 11", code: "GR11" },
+      { id: 12, name: "Grade 12", code: "GR12" },
+    ];
 
-  const fetchSections = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/sections`)
-      if (!res.ok) throw new Error("Failed to fetch sections")
-      const data = await res.json()
-      setAllSections(data)
-    } catch (e) {
-      console.error("Error fetching sections:", e)
-      toast("Error", {
-        description: "Failed to fetch sections",
-        className: 'text-red-50'
-      })
-    }
-  }
+    // Mock sections data
+    const mockSections: Section[] = [
+      { id: 1, sectionName: "9-A", grade: "9", gradeId: 9 },
+      { id: 2, sectionName: "9-B", grade: "9", gradeId: 9 },
+      { id: 3, sectionName: "9-C", grade: "9", gradeId: 9 },
+      { id: 4, sectionName: "10-A", grade: "10", gradeId: 10 },
+      { id: 5, sectionName: "10-B", grade: "10", gradeId: 10 },
+      { id: 6, sectionName: "10-C", grade: "10", gradeId: 10 },
+      { id: 7, sectionName: "11-A", grade: "11", gradeId: 11 },
+      { id: 8, sectionName: "11-B", grade: "11", gradeId: 11 },
+      { id: 9, sectionName: "11-C", grade: "11", gradeId: 11 },
+      { id: 10, sectionName: "12-A", grade: "12", gradeId: 12 },
+      { id: 11, sectionName: "12-B", grade: "12", gradeId: 12 },
+      { id: 12, sectionName: "12-C", grade: "12", gradeId: 12 },
+    ];
 
-  
-  const fetchSchedules = async () => {
-    setIsLoading(true)
-    try {
-  
-      const params = new URLSearchParams()
-      if (filters.departmentId && filters.departmentId !== "all") params.append("departmentId", filters.departmentId)
-      if (filters.level && filters.level !== "all") params.append("level", filters.level)
-      if (filters.sectionId && filters.sectionId !== "all") params.append("sectionId", filters.sectionId)
-      // If all filters are 'all', send null for departmentId
-      if (filters.departmentId === "all") params.append("departmentId", "null")
-      if (filters.level === "all") params.append("level", "all")
-      if (filters.sectionId === "all") params.append("sectionId", "all")
+    // Mock schedules data
+    const mockSchedules: Schedule[] = [
+      {
+        id: 1,
+        sectionId: 4,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 10,
+        grade: "10",
+        schedulePath: "/schedule-grade10-a-semester2.pdf",
+        createdAt: "2024-06-15T10:00:00Z",
+        fileName: "Grade 10-A Second Semester Schedule.pdf",
+        gradeName: "Grade 10",
+        sectionName: "10-A",
+      },
+      {
+        id: 2,
+        sectionId: 5,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 10,
+        grade: "10",
+        schedulePath: "/schedule-grade10-b-semester2.pdf",
+        createdAt: "2024-06-15T10:00:00Z",
+        fileName: "Grade 10-B Second Semester Schedule.pdf",
+        gradeName: "Grade 10",
+        sectionName: "10-B",
+      },
+      {
+        id: 3,
+        sectionId: 6,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 10,
+        grade: "10",
+        schedulePath: "/schedule-grade10-c-semester2.pdf",
+        createdAt: "2024-06-15T10:00:00Z",
+        fileName: "Grade 10-C Second Semester Schedule.pdf",
+        gradeName: "Grade 10",
+        sectionName: "10-C",
+      },
+      {
+        id: 4,
+        sectionId: 1,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 9,
+        grade: "9",
+        schedulePath: "/schedule-grade9-a-semester2.pdf",
+        createdAt: "2024-06-14T10:00:00Z",
+        fileName: "Grade 9-A Second Semester Schedule.pdf",
+        gradeName: "Grade 9",
+        sectionName: "9-A",
+      },
+      {
+        id: 5,
+        sectionId: 2,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 9,
+        grade: "9",
+        schedulePath: "/schedule-grade9-b-semester2.pdf",
+        createdAt: "2024-06-14T10:00:00Z",
+        fileName: "Grade 9-B Second Semester Schedule.pdf",
+        gradeName: "Grade 9",
+        sectionName: "9-B",
+      },
+      {
+        id: 6,
+        sectionId: 7,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 11,
+        grade: "11",
+        schedulePath: "/schedule-grade11-a-semester2.pdf",
+        createdAt: "2024-06-16T10:00:00Z",
+        fileName: "Grade 11-A Second Semester Schedule.pdf",
+        gradeName: "Grade 11",
+        sectionName: "11-A",
+      },
+      {
+        id: 7,
+        sectionId: 8,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 11,
+        grade: "11",
+        schedulePath: "/schedule-grade11-b-semester2.pdf",
+        createdAt: "2024-06-16T10:00:00Z",
+        fileName: "Grade 11-B Second Semester Schedule.pdf",
+        gradeName: "Grade 11",
+        sectionName: "11-B",
+      },
+      {
+        id: 8,
+        sectionId: 10,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 12,
+        grade: "12",
+        schedulePath: "/schedule-grade12-a-semester2.pdf",
+        createdAt: "2024-06-17T10:00:00Z",
+        fileName: "Grade 12-A Second Semester Schedule.pdf",
+        gradeName: "Grade 12",
+        sectionName: "12-A",
+      },
+      {
+        id: 9,
+        sectionId: 11,
+        academicYearId: 1,
+        academicSemesterId: 2,
+        gradeId: 12,
+        grade: "12",
+        schedulePath: "/schedule-grade12-b-semester2.pdf",
+        createdAt: "2024-06-17T10:00:00Z",
+        fileName: "Grade 12-B Second Semester Schedule.pdf",
+        gradeName: "Grade 12",
+        sectionName: "12-B",
+      },
+    ];
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedules?${params.toString()}`)
-      const data = await response.json()
-      // Add fileName for UI
-      const schedulesWithFileName = data.map((item: Schedule) => ({
-        ...item,
-        fileName: item.schedulePath.split("/").pop() || item.schedulePath.split("\\").pop() || "Schedule.pdf",
-      }))
-      setSchedules(schedulesWithFileName)
-    } catch (e) {
-      console.error("Error fetching schedules:", e)
-      toast("Error", {
-        description: "Failed to fetch schedules",
-        className: 'text-red-50'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    // Simulate loading delay
+    setTimeout(() => {
+      setGradeList(mockGrades);
+      setAllSections(mockSections);
+      setSchedules(mockSchedules);
+      setIsLoading(false);
+      console.log("Mock data loaded:", {
+        mockGrades,
+        mockSections,
+        mockSchedules,
+      });
+    }, 800);
+  };
 
   useEffect(() => {
-    Promise.all([fetchDepartments(), fetchSections(), fetchSchedules()]).catch((error) => {
-      console.error("Error fetching initial data:", error)
-    })
-  }, [])
+    initializeMockData();
+  }, []);
 
-  // Filter sections based on selected department and level
+  // Filter sections based on selected grade
   useEffect(() => {
-    let filtered = allSections
+    let filtered = allSections;
 
-    if (filters.departmentId && filters.departmentId !== "all") {
-      filtered = filtered.filter((section) => section.departmentId === Number(filters.departmentId))
+    if (filters.gradeId && filters.gradeId !== "all") {
+      filtered = filtered.filter(
+        (section) => section.gradeId === Number(filters.gradeId)
+      );
     }
 
-    if (filters.level && filters.level !== "all") {
-      filtered = filtered.filter((section) => section.level === filters.level)
-    }
-
-    setFilteredSections(filtered)
+    setFilteredSections(filtered);
 
     // Reset section selection if current selection is not in filtered results
-    if (filters.sectionId !== "all" && !filtered.find((s) => s.id === Number(filters.sectionId))) {
-      setFilters((prev) => ({ ...prev, sectionId: "all" }))
+    if (
+      filters.sectionId !== "all" &&
+      !filtered.find((s) => s.id === Number(filters.sectionId))
+    ) {
+      setFilters((prev) => ({ ...prev, sectionId: "all" }));
     }
-  }, [filters.departmentId, filters.level, allSections])
-
+  }, [filters.gradeId, allSections]);
 
   useEffect(() => {
-    let filtered = schedules
+    let filtered = schedules;
 
- 
-    if (filters.departmentId && filters.departmentId !== "all") {
-      filtered = filtered.filter((schedule) => schedule.departmentId === Number(filters.departmentId))
+    if (filters.gradeId && filters.gradeId !== "all") {
+      filtered = filtered.filter(
+        (schedule) => schedule.gradeId === Number(filters.gradeId)
+      );
     }
 
-
-    if (filters.level && filters.level !== "all") {
-      filtered = filtered.filter((schedule) => schedule.level === filters.level)
-    }
-
- 
     if (filters.sectionId && filters.sectionId !== "all") {
-      filtered = filtered.filter((schedule) => schedule.sectionId === Number(filters.sectionId))
+      filtered = filtered.filter(
+        (schedule) => schedule.sectionId === Number(filters.sectionId)
+      );
     }
 
     // Filter by search query
     if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase()
+      const query = filters.searchQuery.toLowerCase();
       filtered = filtered.filter(
         (schedule) =>
-          (schedule.fileName && schedule.fileName.toLowerCase().includes(query)) ||
-          (schedule.departmentName && schedule.departmentName.toLowerCase().includes(query)) ||
-          (schedule.sectionName && schedule.sectionName.toLowerCase().includes(query))
-      )
+          (schedule.fileName &&
+            schedule.fileName.toLowerCase().includes(query)) ||
+          (schedule.gradeName &&
+            schedule.gradeName.toLowerCase().includes(query)) ||
+          (schedule.sectionName &&
+            schedule.sectionName.toLowerCase().includes(query))
+      );
     }
 
-    setFilteredSchedules(filtered)
-  }, [schedules, filters])
+    setFilteredSchedules(filtered);
+  }, [schedules, filters]);
 
   const handleFilterChange = (key: keyof FilterCriteria, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-  }
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
   const clearFilters = () => {
     setFilters({
-      departmentId: "all",
-      level: "all",
+      gradeId: "all",
       sectionId: "all",
       searchQuery: "",
-    })
+    });
     toast("Filters Cleared", {
       description: "All filters have been reset",
-    })
-  }
-const normalizeSchedulePath = (schedulePath: string) => {
- 
-  if (schedulePath.includes("\\") || schedulePath.includes("C:") || schedulePath.includes("/home")) {
-    return null // Invalid for public access
-  }
+    });
+  };
+  const normalizeSchedulePath = (schedulePath: string) => {
+    if (
+      schedulePath.includes("\\") ||
+      schedulePath.includes("C:") ||
+      schedulePath.includes("/home")
+    ) {
+      return null; // Invalid for public access
+    }
 
-  return schedulePath.startsWith("/") ? schedulePath : `/${schedulePath}`;
-}
+    return schedulePath.startsWith("/") ? schedulePath : `/${schedulePath}`;
+  };
 
-const handleDownload = (schedule: Schedule) => {
-  const path = normalizeSchedulePath(schedule.schedulePath);
-  if (!path) {
-    toast.error("File not available for download");
-    return;
-  }
+  const handleDownload = (schedule: Schedule) => {
+    // Mock download functionality
+    toast("Download Started", {
+      description: `Downloading ${schedule.fileName}...`,
+    });
 
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}${path}`;
-  window.open(url, "_blank");
+    // Simulate download process
+    setTimeout(() => {
+      toast("Download Complete", {
+        description: `${schedule.fileName} has been downloaded successfully`,
+      });
+    }, 1500);
+  };
 
-  toast("Download Started", {
-    description: `Downloading file...`,
-  });
-};
+  const handlePreview = (schedule: Schedule) => {
+    // Mock preview functionality
+    toast("Opening Preview", {
+      description: `Opening ${schedule.fileName} for preview...`,
+    });
 
-const handlePreview = (schedule: Schedule) => {
-  const path = normalizeSchedulePath(schedule.schedulePath);
-  if (!path) {
-    toast.error("File not available for preview");
-    return;
-  }
-
-  const url = `${process.env.NEXT_PUBLIC_BASE_URL}${path}`;
-  window.open(url, "_blank");
-
-  toast("Opening Preview", {
-    description: `Opening file...`,
-  });
-};
-
+    // Simulate opening a preview (you could open a modal or new window here)
+    setTimeout(() => {
+      toast("Preview Ready", {
+        description: `${schedule.fileName} is now ready for viewing`,
+      });
+    }, 1000);
+  };
 
   const getScheduleTypeColor = (type: string) => {
     switch (type) {
       case "exam":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 text-red-800 border-red-200";
       case "class":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "event":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return "bg-purple-100 text-purple-800 border-purple-200";
       case "assignment":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 text-green-800 border-green-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
@@ -295,9 +400,11 @@ const handlePreview = (schedule: Schedule) => {
               <BookOpen className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Schedule Viewer</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Schedule Viewer
+          </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Browse and download academic schedules for your department, level, and section
+            Browse and download academic schedules for your grade and section
           </p>
           <div className="flex items-center justify-center mt-4 space-x-4">
             {userType && (
@@ -307,7 +414,9 @@ const handlePreview = (schedule: Schedule) => {
               </Badge>
             )}
             {filteredSchedules.length > 0 && (
-              <Badge variant="secondary">{filteredSchedules.length} schedules found</Badge>
+              <Badge variant="secondary">
+                {filteredSchedules.length} schedules found
+              </Badge>
             )}
           </div>
         </div>
@@ -321,62 +430,49 @@ const handlePreview = (schedule: Schedule) => {
                   <Filter className="w-5 h-5 mr-2" />
                   Filters
                 </CardTitle>
-                <CardDescription className="text-indigo-100">Refine your schedule search</CardDescription>
+                <CardDescription className="text-indigo-100">
+                  Refine your schedule search
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 {/* Search */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Search</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    Search
+                  </Label>
                   <div className="relative mt-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       placeholder="Search schedules..."
                       value={filters.searchQuery}
-                      onChange={(e) => handleFilterChange("searchQuery", e.target.value)}
+                      onChange={(e) =>
+                        handleFilterChange("searchQuery", e.target.value)
+                      }
                       className="pl-10"
                     />
                   </div>
                 </div>
 
-                {/* Department */}
+                {/* Grade */}
                 <div>
                   <Label className="text-sm font-medium text-gray-700 flex items-center">
-                    <Building2 className="w-4 h-4 mr-2 text-blue-600" />
-                    Department
+                    <GraduationCap className="w-4 h-4 mr-2 text-blue-600" />
+                    Grade
                   </Label>
                   <Select
-                    value={filters.departmentId}
-                    onValueChange={(value) => handleFilterChange("departmentId", value)}
+                    value={filters.gradeId}
+                    onValueChange={(value) =>
+                      handleFilterChange("gradeId", value)
+                    }
                   >
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder="Select grade" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Departments</SelectItem>
-                      {departmentList.map((dept) => (
-                        <SelectItem key={dept.id} value={dept.id.toString()}>
-                          {dept.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Level */}
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 flex items-center">
-                    <GraduationCap className="w-4 h-4 mr-2 text-green-600" />
-                    Level
-                  </Label>
-                  <Select value={filters.level} onValueChange={(value) => handleFilterChange("level", value)}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Levels</SelectItem>
-                      {LEVELS.map((level) => (
-                        <SelectItem key={level.value} value={level.value}>
-                          {level.label}
+                      <SelectItem value="all">All Grades</SelectItem>
+                      {gradeList.map((grade) => (
+                        <SelectItem key={grade.id} value={grade.id.toString()}>
+                          {grade.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -389,14 +485,22 @@ const handlePreview = (schedule: Schedule) => {
                     <Users className="w-4 h-4 mr-2 text-purple-600" />
                     Section
                   </Label>
-                  <Select value={filters.sectionId} onValueChange={(value) => handleFilterChange("sectionId", value)}>
+                  <Select
+                    value={filters.sectionId}
+                    onValueChange={(value) =>
+                      handleFilterChange("sectionId", value)
+                    }
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="Select section" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Sections</SelectItem>
                       {filteredSections.map((section) => (
-                        <SelectItem key={section.id} value={section.id.toString()}>
+                        <SelectItem
+                          key={section.id}
+                          value={section.id.toString()}
+                        >
                           {section.sectionName}
                         </SelectItem>
                       ))}
@@ -405,7 +509,11 @@ const handlePreview = (schedule: Schedule) => {
                 </div>
 
                 {/* Clear Filters */}
-                <Button variant="outline" onClick={clearFilters} className="w-full bg-transparent">
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  className="w-full bg-transparent"
+                >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Clear Filters
                 </Button>
@@ -426,9 +534,12 @@ const handlePreview = (schedule: Schedule) => {
               <Card className="shadow-lg border-0">
                 <CardContent className="text-center py-12">
                   <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Schedules Found</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Schedules Found
+                  </h3>
                   <p className="text-gray-600 mb-4">
-                    No schedules match your current filter criteria. Try adjusting your filters or check back later.
+                    No schedules match your current filter criteria. Try
+                    adjusting your filters or check back later.
                   </p>
                   <Button variant="outline" onClick={clearFilters}>
                     <RefreshCw className="w-4 h-4 mr-2" />
@@ -439,30 +550,43 @@ const handlePreview = (schedule: Schedule) => {
             ) : (
               <div className="space-y-6">
                 {filteredSchedules.map((schedule) => (
-                  <Card key={schedule.id} className="shadow-lg border-0 hover:shadow-xl transition-shadow">
+                  <Card
+                    key={schedule.id}
+                    className="shadow-lg border-0 hover:shadow-xl transition-shadow"
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-3">
-                            {/* <div className="text-3xl">{getFileIcon(schedule.fileType)}</div> */}
+                            <div className="text-3xl">📅</div>
                             <div>
-                              <h3 className="text-xl font-semibold text-gray-900">{schedule.fileName}</h3>
-                              <p className="text-gray-600 text-sm">{schedule.level} Schedule</p>
+                              <h3 className="text-xl font-semibold text-gray-900">
+                                {schedule.fileName}
+                              </h3>
+                              <p className="text-gray-600 text-sm">
+                                {schedule.gradeName} Schedule
+                              </p>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                             <div className="flex items-center space-x-2">
-                              <Building2 className="w-4 h-4 text-blue-600" />
-                              <span className="text-sm text-gray-700">{schedule.departmentName}</span>
+                              <GraduationCap className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm text-gray-700">
+                                {schedule.gradeName}
+                              </span>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <GraduationCap className="w-4 h-4 text-green-600" />
-                              <span className="text-sm text-gray-700">Level {schedule.level}</span>
+                              <Users className="w-4 h-4 text-green-600" />
+                              <span className="text-sm text-gray-700">
+                                Section {schedule.sectionName}
+                              </span>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <Users className="w-4 h-4 text-purple-600" />
-                              <span className="text-sm text-gray-700">{schedule.sectionName}</span>
+                              <Calendar className="w-4 h-4 text-purple-600" />
+                              <span className="text-sm text-gray-700">
+                                Second Semester
+                              </span>
                             </div>
                           </div>
 
@@ -480,7 +604,12 @@ const handlePreview = (schedule: Schedule) => {
                               </div>
                               <div className="flex items-center space-x-1">
                                 <Clock className="w-4 h-4" />
-                                <span>{format(new Date(schedule.createdAt), "MMM dd, yyyy")}</span>
+                                <span>
+                                  {format(
+                                    new Date(schedule.createdAt),
+                                    "MMM dd, yyyy"
+                                  )}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -515,7 +644,7 @@ const handlePreview = (schedule: Schedule) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ViewSchedule
+export default ViewSchedule;
