@@ -22,7 +22,7 @@ export const userSchema = z
       ),
     confirmPassword: z.string(),
     userType: z
-      .enum(["Student", "Registrar", "Teacher", "Department", "President"])
+      .enum(["Student", "Registrar", "Teacher", "Department", "President", "Parent"])
       .default("Student"),
     gender: z.enum(["M", "F"]),
     nationality: z.string().min(1, "Nationality is required"),

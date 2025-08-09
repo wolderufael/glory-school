@@ -13,13 +13,15 @@
   }
 }; */
 
+import { sectionData } from "@/components/mockData";
+
 export interface Section {  
-  id: string;
+  id: number;
   sectionName: string;
 }
 export const getSection = async (departmentId: string,level:string): Promise<Section[]> => {
   try {
-    const res = await fetch(
+   /*  const res = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/sections/by-department/${departmentId}/${level}`
     );
 
@@ -28,7 +30,8 @@ export const getSection = async (departmentId: string,level:string): Promise<Sec
     if (!res.ok) throw new Error("Failed to fetch section");
   
 
-    return res.json();
+    return res.json(); */
+    return sectionData;
   } catch (error) {
     console.error("Error fetching section data:", error);
     throw error;

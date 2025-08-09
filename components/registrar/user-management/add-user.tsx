@@ -24,6 +24,7 @@ import {
   Plus,
   X,
   Search,
+  PlusCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -33,7 +34,7 @@ import { sendUserCredentials, logEmailAttempt } from "@/utils/emailService";
 
 interface Department {
   id: number;
-  collegeId: number;
+  schoolId: number;
   name: string;
   code: string;
   createdAt: string;
@@ -57,6 +58,8 @@ const Register = () => {
   const [departmentSearch, setDepartmentSearch] = useState<string>("");
   const [showDepartmentResults, setShowDepartmentResults] = useState(false);
   const [allDepartments, setAllDepartments] = useState<Department[]>([]);
+  const [studentID, setStudentID] = useState<string>("");
+  const [studentList, setStudentList] = useState<string[]>([]);
 
   const initialFormData = {
     firstName: "",
@@ -71,19 +74,50 @@ const Register = () => {
     nationality: "",
     userMainId: "",
   };
+  
   const [formData, setFormData] = useState(initialFormData);
-
+const grade = [
+  {
+    id: 1,
+    schoolId: 1,
+    name: "Grade 9",
+    code: "G9",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 2,
+    schoolId: 1,
+    name: "Grade 10",
+    code: "G10",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 3,
+    schoolId: 1,
+    name: "Grade 11",
+    code: "G11",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+  {
+    id: 4,
+    schoolId: 1,
+    name: "Grade 12",
+    code: "G12",
+    createdAt: "2025-05-28T09:36:00.000Z",
+  },
+];
   // Fetch all departments on component mount
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await fetch(
+    /*     const response = await fetch(
           `${process.env.NEXT_PUBLIC_BASE_URL}/departments`
         );
         if (response.ok) {
           const data = await response.json();
-          setAllDepartments(data);
-        }
+          setAllDepartments(grade);
+        } */
+        setAllDepartments(grade);
       } catch (error) {
         console.error("Failed to fetch departments:", error);
       }
@@ -347,6 +381,13 @@ const Register = () => {
       });
       return;
     }
+    // Validate user type specific requirements
+    if (formData.userType === "Parent" && studentList.length === 0) {
+      toast("Validation Error", {
+        description: "Please add at least one student ID for Parent",
+      });
+      return;
+    }
 
     if (
       formData.userType === "Department" &&
@@ -479,6 +520,15 @@ const Register = () => {
       setFormData(initialFormData);
       setIsLoading(false);
     }
+  };
+
+  const addStudentID = () => {
+    setStudentList([...studentList, studentID]);
+    setStudentID("");
+  };
+
+  const removeStudentID = (studentID: string) => {
+    setStudentList(studentList.filter((id) => id !== studentID));
   };
 
   return (
@@ -639,8 +689,7 @@ const Register = () => {
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
-                        Search Grades{" "}
-                        <span className="text-red-500">*</span>
+                        Search Grades <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
                         <Input
@@ -672,7 +721,7 @@ const Register = () => {
                     {selectedDepartments.length > 0 && (
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">
-                          Selected Departments:
+                          Selected Grades:
                         </Label>
                         <div className="flex flex-wrap gap-2">
                           {selectedDepartments.map((dept) => (
@@ -686,6 +735,65 @@ const Register = () => {
                               <button
                                 type="button"
                                 onClick={() => removeDepartment(dept.id)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Parent Configuration */}
+              {formData.userType === "Parent" && (
+                <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-medium text-blue-800">
+                    Parent Configuration
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        Add Student ID <span className="text-red-500">*</span>
+                      </Label>
+                      <div className="relative">
+                        {/* <Input
+                          type="text"
+                          placeholder="Search Gradess by name or code..."
+                          value={departmentSearch}
+                          onChange={(e) => setDepartmentSearch(e.target.value)}
+                          className="pr-10"
+                        /> */}
+                        <Input
+                          id="studentID"
+                          type="text"
+                          placeholder="e.g., GS/044/2025"
+                          value={studentID}
+                          onChange={(e) => setStudentID(e.target.value)}
+                        />
+                        <PlusCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" onClick={() => addStudentID()}/>
+                      </div>
+                    </div>
+                    {studentList.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">
+                          Selected Student IDs:
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {studentList.map((student) => (
+                            <div
+                              key={student}
+                              className="flex items-center gap-2 bg-blue-100 px-3 py-1 rounded-full"
+                            >
+                              <span className="text-sm">
+                                {student}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeStudentID(student)}
                                 className="text-red-500 hover:text-red-700"
                               >
                                 <X className="w-3 h-3" />
