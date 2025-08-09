@@ -1,4 +1,4 @@
-export const calculateGrade = (
+export const calculateGradeLetter = (
   total: number,
   totalPractical: number,
   theory: number
@@ -23,29 +23,27 @@ export const isTheoryBelowNYC = (theory: number): boolean => {
 
 // Helper function to check if practical is below NYC or equal
 export const isPracticalBelowNYC = (totalPractical: number): boolean => {
-  return totalPractical <= 56; // C- threshold (70% of 70 = 49)
+  return totalPractical < 56; // C- threshold (70% of 70 = 49)
 };
 
 // Enhanced grade calculation with NYC checks
-export const calculateGradeWithNYCCheck = (
+export const calculateGrade = (
   total: number,
   totalPractical: number,
   theory: number
 ): string => {
+  // Check if practical is below NYC or equal
+  if (isPracticalBelowNYC(totalPractical)) {
+    return "F"; // Fail if practical is below NYC
+  }
   // Check if theory is below NYC (C- competent)
   if (isTheoryBelowNYC(theory)) {
     return "F"; // Fail if theory is below NYC
   }
 
-  // Check if practical is below NYC or equal
-  if (isPracticalBelowNYC(totalPractical)) {
-    return "F"; // Fail if practical is below NYC
-  }
-
   // If both theory and practical meet NYC requirements, calculate normal grade
-  return calculateGrade(total, totalPractical, theory);
+  return calculateGradeLetter(total, totalPractical, theory);
 };
-
 
 export const checkpracticalStatus = (
   practical1: number,
@@ -57,18 +55,17 @@ export const checkpracticalStatus = (
     return "NYC";
   }
 
-  if (totalPractical > 56) {
+  if (totalPractical >= 56) {
     return "C";
   }
   return "NA";
 };
 
-
 export const checktheoryStatus = (theory: number) => {
   if (theory < 18) {
     return "NYC";
   }
-  if (theory > 18) {
+  if (theory >= 18) {
     return "C";
   }
   return "NA";
