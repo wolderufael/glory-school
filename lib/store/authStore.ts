@@ -1,11 +1,6 @@
-import {
-  checkStudentRegistration,
-  isAcceptedStudent,
-} from "@/utils/checkregistration";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { User } from "@/types/types";
-
 
 interface AuthState {
   user: User | null;
@@ -21,7 +16,6 @@ interface AuthState {
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
 }
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -49,117 +43,170 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true, error: null });
 
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`,
+          // Hardcoded accounts for development/demo while backend is not ready
+          const accounts: Array<{
+            mainId: string;
+            password: string;
+            user: User & { userType: string; userMainId?: string };
+            extras?: Record<string, string>;
+          }> = [
             {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
+              mainId: "student01",
+              password: "password123",
+              user: {
+                id: 1,
+                firstName: "Student",
+                lastName: "One",
+                role: "STUDENT",
+                userMainId: "UGR/0001/12",
+                userType: "Student",
               },
-              body: JSON.stringify({ mainId, password }),
-            }
+              extras: {
+                currentStudyingYear: "1",
+                currentStudyingSemester: "1",
+                currentStudyingLevel: "I",
+                departmentId: "10",
+              },
+            },
+            {
+              mainId: "registrar01",
+              password: "password123",
+              user: {
+                id: 2,
+                firstName: "Reg",
+                lastName: "Istrar",
+                role: "REGISTRAR",
+                userMainId: "REG/0001/12",
+                userType: "Registrar",
+              },
+            },
+            {
+              mainId: "teacher01",
+              password: "password123",
+              user: {
+                id: 3,
+                firstName: "Teach",
+                lastName: "Er",
+                role: "TEACHER",
+                userMainId: "TCH/0001/12",
+                userType: "Teacher",
+              },
+            },
+            {
+              mainId: "department01",
+              password: "password123",
+              user: {
+                id: 4,
+                firstName: "Dept",
+                lastName: "User",
+                role: "DEPARTMENT",
+                userMainId: "DPT/0001/12",
+                userType: "Department",
+              },
+            },
+            {
+              mainId: "parent01",
+              password: "password123",
+              user: {
+                id: 5,
+                firstName: "Parent",
+                lastName: "User",
+                role: "PARENT",
+                userMainId: "PRT/0001/12",
+                userType: "Parent",
+              },
+              extras: {
+                parentId: "101",
+              },
+            },
+          ];
+
+          const match = accounts.find(
+            (a) => a.mainId === mainId && a.password === password
           );
 
-          if (!response.ok) {
-            throw new Error("Login failed");
+          if (!match) {
+            throw new Error("Invalid credentials");
           }
 
-          const data = await response.json();
-          const { token, user, academicYear, academicSemester } = data;
+          const user = match.user;
 
-
-          //if (user.userType === "Student") { }
-
-/*           const isRegistered = (await checkStudentRegistration(user.userMainId))
-            ? "Yes"
-            : "No"; */
-          const isRegistered = (await checkStudentRegistration(user))
-            ? "Yes"
-            : "No";
-
-/*           const isAccepted = (await isAcceptedStudent(
-            user.userMainId,
-            academicYear?.id?.toString()
-          ))
-            ? "Yes"
-            : "No";  */
-
-
-          // Set cookie
-          await fetch("/api/auth/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ token }),
-          });
-          // Store in localStorage
+          // Store in localStorage (simulating what backend would return)
           if (typeof window !== "undefined") {
-            localStorage.setItem(
-              "academicYearId",
-              academicYear?.id?.toString() || ""
-            );
-            localStorage.setItem("academicYearName", academicYear?.name || "");
-            localStorage.setItem(
-              "academicSemesterId",
-              academicSemester?.id?.toString() || ""
-            );
-            localStorage.setItem(
-              "academicSemesterName",
-              academicSemester?.name || ""
-            );
+            // Academic context placeholders
+            localStorage.setItem("academicYearId", "2025");
+            localStorage.setItem("academicYearName", "AY 2024/25");
+            localStorage.setItem("academicSemesterId", "1");
+            localStorage.setItem("academicSemesterName", "Semester I");
+
+            // Role-specific extras
+            if (match.extras) {
+              for (const [k, v] of Object.entries(match.extras)) {
+                localStorage.setItem(k, v);
+              }
+            }
+
+            // Common
+            localStorage.setItem("currentUserId", String(user.id));
+            localStorage.setItem("userType", user.userType || "");
+            localStorage.setItem("userId", String(user.id));
+            localStorage.setItem("userMainId", user.userMainId || "");
+
+            // For student-only convenience values (if not provided in extras)
             if (user.userType === "Student") {
               localStorage.setItem(
                 "currentStudyingYear",
-                user?.student?.currentStudyingYear
+                match.extras?.currentStudyingYear || "1"
               );
               localStorage.setItem(
                 "currentStudyingSemester",
-                user?.student?.currentStudyingSemester
+                match.extras?.currentStudyingSemester || "1"
               );
               localStorage.setItem(
                 "currentStudyingLevel",
-                user?.student?.currentStudyingLevel
+                match.extras?.currentStudyingLevel || "I"
               );
-              localStorage.setItem("departmentId", user?.student?.departmentId?.toString());
+              if (match.extras?.departmentId) {
+                localStorage.setItem("departmentId", match.extras.departmentId);
+              }
             }
-            localStorage.setItem("currentUserId", user?.id?.toString() || "");
-            localStorage.setItem("userType", user?.userType || "");
-            localStorage.setItem(
-              "userId",
-              user?.id?.toString() || ""
-            );
-            localStorage.setItem(
-              "studentId",
-              user?.student?.id?.toString() || ""
-            );
-            localStorage.setItem(
-              "registrarId",
-              user?.registrar?.id?.toString() || ""
-            );
-            localStorage.setItem(
-              "teacherId",
-              user?.teacher?.id?.toString() || ""
-            );
-            localStorage.setItem(
-              "departmentUserId",
-              user?.departmentUser?.id?.toString() || ""
-            );
-            localStorage.setItem(
-              "departmentId",
-              user?.departmentUser?.departmentId?.toString() || ""
-            );
-            localStorage.setItem(
-              "presidentId",
-              user?.president?.id?.toString() || ""
-            );
-            localStorage.setItem("userMainId", user?.userMainId || "");
-             localStorage.setItem("isRegistered", isRegistered);
-            //localStorage.setItem("isAccepted", isAccepted); 
+
+            // Mark as registered for demo
+            localStorage.setItem("isRegistered", "Yes");
           }
 
+          // Create a simple unsigned JWT-like token so middleware treats the user as authenticated
+          const base64UrlEncode = (obj: any) =>
+            typeof window !== "undefined"
+              ? btoa(JSON.stringify(obj))
+                  .replace(/\+/g, "-")
+                  .replace(/\//g, "_")
+                  .replace(/=+$/g, "")
+              : Buffer.from(JSON.stringify(obj))
+                  .toString("base64")
+                  .replace(/\+/g, "-")
+                  .replace(/\//g, "_")
+                  .replace(/=+$/g, "");
+
+          const nowSec = Math.floor(Date.now() / 1000);
+          const header = { alg: "none", typ: "JWT" };
+          const payload = {
+            userType: user.userType,
+            userId: String(user.id),
+            exp: nowSec + 7 * 24 * 60 * 60,
+            iat: nowSec,
+            isRegisteredStudent: user.userType === "Student" ? true : false,
+          };
+          const token = `${base64UrlEncode(header)}.${base64UrlEncode(payload)}.mock`;
+
+          // Set cookie via API route
+          await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+
           set({
-            //isAccepted,
             user,
             token,
             isAuthenticated: true,
@@ -182,15 +229,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        // 1. Clear the HTTP-only cookie
-        await fetch("/api/auth/logout", {
-          method: "POST",
-        });
+        // Clear localStorage items
+        if (typeof window !== "undefined") {
+          localStorage.clear();
+        }
 
-        // 2. Clear localStorage items
-        localStorage.clear();
-
-        // 3. Clear the Zustand store state
+        // Clear the Zustand store state
         set({
           user: null,
           token: null,
@@ -198,8 +242,10 @@ export const useAuthStore = create<AuthState>()(
           error: null,
         });
 
-        // 4. Navigate to login page
-        window.location.href = "/auth/login";
+        // Navigate to login page (client-side only)
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth/login";
+        }
       },
     }),
     {

@@ -76,7 +76,7 @@ const Messages = ({ userInfo }: any) => {
           Notices and updates for you <strong>({userType ?? "Guest"})</strong>.
         </SheetDescription>
         {/* Only show Add Message button if not on add message page and not student */}
-        {userType !== "Student" && !isAddMessagePage && (
+        {userType !== "Student" && userType !== "Parent" && !isAddMessagePage && (
           <div className="flex p-3 justify-end">
             <Button
               variant="outline"

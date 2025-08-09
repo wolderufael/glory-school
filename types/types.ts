@@ -8,7 +8,9 @@ export interface User {
     | "DEPARTMENT"
     | "ADMIN"
     | "PRESIDENT"
-    | "TEACHER";
+    | "TEACHER"
+    | "PARENT";
+    
   department?: string;
   userMainId?: string;
   studentId?: string;

@@ -53,7 +53,7 @@ const Login = () => {
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent form default submission
+    e.preventDefault();
     const validationErrors = validateForm();
 
     if (Object.keys(validationErrors).length > 0) {
@@ -64,136 +64,32 @@ const Login = () => {
     setIsLoading(true);
     try {
       await login(formData.mainId, formData.password);
-      // Show success toast
-      toast("Login Successful", {
-        description: "Welcome back!",
-      });
-      // Redirect or refresh
-      window.location.reload();
+      toast("Login Successful", { description: "Welcome back!" });
+
+      // Role-based redirects using store state and localStorage
+      const { user } = useAuthStore.getState();
+      const userType = user?.userType;
+
+      if (userType === "Parent") {
+        const parentId = localStorage.getItem("parentId") || "101";
+        router.push(`/parent?parentId=${parentId}`);
+      } else if (userType === "Student") {
+        router.push("/student/dashboard");
+      } else if (userType === "Registrar") {
+        router.push("/registrar");
+      } else if (userType === "Teacher") {
+        router.push("/teacher");
+      } else if (userType === "Department") {
+        router.push("/department");
+      } else {
+        router.push("/");
+      }
     } catch (error) {
       toast("Login Failed", {
         description: "Invalid ID or Password. Please try again.",
         style: {
           backgroundColor: "#e2f8d7",
           color: "#62721c",
-          borderColor: "#f5c6cb",
-        },
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validateForm();
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Step 1: Authenticate with backend
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/users/login/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
-
-      const data = await response.json();
-      const { token, user, academicYear, academicSemester } = data;
-      console.log("user", user);
-
-      // Store relevant info in localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          "academicYearId",
-          academicYear?.id?.toString() || ""
-        );
-        localStorage.setItem("academicYearName", academicYear?.name || "");
-        localStorage.setItem(
-          "academicSemesterId",
-          academicSemester?.id?.toString() || ""
-        );
-        localStorage.setItem(
-          "academicSemesterName",
-          academicSemester?.name || ""
-        );
-        localStorage.setItem("currentUserId", user?.id?.toString() || "");
-        localStorage.setItem("userType", user?.userType || "");
-        localStorage.setItem("userMainId", user?.userMainId || "");
-        /*         if (user.userType === "Student")
-          localStorage.setItem("studentId", user.student.id.toString());
-        if (user.userType === "Registrar")
-          localStorage.setItem("registrarId", user.registrar.id.toString());
-        if (user.userType === "Teacher")
-          localStorage.setItem("teacherId", user.teacher.id.toString()); */
-      }
-
-      //Temporary solution to store student.id, registrar.id, department.id, teacher.id
-      /*       if (user.userType === "Student")
-        localStorage.setItem("studentId", user.student.id.toString());
-      if (user.userType === "Registrar")
-        localStorage.setItem("registrarId", user.registrar.id.toString());
-      if (user.userType === "Teacher")
-        localStorage.setItem("teacherId", user.teacher.id.toString());
-      if (user.userType === "Department")
-        localStorage.setItem("departmentId", user.department.id.toString()); */
-
-      const student = user?.student || null; // Assuming user object contains student data
-
-      console.log("Login response data:", data);
-      console.log("Student data:", student);
-
-      if (!token) {
-        throw new Error("No token received");
-      }
-
-      const cookieRes = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!cookieRes.ok) {
-        throw new Error("Failed to set session cookie");
-      }
-
-      // Decode token to get accountType
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      console.log("Decoded token:", decoded);
-      console.log("user", user);
-      const accountType = decoded.userType;
-
-      // Show success toast
-      toast("Login Successful", {
-        description: `Welcome back, ${accountType}!`,
-      });
-
-      // Navigate and refresh using App Router
-      // await router.push("/student/dashboard");
-      window.location.reload();
-    } catch (error) {
-      console.error("Login error:", error);
-      toast("Login Failed", {
-        description: "Invalid ID or Password. Please try again.",
-        style: {
-          backgroundColor: "#f8d7da",
-          color: "#721c24",
           borderColor: "#f5c6cb",
         },
       });
@@ -212,18 +108,13 @@ const Login = () => {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>
-            Sign in to your student portal account
-          </CardDescription>
+          <CardDescription>Sign in to your portal account</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="ugr"
-                className="text-sm font-medium flex items-center gap-2"
-              >
+              <Label htmlFor="ugr" className="text-sm font-medium flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 ID<span className="text-red-500">*</span>
               </Label>
@@ -231,7 +122,7 @@ const Login = () => {
                 id="mainId"
                 name="mainId"
                 type="text"
-                placeholder="Enter your ID"
+                placeholder="e.g. student01, registrar01, parent01"
                 value={formData.mainId}
                 onChange={handleChange}
                 className={errors.mainId ? "border-red-500" : ""}
@@ -242,10 +133,7 @@ const Login = () => {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium flex items-center gap-2"
-              >
+              <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 Password <span className="text-red-500">*</span>
               </Label>
@@ -254,7 +142,7 @@ const Login = () => {
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="password123"
                   value={formData.password}
                   onChange={handleChange}
                   className={errors.password ? "border-red-500" : ""}
@@ -264,11 +152,7 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
@@ -282,25 +166,14 @@ const Login = () => {
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
 
-            <div className="text-center">
-              <Link
-                href="/auth/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
-              >
-                Forgot your password?
-              </Link>
+            <div className="text-xs text-gray-600 text-center">
+              Demo accounts: student01, registrar01, teacher01, department01, parent01 / password123
             </div>
 
             <div className="text-center">
-              <span className="text-sm text-gray-600">
-                Don't have an account?{" "}
-                <Link
-                  href="/auth/signup"
-                  className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                >
-                  Create Account 
-                </Link>
-              </span>
+              <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                Forgot your password?
+              </Link>
             </div>
           </CardFooter>
         </form>
