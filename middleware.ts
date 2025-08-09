@@ -11,7 +11,8 @@ export type UserEnumTypes =
   | "Teacher"
   | "Registrar"
   | "Department"
-  | "President";
+  | "President"
+  | "Parent";
 
 export type UserTypePayload = {
   accountType: UserEnumTypes;
@@ -30,6 +31,7 @@ const DASHBOARDS: Record<UserEnumTypes, string> = {
   Registrar: "/registrar",
   Department: "/department",
   President: "/president",
+  Parent: "/parent",
 };
 
 // Protected routes per role
@@ -39,6 +41,7 @@ const roleRoutes: Record<UserEnumTypes, string[]> = {
   Registrar: ["/registrar"],
   Department: ["/department"],
   President: ["/president"],
+  Parent: ["/parent"],
 };
 
 const loginUrls = ["/auth/login", "/auth/register"];

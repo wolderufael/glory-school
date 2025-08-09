@@ -202,37 +202,9 @@ export const registrarNavigationItems = [
     title: "Schedule",
     items: [
       { title: "Add Schedule", icon: Calendar, url: "/registrar/addSchedule" },
-      /*       { title: "Messaging", icon: Mail, url: "#" },
-      { title: "Parent/Student Portal", icon: Users, url: "#" },
-      { title: "Event Calendar", icon: Calendar, url: "#" }, */
-    ],
+      ],
   },
-  /* {
-    title: "Reports & Analytics",
-    items: [
-      { title: "Academic Reports", icon: BarChart2, url: "#" },
-      { title: "Enrollment Reports", icon: PieChart, url: "#" },
-      { title: "Attendance Reports", icon: Clipboard, url: "#" },
-      { title: "Custom Reports", icon: FileText, url: "#" },
-    ],
-  },
-  {
-    title: "Administration",
-    items: [
-      { title: "User Management", icon: UserCog, url: "#" },
-      { title: "System Settings", icon: Settings, url: "#" },
-      { title: "Data Import/Export", icon: Upload, url: "#" },
-      { title: "Compliance & Audit", icon: ShieldCheck, url: "#" },
-    ],
-  },
-  {
-    title: "Support & Resources",
-    items: [
-      { title: "Help Center", icon: HelpCircle, url: "#" },
-      { title: "Contact Support", icon: Phone, url: "#" },
-      { title: "Training Resources", icon: Book, url: "#" },
-    ],
-  }, */
+  
 ];
 
 export const departmentNavigationItems = [
@@ -261,13 +233,6 @@ export const departmentNavigationItems = [
         icon: CheckCircle,
         url: "/department/regrade-department",
       },
-
-      /*   {
-        title: "Section Assignment",
-        icon: Calendar,
-        url: "/department/section-assignment",
-      },
-         */
     ],
   },
 ];

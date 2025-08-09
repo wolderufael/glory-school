@@ -43,7 +43,8 @@ const Register = () => {
       | "Registrar"
       | "Teacher"
       | "Department"
-      | "President",
+      | "President"
+      | "Parent",
     gender: "M" as "M" | "F",
     nationality: "",
     userMainId: debouncedserMainId, // Use debounced value for userMainId
