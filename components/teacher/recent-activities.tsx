@@ -14,62 +14,62 @@ import {
 const activities = [
   {
     id: 1,
-    type: "enrollment",
-    title: "New Student Enrollment",
-    description: "John Doe enrolled in Computer Science program",
-    timestamp: "2 minutes ago",
+    type: "attendance",
+    title: "Attendance Recorded",
+    description: "Grade 10-A Mathematics class attendance submitted",
+    timestamp: "5 minutes ago",
     icon: UserPlus,
     color: "bg-green-500",
     status: "completed",
   },
   {
     id: 2,
-    type: "course",
-    title: "Course Schedule Updated",
-    description: "Data Structures (CS-201) schedule changed to Mon 10:00 AM",
-    timestamp: "15 minutes ago",
-    icon: Calendar,
+    type: "grades",
+    title: "Test Scores Entered",
+    description: "Chemistry midterm exam results for Grade 11-B uploaded",
+    timestamp: "30 minutes ago",
+    icon: FileText,
     color: "bg-blue-500",
-    status: "updated",
+    status: "completed",
   },
   {
     id: 3,
-    type: "grade",
-    title: "Grade Submission",
-    description: "Prof. Smith submitted grades for Calculus I",
+    type: "assignment",
+    title: "Assignment Graded",
+    description: "Physics lab report for Grade 12-A graded (28 students)",
     timestamp: "1 hour ago",
-    icon: FileText,
+    icon: BookOpen,
     color: "bg-purple-500",
-    status: "pending",
+    status: "completed",
   },
   {
     id: 4,
-    type: "course",
-    title: "New Course Added",
-    description: "Machine Learning (CS-401) added to course catalog",
+    type: "parent",
+    title: "Parent Message Sent",
+    description: "Progress update sent to Sarah Johnson's parents",
     timestamp: "2 hours ago",
-    icon: BookOpen,
-    color: "bg-indigo-500",
+    icon: AlertCircle,
+    color: "bg-orange-500",
     status: "completed",
   },
   {
     id: 5,
-    type: "enrollment",
-    title: "Bulk Enrollment",
-    description: "25 students enrolled in Engineering program",
+    type: "schedule",
+    title: "Class Schedule Changed",
+    description: "Biology Grade 10-C moved to Lab Room 2 tomorrow",
     timestamp: "3 hours ago",
-    icon: UserPlus,
-    color: "bg-green-500",
-    status: "completed",
+    icon: Calendar,
+    color: "bg-indigo-500",
+    status: "updated",
   },
   {
     id: 6,
-    type: "system",
-    title: "System Maintenance",
-    description: "Database backup completed successfully",
+    type: "homework",
+    title: "Homework Assigned",
+    description: "English Literature essay assigned to Grade 11 students",
     timestamp: "4 hours ago",
     icon: CheckCircle,
-    color: "bg-gray-500",
+    color: "bg-teal-500",
     status: "completed",
   },
 ];
@@ -87,7 +87,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-  export function TeacherRecentActivities() {
+export function TeacherRecentActivities() {
   return (
     <Card className="border-blue-100">
       <CardHeader>
@@ -95,7 +95,7 @@ const getStatusColor = (status: string) => {
           🕒 Recent Activities
         </CardTitle>
         <p className="text-blue-600 text-sm">
-          Latest system activities and updates
+          Your recent teaching activities and classroom updates
         </p>
       </CardHeader>
       <CardContent>

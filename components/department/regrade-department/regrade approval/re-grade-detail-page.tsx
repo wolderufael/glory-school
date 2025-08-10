@@ -27,13 +27,10 @@ import {
   User,
 } from "lucide-react";
 import { RegradeAssesmentResponse } from "@/types/types";
-import {
-  useUpdateRegradeStatus,
-  useUpdateRegradeDecision,
-} from "@/lib/react-query/mutations/useRegradeAssesment";
+import { toast } from "sonner";
 
 interface ReGradeDetailPageProps {
-  request: RegradeAssesmentResponse | null;
+  request: any | null;
   onClose: () => void;
   loading?: boolean;
   onSuccess?: () => void;
@@ -47,10 +44,30 @@ export default function ReGradeDetailPage({
 }: ReGradeDetailPageProps) {
   const [decision, setDecision] = useState<"approve" | "reject">("approve");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mutation for updating re-grade status
-  //const updateRegradeStatus = useUpdateRegradeStatus();
-  const updateRegradeDecision = useUpdateRegradeDecision();
+  // Mock mutation for updating re-grade decision
+  const updateRegradeDecision = {
+    mutate: (data: any, options?: any) => {
+      setIsSubmitting(true);
+
+      // Simulate API delay
+      setTimeout(() => {
+        const actionText =
+          data.regradeStatus === "REGISTRAR_UNDER_REVIEW"
+            ? "approved"
+            : "rejected";
+        toast.success(`Re-grade request ${actionText} successfully!`);
+
+        setIsSubmitting(false);
+
+        // Call success callback if provided
+        if (options?.onSuccess) {
+          options.onSuccess();
+        }
+      }, 1500);
+    },
+  };
 
   const handleSubmitDecision = () => {
     if (!request) return;
@@ -238,9 +255,9 @@ export default function ReGradeDetailPage({
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-600">Level</p>
+                  <p className="text-sm text-gray-600">Grade Level</p>
                   <p className="font-medium text-gray-900">
-                    Level {request.teachingAssignment.level}
+                    Grade {request.teachingAssignment.level}
                   </p>
                 </div>
 
@@ -511,14 +528,19 @@ export default function ReGradeDetailPage({
         {/* Footer Actions - Only show if status is APPROVAL_REQUESTED */}
         {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
           <div className="flex justify-between mt-6 pt-6 border-t border-gray-200">
-            <Button variant="outline" onClick={handleBack} disabled={loading}>
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={isSubmitting}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Cancel
             </Button>
             <Button
               onClick={handleSubmitDecision}
               disabled={
-                loading || (decision === "reject" && !rejectionReason.trim())
+                isSubmitting ||
+                (decision === "reject" && !rejectionReason.trim())
               }
               className={`${
                 decision === "approve"
@@ -526,7 +548,7 @@ export default function ReGradeDetailPage({
                   : "bg-red-600 hover:bg-red-700"
               } text-white`}
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Processing...

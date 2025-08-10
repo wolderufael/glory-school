@@ -27,17 +27,160 @@ import {
   Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useFetchRegrade } from "@/lib/react-query/hooks/useRegrade";
-import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
-import { useCreateRegradeRequest } from "@/lib/react-query/mutations/useRegradeAssesment";
 import { AssessmentCell } from "@/components/markList/assessmentCell";
 import { Assessment } from "@/utils/assessment";
 import { RegradeAssesment } from "@/types/types";
 import { Textarea } from "@/components/ui/textarea";
 import { getLocalStorage } from "@/utils/localStorage";
 import { SelectedTeacher } from "../../teacher-assignment/AssignmentConfirmDialog";
-import { Teacher, useTeachers } from "@/lib/react-query/queries/getTeachers";
 import { calculateGrade } from "@/utils/calculateGrade";
+
+// Mock Teacher interface
+interface Teacher {
+  id: number;
+  user: {
+    firstName: string;
+    lastName: string;
+    userMainId: string;
+  };
+}
+
+// Mock high school teachers data
+const mockHighSchoolTeachers: Teacher[] = [
+  {
+    id: 1,
+    user: {
+      firstName: "Sarah",
+      lastName: "Johnson",
+      userMainId: "TCH001",
+    },
+  },
+  {
+    id: 2,
+    user: {
+      firstName: "Michael",
+      lastName: "Davis",
+      userMainId: "TCH002",
+    },
+  },
+  {
+    id: 3,
+    user: {
+      firstName: "Emily",
+      lastName: "Wilson",
+      userMainId: "TCH003",
+    },
+  },
+  {
+    id: 4,
+    user: {
+      firstName: "James",
+      lastName: "Brown",
+      userMainId: "TCH004",
+    },
+  },
+  {
+    id: 5,
+    user: {
+      firstName: "Lisa",
+      lastName: "Miller",
+      userMainId: "TCH005",
+    },
+  },
+];
+
+// Mock high school assessment data
+const mockHighSchoolAssessments: Assessment[] = [
+  {
+    id: 1,
+    studentId: 101,
+    teachingAssignmentId: 1,
+    practical1: 18,
+    practical2: 20,
+    practical3: 15,
+    practical1Type: "Lab Exercise",
+    practical2Type: "Project Work",
+    practical3Type: "Presentation",
+    theory: 25,
+    totalMark: 78,
+    gradeInLetter: "B+",
+    comment: "Good performance overall",
+    createdAt: new Date("2025-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2025-01-01T00:00:00.000Z"),
+    assessmentGroup: {
+      id: 1,
+      name: "Grade 10 Mathematics Assessment",
+      level: "10",
+      departmentId: 1,
+      teachingAssignmentId: 1,
+      sectionId: 1,
+      status: "APPROVED" as const,
+      reason: null,
+      createdAt: new Date("2025-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2025-01-01T00:00:00.000Z"),
+    },
+  },
+  {
+    id: 2,
+    studentId: 102,
+    teachingAssignmentId: 1,
+    practical1: 22,
+    practical2: 18,
+    practical3: 20,
+    practical1Type: "Lab Exercise",
+    practical2Type: "Project Work",
+    practical3Type: "Presentation",
+    theory: 28,
+    totalMark: 88,
+    gradeInLetter: "A-",
+    comment: "Excellent work",
+    createdAt: new Date("2025-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2025-01-01T00:00:00.000Z"),
+    assessmentGroup: {
+      id: 2,
+      name: "Grade 10 Physics Assessment",
+      level: "10",
+      departmentId: 1,
+      teachingAssignmentId: 1,
+      sectionId: 1,
+      status: "APPROVED" as const,
+      reason: null,
+      createdAt: new Date("2025-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2025-01-01T00:00:00.000Z"),
+    },
+  },
+];
+
+// Mock useAssessments hook
+const useMockAssessments = () => {
+  const [assessments, setAssessments] = useState<Record<string, any>>({});
+
+  const updateLocalAssessment = (
+    studentId: number,
+    field: string,
+    value: any
+  ) => {
+    setAssessments((prev) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [field]: value,
+      },
+    }));
+  };
+
+  const submitAssessments = async () => {
+    // Mock submission
+    return Promise.resolve();
+  };
+
+  return {
+    assessments,
+    updateLocalAssessment,
+    submitAssessments,
+    isSubmitting: false,
+  };
+};
 
 export default function RegradeDeptRequest() {
   //const teacherId = getLocalStorage("teacherId") || "";
@@ -65,34 +208,79 @@ export default function RegradeDeptRequest() {
   // Check if both fields are filled
   const canSearch = studentId.trim() !== "" && courseCode.trim() !== "";
 
-  //Mock assesment
-
-  // Fetch assessment data using courseCode and studentId (mainId)
-  const {
-    data: fetchedAssessment,
-    isLoading: isAssessmentLoading,
-    isError: isAssessmentError,
-    error: assessmentError,
-    refetch: refetchAssessment,
-  } = useFetchRegrade(
-    courseCode.trim(),
-    studentId.trim(),
-    selectedTeacher?.id || ""
+  // Mock assessment fetch state
+  const [fetchedAssessment, setFetchedAssessment] = useState<Assessment | null>(
+    null
   );
+  const [isAssessmentLoading, setIsAssessmentLoading] = useState(false);
+  const [isAssessmentError, setIsAssessmentError] = useState(false);
+  const [assessmentError, setAssessmentError] = useState<any>(null);
 
   const {
     assessments,
     updateLocalAssessment,
     submitAssessments,
     isSubmitting,
-  } = useAssessments();
+  } = useMockAssessments();
 
-  // Fetch teachers for the dropdown
-  const {
-    data: allTeachers = [],
-    isLoading: isTeachersLoading,
-    error: teachersError,
-  } = useTeachers({ departmentId });
+  // Mock teachers data
+  const allTeachers = mockHighSchoolTeachers;
+  const isTeachersLoading = false;
+  const teachersError = null;
+
+  // Mock refetch function
+  const refetchAssessment = () => {
+    setIsAssessmentLoading(true);
+    setIsAssessmentError(false);
+    setAssessmentError(null);
+
+    // Simulate API delay
+    setTimeout(() => {
+      // Find matching assessment based on studentId and courseCode
+      const mockStudentIdMap: Record<string, number> = {
+        ST101: 101,
+        ST102: 102,
+        "GS/2024/001": 101,
+        "GS/2024/002": 102,
+      };
+
+      const mockCourseCodeMap: Record<string, boolean> = {
+        MATH10: true,
+        PHYS10: true,
+        CHEM10: true,
+        BIO10: true,
+        ENG10: true,
+      };
+
+      const mappedStudentId = mockStudentIdMap[studentId.trim()];
+      const validCourse = mockCourseCodeMap[courseCode.trim()];
+
+      if (mappedStudentId && validCourse) {
+        const foundAssessment = mockHighSchoolAssessments.find(
+          (assessment) => assessment.studentId === mappedStudentId
+        );
+
+        if (foundAssessment) {
+          setFetchedAssessment(foundAssessment);
+          setIsAssessmentError(false);
+        } else {
+          setFetchedAssessment(null);
+          setIsAssessmentError(true);
+          setAssessmentError(
+            "Assessment not found for this student and course"
+          );
+        }
+      } else {
+        setFetchedAssessment(null);
+        setIsAssessmentError(true);
+        setAssessmentError(
+          "No assessment found for the provided Student ID and Course Code"
+        );
+      }
+
+      setIsAssessmentLoading(false);
+    }, 1000);
+  };
 
   // Filter teachers based on search query
   const filteredTeachers = React.useMemo(() => {
@@ -149,8 +337,26 @@ export default function RegradeDeptRequest() {
     };
   }, []);
 
-  // Initialize the re-grade request mutation
-  const createRegradeRequest = useCreateRegradeRequest();
+  // Mock regrade request submission
+  const [isSubmittingRegrade, setIsSubmittingRegrade] = useState(false);
+
+  const createRegradeRequest = {
+    mutateAsync: async (data: any) => {
+      setIsSubmittingRegrade(true);
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Mock successful submission
+      toast.success(
+        `Re-grade request submitted successfully for Student ID: ${studentId} in Course: ${courseCode}`
+      );
+
+      setIsSubmittingRegrade(false);
+      return Promise.resolve();
+    },
+    isPending: isSubmittingRegrade,
+  };
 
   // Search for student assessment
   const handleSearch = () => {
@@ -276,7 +482,7 @@ export default function RegradeDeptRequest() {
       await createRegradeRequest.mutateAsync({
         teachingAssignmentId: currentAssessment.teachingAssignmentId!,
         studentId: studentDbId,
-        assessmentGroupId: currentAssessment.assessmentGroupId,
+        assessmentGroupId: currentAssessment.assessmentGroup?.id,
         regradeReason: regradeReason.trim(),
         practical1,
         practical2,
@@ -294,7 +500,11 @@ export default function RegradeDeptRequest() {
             ? "N/A"
             : "Error",
         totalMark: totalMarkCalculated,
-        gradeInLetter: calculateGrade(totalMarkCalculated, totalPracticalCalculated, theory),
+        gradeInLetter: calculateGrade(
+          totalMarkCalculated,
+          totalPracticalCalculated,
+          theory
+        ),
         comment,
         //teachingAssignment: currentAssessment.teachingAssignment,
       });
@@ -310,7 +520,6 @@ export default function RegradeDeptRequest() {
       // Error is already handled by the mutation hook
     }
   };
-
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
@@ -389,12 +598,12 @@ export default function RegradeDeptRequest() {
               <RefreshCw className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Assesment ReGrade Request
+              Assessment ReGrade Request
             </h1>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Search and modify individual student assessments for regrade
-            requests
+            Search and modify individual student assessments for high school
+            regrade requests
           </p>
         </div>
 
@@ -571,6 +780,22 @@ export default function RegradeDeptRequest() {
                 Please fill in both Student ID and Course Code to search
               </div>
             )}
+            {/* Help text for mock data */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800 font-medium mb-2">
+                Test Data Available:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-blue-700">
+                <div>
+                  <strong>Student IDs:</strong> ST101, ST102, GS/2024/001,
+                  GS/2024/002
+                </div>
+                <div>
+                  <strong>Course Codes:</strong> MATH10, PHYS10, CHEM10, BIO10,
+                  ENG10
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -805,7 +1030,11 @@ export default function RegradeDeptRequest() {
                               (practical2 ?? 0) +
                               (practical3 ?? 0);
                             const totalMark = totalPractical + (theory ?? 0);
-                            const dynamicGrade = calculateGrade(totalMark,totalPractical,theory);
+                            const dynamicGrade = calculateGrade(
+                              totalMark,
+                              totalPractical,
+                              theory
+                            );
 
                             // Dynamic status calculations
                             const practicalStatus =

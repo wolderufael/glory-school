@@ -9,31 +9,66 @@ import {
   Upload,
   Settings,
   Mail,
-  ActivityIcon
+  ActivityIcon,
 } from "lucide-react";
 
 const quickActions = [
   {
-    title: "Marklist",
-    description: "View marklist",
-    icon: UserPlus,
+    title: "Student Grades",
+    description: "Enter and manage student grades",
+    icon: FileText,
     color: "bg-blue-500",
     href: "#",
   },
   {
-    title: "Evaluation",
-    description: "View evaluation",
+    title: "Class Attendance",
+    description: "Track daily attendance",
+    icon: UserPlus,
+    color: "bg-green-500",
+    href: "#",
+  },
+  {
+    title: "Assignment Results",
+    description: "Record test and assignment scores",
     icon: BookOpen,
     color: "bg-indigo-500",
     href: "#",
   },
   {
-    title: "Grade Approval",
-    description: "View grade approval",
+    title: "Class Schedule",
+    description: "View teaching schedule",
     icon: Calendar,
     color: "bg-purple-500",
     href: "#",
-  }
+  },
+  {
+    title: "Grade Reports",
+    description: "Generate semester reports",
+    icon: Download,
+    color: "bg-orange-500",
+    href: "#",
+  },
+  {
+    title: "Parent Messages",
+    description: "Send messages to parents",
+    icon: Mail,
+    color: "bg-pink-500",
+    href: "#",
+  },
+  {
+    title: "Lesson Plans",
+    description: "Create and manage lesson plans",
+    icon: Settings,
+    color: "bg-teal-500",
+    href: "#",
+  },
+  {
+    title: "Student Progress",
+    description: "Monitor individual progress",
+    icon: ActivityIcon,
+    color: "bg-red-500",
+    href: "#",
+  },
 ];
 
 export function TeacherQuickActions() {
@@ -41,10 +76,11 @@ export function TeacherQuickActions() {
     <Card className="border-blue-100">
       <CardHeader>
         <CardTitle className="text-xl font-bold text-blue-900 flex items-center gap-2">
-           Quick Actions
+          Quick Actions
         </CardTitle>
         <p className="text-blue-600 text-sm">
-          Common tasks and shortcuts for efficient management
+          Essential high school teaching tools and classroom management
+          shortcuts
         </p>
       </CardHeader>
       <CardContent>
