@@ -12,32 +12,12 @@ import {
   Users,
 } from "lucide-react";
 import { GradeApprovalStats } from "./types";
-import { useGradeApprovalRequests } from "@/lib/react-query/hooks/useAssessmentGroups";
-import { getLocalStorage } from "@/utils/localStorage";
+import { useGradeApprovalLogic } from "./grade-approval-logic";
 
 interface GradeApprovalStatsProps {}
 
 export function GradeApprovalStatsComponent({}: GradeApprovalStatsProps) {
-  const departmentId = getLocalStorage("departmentId");
-
-  const {
-    data: requests = [],
-    isLoading: loading,
-    error,
-  } = useGradeApprovalRequests(
-    departmentId ? parseInt(departmentId.toString()) : undefined
-  );
-
-  // Calculate stats from the actual data
-  const stats = {
-    totalRequests: requests.length,
-    pendingRequests: requests.filter((r) => r.status === "department_pending")
-      .length,
-    approvedRequests: requests.filter((r) => r.status === "department_approved")
-      .length,
-  };
-
-  console.log("requests 1234.....", requests);
+  const { requests = [], stats, loading, error } = useGradeApprovalLogic();
 
   if (loading) {
     return (
@@ -74,7 +54,7 @@ export function GradeApprovalStatsComponent({}: GradeApprovalStatsProps) {
   const statCards = [
     {
       title: "Total Requests",
-      value: stats.totalRequests,
+      value: stats?.totalRequests || 0,
       icon: Users,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -82,16 +62,16 @@ export function GradeApprovalStatsComponent({}: GradeApprovalStatsProps) {
     },
     {
       title: "Pending Review",
-      value: stats.pendingRequests,
+      value: stats?.pendingRequests || 0,
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       description: "Awaiting approval",
-      urgent: stats.pendingRequests > 5,
+      urgent: (stats?.pendingRequests || 0) > 5,
     },
     {
       title: "Approved",
-      value: stats.approvedRequests,
+      value: stats?.approvedRequests || 0,
       icon: CheckCircle,
       color: "text-green-600",
       bgColor: "bg-green-50",

@@ -18,8 +18,7 @@ import {
   Filter,
 } from "lucide-react";
 import { GradeApprovalRequest } from "./types";
-import { useGradeApprovalRequests } from "@/lib/react-query/hooks/useAssessmentGroups";
-import { getLocalStorage } from "@/utils/localStorage";
+import { useGradeApprovalLogic } from "./grade-approval-logic";
 
 interface GradeApprovalNotificationsProps {
   onViewRequest: (request: GradeApprovalRequest) => void;
@@ -28,28 +27,20 @@ interface GradeApprovalNotificationsProps {
 export function GradeApprovalNotifications({
   onViewRequest,
 }: GradeApprovalNotificationsProps) {
-  const departmentId = getLocalStorage("departmentId");
-
-  const {
-    data: requests = [],
-    isLoading: loading,
-    error,
-  } = useGradeApprovalRequests(
-    departmentId ? parseInt(departmentId.toString()) : undefined
-    );
-  
-  console.log("requests department", requests);
-  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "revision_requested">("all");
+  const { requests = [], loading, error } = useGradeApprovalLogic();
+  const [filter, setFilter] = useState<
+    "all" | "pending" | "approved" | "rejected" | "revision_requested"
+  >("all");
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
+      case "department_pending":
         return <Clock className="h-4 w-4 text-orange-500" />;
-      case "approved":
+      case "department_approved":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "rejected":
+      case "department_rejected":
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case "revision_requested":
+      case "department_revision_requested":
         return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
@@ -58,13 +49,13 @@ export function GradeApprovalNotifications({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
+      case "department_pending":
         return "bg-orange-100 text-orange-800";
-      case "approved":
+      case "department_approved":
         return "bg-green-100 text-green-800";
-      case "rejected":
+      case "department_rejected":
         return "bg-red-100 text-red-800";
-      case "revision_requested":
+      case "department_revision_requested":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -75,6 +66,8 @@ export function GradeApprovalNotifications({
     if (filter === "pending") return request.status === "department_pending";
     if (filter === "approved") return request.status === "department_approved";
     if (filter === "rejected") return request.status === "department_rejected";
+    if (filter === "revision_requested")
+      return request.status === "department_revision_requested";
     return true;
   });
 
@@ -141,11 +134,11 @@ export function GradeApprovalNotifications({
             <p className="text-red-600">
               Error loading grade approval requests
             </p>
-            <p className="text-sm text-gray-600 mt-2">{error.message}</p>
+            <p className="text-sm text-gray-600 mt-2">{error}</p>
           </div>
         </CardContent>
       </Card>
-    );    
+    );
   }
 
   return (
@@ -171,7 +164,9 @@ export function GradeApprovalNotifications({
               onClick={() => setFilter("pending")}
               className="text-xs"
             >
-              Pending ({requests.filter((r) => r.status === "department_pending").length})
+              Pending (
+              {requests.filter((r) => r.status === "department_pending").length}
+              )
             </Button>
             <Button
               variant={filter === "approved" ? "default" : "outline"}
@@ -180,7 +175,11 @@ export function GradeApprovalNotifications({
               className="text-xs"
             >
               <CheckCircle className="h-3 w-3 mr-1" />
-              Approved ({requests.filter((r) => r.status === "department_approved").length}
+              Approved (
+              {
+                requests.filter((r) => r.status === "department_approved")
+                  .length
+              }
               )
             </Button>
             <Button
@@ -189,11 +188,15 @@ export function GradeApprovalNotifications({
               onClick={() => setFilter("rejected")}
               className="text-xs"
             >
-              Rejected ({requests.filter((r) => r.status === "department_rejected").length}
+              Rejected (
+              {
+                requests.filter((r) => r.status === "department_rejected")
+                  .length
+              }
               )
             </Button>
           </div>
-          </div>
+        </div>
         <p className="text-blue-600 text-sm">
           Review and approve teacher-submitted grades
         </p>
@@ -309,14 +312,16 @@ export function GradeApprovalNotifications({
                     </div>
 
                     {/* Action Button */}
-                    {(request.status === "department_pending" && <Button
-                      onClick={() => onViewRequest(request)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      size="sm"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Review
-                    </Button>)}
+                    {request.status === "department_pending" && (
+                      <Button
+                        onClick={() => onViewRequest(request)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        size="sm"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Review
+                      </Button>
+                    )}
                   </div>
                 </div>
               );

@@ -7,10 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  useAssignTeacher,
-  useReAssignTeacher,
-} from "@/lib/react-query/mutations/useAssignTeacher";
+// Removed API hooks since we're using mock data
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import TeacherSelect from "./TeacherSelect";
@@ -28,7 +25,7 @@ interface AssignmentConfirmDialogProps {
   courseId: string;
   departmentId: string;
   sectionId: string;
-  levelId: string;
+  gradeId: string;
   academicSemesterId: string;
   academicYearId: string;
   teachingAssignment: TeachingAssignment | null;
@@ -49,19 +46,14 @@ export function AssignmentConfirmDialog({
   courseId,
   departmentId,
   sectionId,
-  levelId,
+  gradeId,
   academicSemesterId,
   academicYearId,
   teachingAssignment,
 }: AssignmentConfirmDialogProps) {
   const [selectedTeacher, setSelectedTeacher] =
     useState<SelectedTeacher | null>(null);
-  const { mutate: assignTeacher, isPending, isSuccess } = useAssignTeacher();
-  const {
-    mutate: reAssignTeacher,
-    isPending: isReAssignPending,
-    isSuccess: isReAssignSuccess,
-  } = useReAssignTeacher();
+  // Using mock data instead of API hooks
 
   // Reset selected teacher when dialog opens/closes
   useEffect(() => {
@@ -70,17 +62,7 @@ export function AssignmentConfirmDialog({
     }
   }, [isOpen]);
 
-  // Close dialog on successful assignment
-  useEffect(() => {
-    if (isSuccess || isReAssignSuccess) {
-      handleClose();
-      // Call onSuccess callback if provided
-      if (onSuccess || onReAssignSuccess) {
-        onSuccess && onSuccess();
-        onReAssignSuccess && onReAssignSuccess();
-      }
-    }
-  }, [isSuccess, isReAssignSuccess, onSuccess]);
+  // Removed success effect since we're using mock data
 
   const handleTeacherSelect = (teacherId: string, fullName: string) => {
     setSelectedTeacher({ id: teacherId, fullName });
@@ -93,22 +75,19 @@ export function AssignmentConfirmDialog({
     }
 
     if (reAssign) {
-      console.log("reAssign", teachingAssignment?.id, selectedTeacher.id);
-      reAssignTeacher({
-        teachingAssignmentId: teachingAssignment?.id || 0,
-        teacherId: selectedTeacher.id,
-      });
+      // Mock re-assignment - just show success toast since we're using mock data
+      toast.success(
+        `${courseTitle} reassigned to ${selectedTeacher.fullName} successfully!`
+      );
       handleClose();
+      if (onReAssignSuccess) onReAssignSuccess();
     } else {
-      assignTeacher({
-        courseId: parseInt(courseId),
-        teacherId: parseInt(selectedTeacher.id),
-        departmentId: parseInt(departmentId),
-        sectionId: parseInt(sectionId),
-        level: levelId,
-        academicSemesterId: parseInt(academicSemesterId),
-        academicYearId: parseInt(academicYearId),
-      });
+      // Mock assignment - just show success toast since we're using mock data
+      toast.success(
+        `Teacher ${selectedTeacher.fullName} assigned to ${courseTitle} successfully!`
+      );
+      handleClose();
+      if (onSuccess) onSuccess();
     }
   };
 
@@ -122,12 +101,12 @@ export function AssignmentConfirmDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
           <DialogTitle className="text-2xl font-bold">
-            Assign Teacher to Course
+            Assign Teacher to Subject
           </DialogTitle>
 
           <div className="space-y-4 mt-4">
             <div className="text-center">
-              <span className="font-medium text-gray-500 mb-2">Course</span>
+              <span className="font-medium text-gray-500 mb-2">Subject</span>
               <div className="rounded-lg py-2 px-4">
                 <span className="font-medium text-gray-800">{courseTitle}</span>
               </div>
@@ -168,19 +147,15 @@ export function AssignmentConfirmDialog({
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
-          <Button variant="outline" onClick={handleClose} disabled={isPending}>
+          <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
           <Button
             onClick={handleConfirm}
-            disabled={isPending || !selectedTeacher}
+            disabled={!selectedTeacher}
             className={!selectedTeacher ? "opacity-50 cursor-not-allowed" : ""}
           >
-            {isPending || isReAssignPending
-              ? "Assigning..."
-              : reAssign
-              ? "Re-Assign Teacher"
-              : "Assign Teacher"}
+            {reAssign ? "Re-Assign Teacher" : "Assign Teacher"}
           </Button>
         </DialogFooter>
       </DialogContent>

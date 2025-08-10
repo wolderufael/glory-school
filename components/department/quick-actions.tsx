@@ -14,57 +14,57 @@ import {
 
 const quickActions = [
   {
-    title: "Section Assignment",
-    description: "Add new section to the system",
+    title: "Class Assignment",
+    description: "Assign students to classes",
     icon: UserPlus,
     color: "bg-blue-500",
     href: "#",
   },
   {
-    title: "Teacher Assignment",
-    description: "Add new teacher to the system",
+    title: "Subject Teachers",
+    description: "Assign teachers to subjects",
     icon: BookOpen,
     color: "bg-indigo-500",
     href: "#",
   },
   {
-    title: "Grade Approval",
-    description: "Approve grades for the system",
+    title: "Grade Review",
+    description: "Review student grades",
     icon: Calendar,
     color: "bg-purple-500",
     href: "#",
   },
   {
-    title: "Generate Report",
-    description: "Generate academic reports",
+    title: "Progress Reports",
+    description: "Generate student progress reports",
     icon: FileText,
     color: "bg-cyan-500",
     href: "#",
   },
   {
-    title: "Export Data",
-    description: "Download academic data",
+    title: "Export Grades",
+    description: "Download grade sheets",
     icon: Download,
     color: "bg-green-500",
     href: "#",
   },
   {
-    title: "Import Records",
-    description: "Upload bulk academic records",
+    title: "Student Records",
+    description: "Upload student information",
     icon: Upload,
     color: "bg-orange-500",
     href: "#",
   },
   {
-    title: "System Settings",
-    description: "Configure academic system",
+    title: "Class Schedule",
+    description: "Manage class timetables",
     icon: Settings,
     color: "bg-gray-500",
     href: "#",
   },
   {
-    title: "Send Notice",
-    description: "Broadcast academic announcement",
+    title: "Parent Notice",
+    description: "Send notices to parents",
     icon: Mail,
     color: "bg-rose-500",
     href: "#",
@@ -79,7 +79,7 @@ export function DepartmentQuickActions() {
           Quick Actions
         </CardTitle>
         <p className="text-blue-600 text-sm">
-          Common tasks and shortcuts for efficient management
+          Common tasks and shortcuts for high school administration
         </p>
       </CardHeader>
       <CardContent>

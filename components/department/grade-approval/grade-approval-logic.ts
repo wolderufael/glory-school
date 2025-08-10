@@ -1,14 +1,13 @@
 "use client";
 
 // Grade Approval Business Logic
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   GradeApprovalRequest,
   GradeApprovalStats,
   ApprovalDecision,
   GradeDistribution,
 } from "./types";
-import { gradeApprovalApiService } from "./grade-approval-api-service";
 
 export interface UseGradeApprovalLogicReturn {
   // State
@@ -32,16 +31,264 @@ export interface UseGradeApprovalLogicReturn {
   isOverdue: (deadline?: string) => boolean;
 }
 
+// Mock data for high school grade approval
+const mockGradeApprovalRequests: GradeApprovalRequest[] = [
+  {
+    id: "1",
+    teacher: {
+      id: "101",
+      firstName: "Sarah",
+      lastName: "Johnson",
+      email: "s.johnson@highschool.edu",
+      employeeId: "EMP001",
+      department: "Science",
+    },
+    course: {
+      id: "PHYS-10",
+      name: "Physics Grade 10",
+      code: "PHYS-10",
+      creditHours: 4,
+      department: "Science",
+    },
+    section: {
+      id: "10-A",
+      name: "Grade 10-A",
+      department: "Science",
+      departmentName: "Science Department",
+      level: "10",
+      year: "2024",
+      semester: "1",
+    },
+    submittedAt: "2024-12-15T10:30:00Z",
+    deadline: "2024-12-20T23:59:59Z",
+    status: "department_pending" as const,
+    totalStudents: 30,
+    submittedGrades: 30,
+    teachingAssignmentId: 1,
+    grades: [
+      {
+        studentId: "1",
+        studentName: "Ahmed Ali",
+        studentNumber: "ST001",
+        grade: "A",
+        points: 4.0,
+        status: "pass",
+      },
+      {
+        studentId: "2",
+        studentName: "Fatima Mohammed",
+        studentNumber: "ST002",
+        grade: "B+",
+        points: 3.5,
+        status: "pass",
+      },
+      {
+        studentId: "3",
+        studentName: "John Smith",
+        studentNumber: "ST003",
+        grade: "B",
+        points: 3.0,
+        status: "pass",
+      },
+      {
+        studentId: "4",
+        studentName: "Mary Johnson",
+        studentNumber: "ST004",
+        grade: "C+",
+        points: 2.5,
+        status: "pass",
+      },
+      {
+        studentId: "5",
+        studentName: "David Wilson",
+        studentNumber: "ST005",
+        grade: "C",
+        points: 2.0,
+        status: "pass",
+      },
+    ],
+  },
+  {
+    id: "2",
+    teacher: {
+      id: "102",
+      firstName: "Emily",
+      lastName: "Davis",
+      email: "e.davis@highschool.edu",
+      employeeId: "EMP002",
+      department: "Science",
+    },
+    course: {
+      id: "BIOL-11",
+      name: "Biology Grade 11",
+      code: "BIOL-11",
+      creditHours: 4,
+      department: "Science",
+    },
+    section: {
+      id: "11-B",
+      name: "Grade 11-B",
+      department: "Science",
+      departmentName: "Science Department",
+      level: "11",
+      year: "2024",
+      semester: "1",
+    },
+    submittedAt: "2024-12-14T14:15:00Z",
+    deadline: "2024-12-18T23:59:59Z",
+    status: "department_pending" as const,
+    totalStudents: 28,
+    submittedGrades: 28,
+    teachingAssignmentId: 2,
+    grades: [
+      {
+        studentId: "6",
+        studentName: "Sara Ahmed",
+        studentNumber: "ST006",
+        grade: "B",
+        points: 3.0,
+        status: "pass",
+      },
+      {
+        studentId: "7",
+        studentName: "Michael Brown",
+        studentNumber: "ST007",
+        grade: "C+",
+        points: 2.5,
+        status: "pass",
+      },
+      {
+        studentId: "8",
+        studentName: "Lisa Davis",
+        studentNumber: "ST008",
+        grade: "C",
+        points: 2.0,
+        status: "pass",
+      },
+      {
+        studentId: "9",
+        studentName: "Robert Taylor",
+        studentNumber: "ST009",
+        grade: "D+",
+        points: 1.5,
+        status: "fail",
+      },
+      {
+        studentId: "10",
+        studentName: "Jennifer Wilson",
+        studentNumber: "ST010",
+        grade: "F",
+        points: 0.0,
+        status: "fail",
+      },
+    ],
+  },
+  {
+    id: "3",
+    teacher: {
+      id: "103",
+      firstName: "James",
+      lastName: "Thompson",
+      email: "j.thompson@highschool.edu",
+      employeeId: "EMP003",
+      department: "Mathematics",
+    },
+    course: {
+      id: "MATH-12",
+      name: "Mathematics Grade 12",
+      code: "MATH-12",
+      creditHours: 4,
+      department: "Mathematics",
+    },
+    section: {
+      id: "12-A",
+      name: "Grade 12-A",
+      department: "Mathematics",
+      departmentName: "Mathematics Department",
+      level: "12",
+      year: "2024",
+      semester: "1",
+    },
+    submittedAt: "2024-12-16T09:20:00Z",
+    deadline: "2024-12-22T23:59:59Z",
+    status: "department_approved" as const,
+    totalStudents: 25,
+    submittedGrades: 25,
+    teachingAssignmentId: 3,
+    reviewedBy: "dept-head-001",
+    reviewedAt: "2024-12-16T15:30:00Z",
+    grades: [
+      {
+        studentId: "11",
+        studentName: "Hassan Omar",
+        studentNumber: "ST011",
+        grade: "A",
+        points: 4.0,
+        status: "pass",
+      },
+      {
+        studentId: "12",
+        studentName: "Aisha Ibrahim",
+        studentNumber: "ST012",
+        grade: "A-",
+        points: 3.7,
+        status: "pass",
+      },
+      {
+        studentId: "13",
+        studentName: "Kevin Martinez",
+        studentNumber: "ST013",
+        grade: "B+",
+        points: 3.5,
+        status: "pass",
+      },
+      {
+        studentId: "14",
+        studentName: "Sophie Chen",
+        studentNumber: "ST014",
+        grade: "B",
+        points: 3.0,
+        status: "pass",
+      },
+      {
+        studentId: "15",
+        studentName: "Daniel Kim",
+        studentNumber: "ST015",
+        grade: "C",
+        points: 2.0,
+        status: "pass",
+      },
+    ],
+  },
+];
+
+const mockGradeApprovalStats: GradeApprovalStats = {
+  totalRequests: 15,
+  pendingRequests: 8,
+  approvedToday: 6,
+  rejectedToday: 1,
+  avgProcessingTime: 2.5,
+};
+
 export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
   const [requests, setRequests] = useState<GradeApprovalRequest[]>([]);
   const [stats, setStats] = useState<GradeApprovalStats | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submittingDecision, setSubmittingDecision] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Initialize mock data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRequests(mockGradeApprovalRequests);
+      setStats(mockGradeApprovalStats);
+      setLoading(false);
+    }, 800);
 
+    return () => clearTimeout(timer);
+  }, []);
 
- /*  const submitDecision = useCallback(
+  /*  const submitDecision = useCallback(
     async (decision: ApprovalDecision): Promise<boolean> => {
       setSubmittingDecision(true);
       setError(null);
@@ -91,11 +338,10 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
     []
   ); */
 
-
   // Helper functions
   const getUrgentRequests = useCallback(() => {
     return requests.filter((request) => {
-      if (!request.deadline || request.status !== "pending") return false;
+      if (!request.deadline || request.status !== "department_pending") return false;
 
       const deadline = new Date(request.deadline);
       const now = new Date();
@@ -106,7 +352,7 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
   }, [requests]);
 
   const getPendingRequests = useCallback(() => {
-    return requests.filter((request) => request.status === "pending");
+    return requests.filter((request) => request.status === "department_pending");
   }, [requests]);
 
   const getGradeDistribution = useCallback(
@@ -172,7 +418,7 @@ export function useGradeApprovalLogic(): UseGradeApprovalLogicReturn {
     error,
 
     // Actions
-   /*  fetchRequests,
+    /*  fetchRequests,
     fetchStats, */
     //submitDecision,
     // refreshData, //refreshData,

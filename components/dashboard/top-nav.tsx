@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthStore} from "@/lib/store/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
+import { handleLogout } from "@/utils/handleLogout";
 import { Sheet, SheetTrigger } from "../ui/sheet";
 import Messages from "../notifications/viewMessage";
 
@@ -29,23 +30,20 @@ export function TopNav({
   title = props.title,
   studentId = props.studentId,
 }: TopNavProps) {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   return (
     <header className="h-16  bg-white border-b border-slate-200 flex  justify-between px-4">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-medium text-slate-800">{title}</h1>
-
         </div>
       </div>
 
       <div className="flex items-center gap-4">
         <div className="md:flex hidden items-center gap-2">
-          
           {user?.userType != "Registrar" ? (
-        
-           <Sheet>
+            <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-slate-600">
                   <MessageSquare className="w-4 h-4 mr-1" />
@@ -53,11 +51,9 @@ export function TopNav({
                 </Button>
                 {/* <Button variant="outline">Open</Button> */}
               </SheetTrigger>
-              <Messages  userInfo={user} />
+              <Messages userInfo={user} />
             </Sheet>
-            )
-            : null
-              }
+          ) : null}
 
           {/* <Button variant="ghost" size="sm" className="text-slate-600">
             <Printer className="w-4 h-4 mr-1" />
@@ -87,11 +83,11 @@ export function TopNav({
                 {user?.firstName} {user?.lastName}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-{/*               <DropdownMenuItem>
+              {/*               <DropdownMenuItem>
                 <User className="w-4 h-4 mr-2" />
                 Profile
               </DropdownMenuItem> */}
-{/*               <DropdownMenuItem>
+              {/*               <DropdownMenuItem>
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
                 <Badge className="ml-auto bg-red-100 text-red-700">3</Badge>
@@ -101,7 +97,7 @@ export function TopNav({
                 Print Transcript
               </DropdownMenuItem>
               <DropdownMenuSeparator /> */}
-              <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

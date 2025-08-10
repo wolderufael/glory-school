@@ -14,9 +14,9 @@ import {
 const activities = [
   {
     id: 1,
-    type: "section assignment",
-    title: "New Section Assignment",
-    description: "John Doe assigned to Section A",
+    type: "class assignment",
+    title: "New Class Assignment",
+    description: "Sarah Johnson assigned to Grade 10-A Mathematics",
     timestamp: "2 minutes ago",
     icon: UserPlus,
     color: "bg-green-500",
@@ -25,8 +25,8 @@ const activities = [
   {
     id: 2,
     type: "teacher assignment",
-    title: "New Teacher Assignment",
-    description: "John Doe assigned to Section A",
+    title: "Subject Teacher Updated",
+    description: "Mr. David Smith assigned to Grade 11 Physics",
     timestamp: "15 minutes ago",
     icon: Calendar,
     color: "bg-blue-500",
@@ -34,9 +34,9 @@ const activities = [
   },
   {
     id: 3,
-    type: "grade approval",
-    title: "Grade Approval",
-    description: "Prof. Smith approved grades for Calculus I",
+    type: "grade review",
+    title: "Grade Review Pending",
+    description: "Ms. Wilson submitted Grade 12 Chemistry marks for review",
     timestamp: "1 hour ago",
     icon: FileText,
     color: "bg-purple-500",
@@ -44,9 +44,9 @@ const activities = [
   },
   {
     id: 4,
-    type: "generate report",
-    title: "Generate Report",
-    description: "Machine Learning (CS-401) added to course catalog",
+    type: "progress report",
+    title: "Progress Report Generated",
+    description: "Mid-semester reports generated for Grade 9 students",
     timestamp: "2 hours ago",
     icon: BookOpen,
     color: "bg-indigo-500",
@@ -54,22 +54,22 @@ const activities = [
   },
   {
     id: 5,
-    type: "export data",
-    title: "Export Data",
-    description: "25 students enrolled in Engineering program",
+    type: "parent notice",
+    title: "Parent Notice Sent",
+    description: "Parent-teacher meeting notice sent to Grade 10 parents",
     timestamp: "3 hours ago",
-    icon: UserPlus,
-    color: "bg-green-500",
+    icon: CheckCircle,
+    color: "bg-orange-500",
     status: "completed",
   },
   {
     id: 6,
-    type: "import records",
-    title: "Import Records",
-    description: "25 students enrolled in Engineering program",
+    type: "student enrollment",
+    title: "Student Enrollment",
+    description: "3 new students enrolled in Grade 11 sections",
     timestamp: "4 hours ago",
-    icon: CheckCircle,
-    color: "bg-gray-500",
+    icon: UserPlus,
+    color: "bg-cyan-500",
     status: "completed",
   },
 ];
@@ -95,7 +95,7 @@ export function DepartmentRecentActivities() {
           🕒 Recent Activities
         </CardTitle>
         <p className="text-blue-600 text-sm">
-          Latest system activities and updates
+          Latest high school administration activities and updates
         </p>
       </CardHeader>
       <CardContent>

@@ -33,18 +33,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavigationGroups } from "./navigation-group";
-import { getLocalStorage} from "@/utils/localStorage";
+import { getLocalStorage } from "@/utils/localStorage";
 import { useAuthStore } from "@/lib/store/authStore";
-
-
+import { handleLogout } from "@/utils/handleLogout";
 
 export function AppSidebar() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
-
-
-
 
   return (
     <Sidebar className="border-r border-blue-200">
@@ -113,7 +109,7 @@ export function AppSidebar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                 >
                   <LogOut className="mr-2 h-4 w-4" />

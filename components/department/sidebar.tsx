@@ -32,9 +32,10 @@ import {
 } from "@/components/ui/sidebar";
 import { DepartmentNavigationGroups } from "./navigation-groups";
 import { useAuthStore } from "@/lib/store/authStore";
+import { handleLogout } from "@/utils/handleLogout";
 
 export function DepartmentSidebar() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -80,7 +81,9 @@ export function DepartmentSidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col text-left">
-                    <span className="text-sm font-medium">Admin Department</span>
+                    <span className="text-sm font-medium">
+                      Admin Department
+                    </span>
                     <span className="text-xs text-gray-500">DEPT/2024/01</span>
                   </div>
                   <MoreHorizontal className="ml-auto h-4 w-4" />
@@ -100,7 +103,7 @@ export function DepartmentSidebar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-red-600"
-                  onClick={logout}
+                  onClick={handleLogout}
                 >
                   Logout
                 </DropdownMenuItem>

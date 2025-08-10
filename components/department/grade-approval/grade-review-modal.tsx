@@ -35,8 +35,7 @@ import {
   ApprovalDecision,
   GradeDistribution,
 } from "./types";
-import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
-import { useUpdateAssessmentGroupStatus } from "@/lib/react-query/mutations/useUpdateAssessmentGroupStatus";
+import { toast } from "sonner";
 
 interface GradeReviewModalProps {
   request: GradeApprovalRequest | null;
@@ -59,37 +58,69 @@ export function GradeReviewModal({
   const [feedback, setFeedback] = useState("");
   const [reason, setReason] = useState("");
 
-  // Extract teaching assignment ID from the request
-  const teachingAssignmentId = request?.teachingAssignmentId ?? null;
+  // Mock student assessment data for high school - using actual student names from the request
+  const mockStudentAssessments =
+    request?.grades.map((grade, index) => {
+      // Ensure we have proper name data - fallback to a default if missing
+      const studentName =
+        grade.studentName || `Student ${parseInt(grade.studentId)}`;
+      const nameParts = studentName.trim().split(" ");
 
-  // Fetch real student assessment data
-  const {
-    data: studentAssessments = [],
-    isLoading: isLoadingStudents,
-    error: studentsError,
-  } = useByteachingAssessment(teachingAssignmentId ?? 0);
+      const firstName = nameParts[0] || "Student";
+      const lastName =
+        nameParts.length > 1
+          ? nameParts[nameParts.length - 1]
+          : `#${grade.studentId}`;
+      const middleName =
+        nameParts.length > 2 ? nameParts.slice(1, -1).join(" ") : "";
 
-  // Mutation for updating assessment group status
-  const updateStatusMutation = useUpdateAssessmentGroupStatus();
+      console.log(`Processing student ${index + 1}:`, {
+        original: grade,
+        parsed: { firstName, middleName, lastName },
+      });
+
+      return {
+        id: parseInt(grade.studentId),
+        student: {
+          id: parseInt(grade.studentId),
+          user: {
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            userMainId:
+              grade.studentNumber ||
+              `ST${grade.studentId.toString().padStart(3, "0")}`,
+          },
+        },
+        gradeInLetter: grade.grade,
+        practical1: Math.floor(Math.random() * 5) + 15, // Random between 15-20
+        practical2: Math.floor(Math.random() * 5) + 15, // Random between 15-20
+        practical3: Math.floor(Math.random() * 5) + 15, // Random between 15-20
+        theory: Math.floor(Math.random() * 20) + 40, // Random between 40-60
+      };
+    }) || [];
+
+  // Use mock data instead of API
+  const studentAssessments = mockStudentAssessments;
+  const isLoadingStudents = false;
+  const studentsError = null;
 
   const handleSubmitDecision = () => {
     if (!request) return;
 
-    /*     const approvalDecision: ApprovalDecision = {
-      requestId: request.id,
-      action: decision,
-      reason: reason || undefined,
-      feedback: feedback || undefined,
-      reviewerId: "current-registrar-id", // This should come from auth context
-    };
+    // Mock decision submission with toast feedback
+    const actionText =
+      decision === "approve"
+        ? "approved"
+        : decision === "reject"
+        ? "rejected"
+        : "marked for revision";
+    toast.success(
+      `Grade submission for ${request.course.name} has been ${actionText} successfully!`
+    );
 
-    onDecision(approvalDecision); */
-
-    updateStatusMutation.mutate({
-      id: parseInt(request.id, 10),
-      status: decision === "approve" ? "APPROVED" : "REJECTED",
-      reason: reason || undefined,
-    });
+    resetForm();
+    onClose();
   };
 
   const calculateGradeDistribution = (): GradeDistribution[] => {
@@ -269,27 +300,7 @@ export function GradeReviewModal({
                     </tr>
                   </thead>
                   <tbody>
-                    {isLoadingStudents ? (
-                      <tr>
-                        <td colSpan={10} className="text-center py-8">
-                          <div className="flex items-center justify-center space-x-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                            <span className="text-blue-600">
-                              Loading student data...
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : studentsError ? (
-                      <tr>
-                        <td
-                          colSpan={10}
-                          className="text-center py-8 text-red-600"
-                        >
-                          Error loading student data: {studentsError.message}
-                        </td>
-                      </tr>
-                    ) : studentAssessments.length === 0 ? (
+                    {studentAssessments.length === 0 ? (
                       <tr>
                         <td
                           colSpan={10}
@@ -337,11 +348,25 @@ export function GradeReviewModal({
                           const totalMark = totalPractical + theory;
                           const grade = assessment.gradeInLetter || "F";
 
-                          const fullName = student?.user?.firstName
-                            ? `${student.user.firstName} ${
-                                student.user.middleName ?? ""
-                              } ${student.user.lastName ?? ""}`.trim()
-                            : "Unknown Student";
+                          // Construct full name with better fallback logic
+                          const user = student?.user;
+                          let fullName = `Student${index + 1}`;
+
+                          if (user?.firstName) {
+                            const parts = [
+                              user.firstName,
+                              user.middleName || "",
+                              user.lastName || "",
+                            ].filter((part) => part.trim() !== "");
+                            fullName = parts.join(" ");
+                          }
+
+                          console.log(
+                            "Final name:",
+                            fullName,
+                            "from user:",
+                            user
+                          );
 
                           return (
                             <tr

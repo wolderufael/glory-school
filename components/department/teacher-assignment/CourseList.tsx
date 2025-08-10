@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Loader2 } from "lucide-react";
-import { useCourses } from "@/lib/react-query/hooks/useCourses";
 import { cn } from "@/lib/utils";
 import { Course } from "@/lib/react-query/queries/getCourses";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { TeachingAssignment } from "@/types/assessment";
 
 interface CourseListProps {
   departmentId: string;
-  levelId: string;
+  gradeId: string;
   sectionId: string;
   academicSemesterId: string;
   academicYearId: string;
@@ -20,7 +19,7 @@ interface CourseListProps {
 
 export default function CourseList({
   departmentId,
-  levelId,
+  gradeId,
   sectionId,
   academicSemesterId,
   academicYearId,
@@ -32,58 +31,397 @@ export default function CourseList({
     useState<TeachingAssignment | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [reAssign, setReAssign] = useState(false);
-  console.log(
-    "CourseList",
-    departmentId,
-    levelId,
-    sectionId,
-    academicSemesterId
-  );
-  const {
-    data: courses,
-    isLoading,
-    error,
-    refetch,
-  } = useCourses({ departmentId, levelId, sectionId, academicSemesterId });
-  console.log("courses", courses);
+
+  // Simulate loading and use mock data
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
   useEffect(() => {
-    async function getTeachingAssignmentByCourse(
-      courseId: number | undefined
-    ): Promise<TeachingAssignment> {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/teaching-assignments/by-course/${courseId}`
-        );
+    // Mock high school subjects data
+    const mockHighSchoolSubjects: Course[] = [
+      {
+        id: 1,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Mathematics",
+        courseCode: "MATH-" + gradeId,
+        theoryNhrs: 3,
+        practicalNhrs: 1,
+        cooperativeNhrs: 0,
+        totalNhrs: 4,
+        createdAt: new Date(),
+        assigned: false,
+        teacherName: "",
+      },
+      {
+        id: 2,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Physics",
+        courseCode: "PHYS-" + gradeId,
+        theoryNhrs: 3,
+        practicalNhrs: 1,
+        cooperativeNhrs: 0,
+        totalNhrs: 4,
+        createdAt: new Date(),
+        assigned: true,
+        teacherName: "Dr. Sarah Johnson",
+      },
+      {
+        id: 3,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Chemistry",
+        courseCode: "CHEM-" + gradeId,
+        theoryNhrs: 3,
+        practicalNhrs: 1,
+        cooperativeNhrs: 0,
+        totalNhrs: 4,
+        createdAt: new Date(),
+        assigned: false,
+        teacherName: "",
+      },
+      {
+        id: 4,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Biology",
+        courseCode: "BIOL-" + gradeId,
+        theoryNhrs: 3,
+        practicalNhrs: 1,
+        cooperativeNhrs: 0,
+        totalNhrs: 4,
+        createdAt: new Date(),
+        assigned: true,
+        teacherName: "Ms. Emily Davis",
+      },
+      {
+        id: 5,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "English Language",
+        courseCode: "ENG-" + gradeId,
+        theoryNhrs: 4,
+        practicalNhrs: 0,
+        cooperativeNhrs: 0,
+        totalNhrs: 4,
+        createdAt: new Date(),
+        assigned: false,
+        teacherName: "",
+      },
+      {
+        id: 6,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "History",
+        courseCode: "HIST-" + gradeId,
+        theoryNhrs: 3,
+        practicalNhrs: 0,
+        cooperativeNhrs: 0,
+        totalNhrs: 3,
+        createdAt: new Date(),
+        assigned: true,
+        teacherName: "Mr. Michael Wilson",
+      },
+      {
+        id: 7,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Geography",
+        courseCode: "GEO-" + gradeId,
+        theoryNhrs: 3,
+        practicalNhrs: 0,
+        cooperativeNhrs: 0,
+        totalNhrs: 3,
+        createdAt: new Date(),
+        assigned: false,
+        teacherName: "",
+      },
+      {
+        id: 8,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Civics and Ethics",
+        courseCode: "CIV-" + gradeId,
+        theoryNhrs: 2,
+        practicalNhrs: 0,
+        cooperativeNhrs: 0,
+        totalNhrs: 2,
+        createdAt: new Date(),
+        assigned: false,
+        teacherName: "",
+      },
+      {
+        id: 9,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Information Technology",
+        courseCode: "IT-" + gradeId,
+        theoryNhrs: 2,
+        practicalNhrs: 2,
+        cooperativeNhrs: 0,
+        totalNhrs: 4,
+        createdAt: new Date(),
+        assigned: true,
+        teacherName: "Mr. David Chen",
+      },
+      {
+        id: 10,
+        collegeId: 1,
+        departmentId: 1,
+        level: "FIRST" as any,
+        title: "Physical Education",
+        courseCode: "PE-" + gradeId,
+        theoryNhrs: 1,
+        practicalNhrs: 2,
+        cooperativeNhrs: 0,
+        totalNhrs: 3,
+        createdAt: new Date(),
+        assigned: false,
+        teacherName: "",
+      },
+    ];
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch teaching assignment by course");
-        }
-
-        const data = await res.json();
-        return data[0];
-      } catch (error) {
-        console.error("Error fetching teaching assignment by course:", error);
-        throw new Error("Failed to fetch teaching assignment by course");
+    // Simulate API call delay
+    const timer = setTimeout(() => {
+      if (gradeId && sectionId) {
+        setCourses(mockHighSchoolSubjects);
+        setError(null);
+      } else {
+        setCourses([]);
       }
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [gradeId, sectionId]);
+
+  const refetch = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      // Recreate mock data for refetch
+      const mockHighSchoolSubjects: Course[] = [
+        {
+          id: 1,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Mathematics",
+          courseCode: "MATH-" + gradeId,
+          theoryNhrs: 3,
+          practicalNhrs: 1,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date(),
+          assigned: false,
+          teacherName: "",
+        },
+        {
+          id: 2,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Physics",
+          courseCode: "PHYS-" + gradeId,
+          theoryNhrs: 3,
+          practicalNhrs: 1,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date(),
+          assigned: true,
+          teacherName: "Dr. Sarah Johnson",
+        },
+        {
+          id: 3,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Chemistry",
+          courseCode: "CHEM-" + gradeId,
+          theoryNhrs: 3,
+          practicalNhrs: 1,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date(),
+          assigned: false,
+          teacherName: "",
+        },
+        {
+          id: 4,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Biology",
+          courseCode: "BIOL-" + gradeId,
+          theoryNhrs: 3,
+          practicalNhrs: 1,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date(),
+          assigned: true,
+          teacherName: "Ms. Emily Davis",
+        },
+        {
+          id: 5,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "English Language",
+          courseCode: "ENG-" + gradeId,
+          theoryNhrs: 4,
+          practicalNhrs: 0,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date(),
+          assigned: false,
+          teacherName: "",
+        },
+        {
+          id: 6,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "History",
+          courseCode: "HIST-" + gradeId,
+          theoryNhrs: 3,
+          practicalNhrs: 0,
+          cooperativeNhrs: 0,
+          totalNhrs: 3,
+          createdAt: new Date(),
+          assigned: true,
+          teacherName: "Mr. Michael Wilson",
+        },
+        {
+          id: 7,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Geography",
+          courseCode: "GEO-" + gradeId,
+          theoryNhrs: 3,
+          practicalNhrs: 0,
+          cooperativeNhrs: 0,
+          totalNhrs: 3,
+          createdAt: new Date(),
+          assigned: false,
+          teacherName: "",
+        },
+        {
+          id: 8,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Civics and Ethics",
+          courseCode: "CIV-" + gradeId,
+          theoryNhrs: 2,
+          practicalNhrs: 0,
+          cooperativeNhrs: 0,
+          totalNhrs: 2,
+          createdAt: new Date(),
+          assigned: false,
+          teacherName: "",
+        },
+        {
+          id: 9,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Information Technology",
+          courseCode: "IT-" + gradeId,
+          theoryNhrs: 2,
+          practicalNhrs: 2,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date(),
+          assigned: true,
+          teacherName: "Mr. David Chen",
+        },
+        {
+          id: 10,
+          collegeId: 1,
+          departmentId: 1,
+          level: "FIRST" as any,
+          title: "Physical Education",
+          courseCode: "PE-" + gradeId,
+          theoryNhrs: 1,
+          practicalNhrs: 2,
+          cooperativeNhrs: 0,
+          totalNhrs: 3,
+          createdAt: new Date(),
+          assigned: false,
+          teacherName: "",
+        },
+      ];
+      setCourses(mockHighSchoolSubjects);
+      setIsLoading(false);
+    }, 300);
+  };
+  // Mock teaching assignment data - no API call needed
+  useEffect(() => {
+    if (selectedCourse?.id) {
+      // Mock teaching assignment data
+      const mockTeachingAssignment: TeachingAssignment = {
+        id: selectedCourse.id,
+        teacherId: 1,
+        courseId: selectedCourse.id,
+        sectionId: parseInt(sectionId),
+        academicSemesterId: parseInt(academicSemesterId),
+        academicYearId: parseInt(academicYearId),
+        level: gradeId,
+        departmentId: 1,
+        teacher: {
+          id: 1,
+          userId: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        course: {
+          id: selectedCourse.id,
+          collegeId: 1,
+          departmentId: 1,
+          level: gradeId,
+          courseCode: selectedCourse.courseCode,
+          title: selectedCourse.title,
+          theoryNhrs: 3,
+          practicalNhrs: 1,
+          cooperativeNhrs: 0,
+          totalNhrs: 4,
+          createdAt: new Date().toISOString(),
+        },
+        section: {
+          id: parseInt(sectionId),
+          sectionName: "Section A",
+          academicYearId: parseInt(academicYearId),
+          createdAt: new Date().toISOString(),
+          departmentId: 1,
+        },
+        academicSemester: {
+          id: parseInt(academicSemesterId),
+          name: "First Semester",
+          academicYearId: parseInt(academicYearId),
+          startDate: "2024-09-01",
+          endDate: "2025-01-31",
+          registrationStartDate: "2024-08-15",
+          registrationEndDate: "2024-09-15",
+          createdAt: new Date().toISOString(),
+        },
+      };
+
+      setSelectedAssignment(mockTeachingAssignment);
+    } else {
+      setSelectedAssignment(null);
     }
-
-    const fetchTeachingAssignment = async () => {
-      if (selectedCourse?.id) {
-        try {
-          const teachingAssignment = await getTeachingAssignmentByCourse(
-            selectedCourse.id
-          );
-          console.log("teachingAssignment", teachingAssignment);
-          setSelectedAssignment(teachingAssignment);
-        } catch (error) {
-          console.error("Error setting teaching assignment:", error);
-          setSelectedAssignment(null);
-        }
-      }
-    };
-
-    fetchTeachingAssignment();
-  }, [selectedCourse]);
+  }, [selectedCourse, sectionId, gradeId, academicSemesterId, academicYearId]);
 
   const handleAssignmentSuccess = () => {
     // Refetch the courses data to get updated assignment status
@@ -93,18 +431,18 @@ export default function CourseList({
     setSelectedAssignment(null);
   };
 
-  if (!levelId || !sectionId) {
+  if (!gradeId || !sectionId) {
     return (
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-blue-600" />
-            Available Courses
+            Available Subjects
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 text-sm">
-            Please select both level and section to view available courses
+            Please select both grade and section to view available subjects
           </p>
         </CardContent>
       </Card>
@@ -126,7 +464,7 @@ export default function CourseList({
       <Card className="mt-6">
         <CardContent className="py-6">
           <p className="text-red-600 text-sm text-center">
-            Error loading courses. Please try again later.
+            Error loading subjects. Please try again later.
           </p>
         </CardContent>
       </Card>
@@ -139,7 +477,7 @@ export default function CourseList({
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-blue-600" />
-            Available Courses
+            Available Subjects
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -177,14 +515,18 @@ export default function CourseList({
                           >
                             {course.assigned ? "Assigned" : "Not Assigned"}
                           </span>
-                          {course.assigned && course.teacherName && (
-                            <>
-                              <span className="text-sm text-gray-600">to </span>
-                              <span className="px-2 py-1 tesxt-sm rounded-full bg-green-100 text-green-700">
-                                {course.teacherName}
-                              </span>
-                            </>
-                          )}
+                          {course.assigned &&
+                            course.teacherName &&
+                            course.teacherName !== "" && (
+                              <>
+                                <span className="text-sm text-gray-600">
+                                  to{" "}
+                                </span>
+                                <span className="px-2 py-1 tesxt-sm rounded-full bg-green-100 text-green-700">
+                                  {course.teacherName}
+                                </span>
+                              </>
+                            )}
                         </div>
                         <div className="flex justify-end">
                           {!course.assigned && (
@@ -222,13 +564,13 @@ export default function CourseList({
             </div>
           ) : (
             <p className="text-gray-600 text-sm text-center">
-              No courses available for the selected level and section
+              No subjects available for the selected grade and section
             </p>
           )}
         </CardContent>
       </Card>
 
-      {selectedCourse &&  (
+      {selectedCourse && (
         <AssignmentConfirmDialog
           isOpen={dialogOpen}
           reAssign={reAssign}
@@ -243,7 +585,7 @@ export default function CourseList({
           courseId={selectedCourse.id.toString()}
           departmentId={departmentId}
           sectionId={sectionId}
-          levelId={levelId}
+          gradeId={gradeId}
           academicSemesterId={academicSemesterId}
           academicYearId={academicYearId}
           teachingAssignment={selectedAssignment}

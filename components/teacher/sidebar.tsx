@@ -31,10 +31,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/lib/store/authStore";
+import { handleLogout } from "@/utils/handleLogout";
 import { TeacherNavigationGroups } from "./navigation-groups";
 
 export function TeacherSidebar() {
-   const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -104,7 +105,7 @@ export function TeacherSidebar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-red-600 focus:text-red-600 focus:bg-red-50"
                 >
                   Logout

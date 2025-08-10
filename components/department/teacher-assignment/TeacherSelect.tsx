@@ -11,7 +11,16 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Teacher, useTeachers } from "@/lib/react-query/queries/getTeachers";
+
+// Mock teacher interface for high school
+interface Teacher {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  qualification: string;
+  subject: string;
+}
 
 interface TeacherSelectProps {
   departmentId: string;
@@ -29,11 +38,104 @@ export default function TeacherSelect({
     null
   );
 
-  const {
-    data: allTeachers = [],
-    isLoading,
-    error,
-  } = useTeachers({ departmentId });
+  // Mock high school teachers data
+  const mockTeachers: Teacher[] = [
+    {
+      id: 1,
+      firstName: "Sarah",
+      lastName: "Johnson",
+      email: "sarah.johnson@school.edu",
+      qualification: "PhD Physics",
+      subject: "Physics",
+    },
+    {
+      id: 2,
+      firstName: "Emily",
+      lastName: "Davis",
+      email: "emily.davis@school.edu",
+      qualification: "MSc Biology",
+      subject: "Biology",
+    },
+    {
+      id: 3,
+      firstName: "Michael",
+      lastName: "Wilson",
+      email: "michael.wilson@school.edu",
+      qualification: "MA History",
+      subject: "History",
+    },
+    {
+      id: 4,
+      firstName: "David",
+      lastName: "Chen",
+      email: "david.chen@school.edu",
+      qualification: "BSc Computer Science",
+      subject: "Information Technology",
+    },
+    {
+      id: 5,
+      firstName: "Maria",
+      lastName: "Rodriguez",
+      email: "maria.rodriguez@school.edu",
+      qualification: "MSc Chemistry",
+      subject: "Chemistry",
+    },
+    {
+      id: 6,
+      firstName: "James",
+      lastName: "Thompson",
+      email: "james.thompson@school.edu",
+      qualification: "MA Mathematics",
+      subject: "Mathematics",
+    },
+    {
+      id: 7,
+      firstName: "Lisa",
+      lastName: "Anderson",
+      email: "lisa.anderson@school.edu",
+      qualification: "BA English Literature",
+      subject: "English Language",
+    },
+    {
+      id: 8,
+      firstName: "Robert",
+      lastName: "Miller",
+      email: "robert.miller@school.edu",
+      qualification: "BSc Geography",
+      subject: "Geography",
+    },
+    {
+      id: 9,
+      firstName: "Jennifer",
+      lastName: "Taylor",
+      email: "jennifer.taylor@school.edu",
+      qualification: "MA Civics",
+      subject: "Civics and Ethics",
+    },
+    {
+      id: 10,
+      firstName: "Mark",
+      lastName: "Brown",
+      email: "mark.brown@school.edu",
+      qualification: "BSc Physical Education",
+      subject: "Physical Education",
+    },
+  ];
+
+  // Mock loading and error states
+  const [allTeachers, setAllTeachers] = React.useState<Teacher[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  // Simulate loading teachers
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setAllTeachers(mockTeachers);
+      setIsLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [departmentId]);
 
   // Effect to find and set selected teacher when value changes
   React.useEffect(() => {
@@ -54,8 +156,11 @@ export default function TeacherSelect({
 
     const searchTerm = searchQuery.toLowerCase();
     return allTeachers.filter((teacher: Teacher) => {
-      const { user } = teacher;
-      return user.firstName.toLowerCase().startsWith(searchTerm);
+      return (
+        teacher.firstName.toLowerCase().startsWith(searchTerm) ||
+        teacher.lastName.toLowerCase().startsWith(searchTerm) ||
+        teacher.subject.toLowerCase().includes(searchTerm)
+      );
     });
   }, [allTeachers, searchQuery]);
 
@@ -64,7 +169,7 @@ export default function TeacherSelect({
       (t: Teacher) => t.id.toString() === teacherId
     );
     if (selectedTeacher) {
-      const fullName = `${selectedTeacher.user.firstName} ${selectedTeacher.user.lastName}`;
+      const fullName = `${selectedTeacher.firstName} ${selectedTeacher.lastName}`;
       onChange(teacherId, fullName);
     }
   };
@@ -77,7 +182,7 @@ export default function TeacherSelect({
           placeholder="Search teachers..."
           value={
             selectedTeacher
-              ? `${selectedTeacher.user.firstName} ${selectedTeacher.user.lastName}`
+              ? `${selectedTeacher.firstName} ${selectedTeacher.lastName}`
               : searchQuery
           }
           onChange={(e) => {
@@ -118,9 +223,14 @@ export default function TeacherSelect({
                   className="flex items-center gap-2 px-3 py-1.5 cursor-pointer hover:bg-gray-50 text-sm"
                 >
                   <User className="h-3 w-3 text-gray-500" />
-                  <span className="font-medium">
-                    {`${teacher.user.firstName} ${teacher.user.lastName}`}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      {`${teacher.firstName} ${teacher.lastName}`}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {teacher.subject} • {teacher.qualification}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

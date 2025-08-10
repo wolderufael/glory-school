@@ -29,9 +29,7 @@ import {
   ApprovalDecision,
   GradeDistribution,
 } from "@/components/department/grade-approval/types";
-import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
-import { useUpdateAssessmentGroupStatus } from "@/lib/react-query/mutations/useUpdateAssessmentGroupStatus";
-import { getLocalStorage } from "@/utils/localStorage";
+import { toast } from "sonner";
 
 interface GradeReviewPageProps {
   request: GradeApprovalRequest | null;
@@ -49,6 +47,110 @@ const Departments = {
   NRC: 6,
 };
 
+// Mock student assessment data for high school
+const mockStudentAssessments = [
+  {
+    id: 1,
+    studentId: 1,
+    studentName: "Ahmed Ali",
+    gradeInLetter: "A",
+    totalMark: 92,
+    practical1: 20,
+    practical2: 18,
+    theory: 54,
+  },
+  {
+    id: 2,
+    studentId: 2,
+    studentName: "Fatima Mohammed",
+    gradeInLetter: "B+",
+    totalMark: 87,
+    practical1: 18,
+    practical2: 17,
+    theory: 52,
+  },
+  {
+    id: 3,
+    studentId: 3,
+    studentName: "John Smith",
+    gradeInLetter: "B",
+    totalMark: 82,
+    practical1: 17,
+    practical2: 16,
+    theory: 49,
+  },
+  {
+    id: 4,
+    studentId: 4,
+    studentName: "Mary Johnson",
+    gradeInLetter: "A-",
+    totalMark: 89,
+    practical1: 19,
+    practical2: 18,
+    theory: 52,
+  },
+  {
+    id: 5,
+    studentId: 5,
+    studentName: "David Wilson",
+    gradeInLetter: "C+",
+    totalMark: 75,
+    practical1: 15,
+    practical2: 14,
+    theory: 46,
+  },
+  {
+    id: 6,
+    studentId: 6,
+    studentName: "Sara Ahmed",
+    gradeInLetter: "B",
+    totalMark: 80,
+    practical1: 16,
+    practical2: 15,
+    theory: 49,
+  },
+  {
+    id: 7,
+    studentId: 7,
+    studentName: "Michael Brown",
+    gradeInLetter: "A",
+    totalMark: 94,
+    practical1: 20,
+    practical2: 19,
+    theory: 55,
+  },
+  {
+    id: 8,
+    studentId: 8,
+    studentName: "Lisa Davis",
+    gradeInLetter: "B+",
+    totalMark: 85,
+    practical1: 17,
+    practical2: 16,
+    theory: 52,
+  },
+  {
+    id: 9,
+    studentId: 9,
+    studentName: "Robert Taylor",
+    gradeInLetter: "C",
+    totalMark: 72,
+    practical1: 14,
+    practical2: 13,
+    theory: 45,
+  },
+  {
+    id: 10,
+    studentId: 10,
+    studentName: "Jennifer Wilson",
+    gradeInLetter: "B-",
+    totalMark: 78,
+    practical1: 15,
+    practical2: 15,
+    theory: 48,
+  },
+];
+
 export default function GradeReviewPage({
   request,
   /*   onDecision, */
@@ -61,36 +163,31 @@ export default function GradeReviewPage({
   const [feedback, setFeedback] = useState("");
   const [reason, setReason] = useState("");
 
-  // Extract teaching assignment ID from the request
-  const teachingAssignmentId = request?.teachingAssignmentId ?? null;
-  const depCode = request?.section.department;
-  console.log("request dep for id", request);
+  // Use mock data instead of API
+  const studentAssessments = mockStudentAssessments;
+  const isLoadingStudents = false;
+  const studentsError = null;
 
-  // Fetch real student assessment data
-  const {
-    data: studentAssessments = [],
-    isLoading: isLoadingStudents,
-    error: studentsError,
-  } = useByteachingAssessment(teachingAssignmentId ?? 0);
-
-  const mapDepartmentId = (depCode: string | undefined) => {
-    return Departments[depCode as keyof typeof Departments];
+  const resetForm = () => {
+    setDecision("approve");
+    setFeedback("");
+    setReason("");
   };
-  const departmentId = mapDepartmentId(depCode);
-
-  // Mutation for updating assessment group status
-  const updateStatusMutation = useUpdateAssessmentGroupStatus();
 
   const handleSubmitDecision = () => {
     if (!request) return;
 
-    updateStatusMutation.mutate({
-      id: parseInt(request.id, 10),
-      departmentId: departmentId,
-      status:
-        decision === "approve" ? "DEPARTMENT_APPROVED" : "DEPARTMENT_REJECTED",
-      reason: decision === "approve" ? null : reason,
-    });
+    // Mock decision submission with toast feedback
+    const actionText =
+      decision === "approve"
+        ? "approved"
+        : decision === "reject"
+        ? "rejected"
+        : "marked for revision";
+    toast.success(
+      `Grade submission for ${request.course.name} has been ${actionText} successfully!`
+    );
+
     resetForm();
     onClose();
   };
@@ -124,12 +221,6 @@ export default function GradeReviewPage({
       },
       { pass: 0, fail: 0, incomplete: 0 }
     );
-  };
-
-  const resetForm = () => {
-    setDecision("approve");
-    setFeedback("");
-    setReason("");
   };
 
   const handleBack = () => {
@@ -326,7 +417,7 @@ export default function GradeReviewPage({
                           colSpan={10}
                           className="text-center py-8 text-red-600"
                         >
-                          Error loading student data: {studentsError.message}
+                          Error loading student data: {studentsError}
                         </td>
                       </tr>
                     ) : studentAssessments.length === 0 ? (
