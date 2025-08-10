@@ -27,7 +27,24 @@ import {
   User,
 } from "lucide-react";
 import { RegradeAssesmentResponse } from "@/types/types";
-import { useUpdateRegradeStatus } from "@/lib/react-query/mutations/useRegradeAssesment";
+// Mock hook to replace useUpdateRegradeStatus
+const useMockUpdateRegradeStatus = () => {
+  const [isPending, setIsPending] = useState(false);
+
+  const mutate = (data: any) => {
+    setIsPending(true);
+    setTimeout(() => {
+      setIsPending(false);
+      // Simulate success
+      console.log("Mock update regrade status:", data);
+    }, 1000);
+  };
+
+  return {
+    mutate,
+    isPending,
+  };
+};
 
 interface ReGradeDetailPageProps {
   request: RegradeAssesmentResponse | null;
@@ -44,14 +61,15 @@ export default function ReGradeDetailPage({
   const [rejectionReason, setRejectionReason] = useState("");
 
   // Mutation for updating re-grade status
-  const updateRegradeStatus = useUpdateRegradeStatus();
+  const updateRegradeStatus = useMockUpdateRegradeStatus();
 
   const handleSubmitDecision = () => {
     if (!request) return;
 
     updateRegradeStatus.mutate({
       id: request.id,
-      regradeStatus: decision === "approve" ? "DEPARTMENT_APPROVED" : "REGRADE_REQUESTED",
+      regradeStatus:
+        decision === "approve" ? "DEPARTMENT_APPROVED" : "REGRADE_REQUESTED",
       //regradeReason: decision === "reject" ? rejectionReason : "Request approved",
     });
 
@@ -172,7 +190,8 @@ export default function ReGradeDetailPage({
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">
-                        {request.student.user.firstName} {request.student.user.lastName}
+                        {request.student.user.firstName}{" "}
+                        {request.student.user.lastName}
                       </p>
                       <p className="text-sm text-gray-600">
                         {request.student.user.studentId}
@@ -345,11 +364,13 @@ export default function ReGradeDetailPage({
                         }`}
                       >
                         (
-                        {request.totalMark! - request.originalGrade?.totalMark! >
+                        {request.totalMark! -
+                          request.originalGrade?.totalMark! >
                         0
                           ? "+"
                           : ""}
-                        {request.totalMark! - request.originalGrade?.totalMark!})
+                        {request.totalMark! - request.originalGrade?.totalMark!}
+                        )
                       </span>
                     </span>
                   </div>
@@ -415,7 +436,7 @@ export default function ReGradeDetailPage({
           </Card>
 
           {/* Decision Section - Only show if status is APPROVAL_REQUESTED */}
-{/*           {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
+          {/*           {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
             <Card className="border-blue-100">
               <CardHeader>
                 <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
@@ -483,7 +504,7 @@ export default function ReGradeDetailPage({
         </div>
 
         {/* Footer Actions - Only show if status is APPROVAL_REQUESTED */}
-   {/*      {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
+        {/*      {request.regradeStatus === "DEPARTMENT_UNDER_REVIEW" && (
           <div className="flex justify-between mt-6 pt-6 border-t border-gray-200">
             <Button variant="outline" onClick={handleBack} disabled={loading}>
               <ArrowLeft className="h-4 w-4 mr-2" />

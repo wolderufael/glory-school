@@ -21,11 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CreateAssessmentRequest } from "@/utils/assessment";
-import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
 import { ModuleInfoForm } from "./moduleInfoForm";
 import { AssessmentCell } from "./assessmentCell";
-import { useByteachingAssessment } from "@/lib/react-query/hooks/useByteachingAssessment";
-import { useUpdateAssessmentStatus } from "@/lib/react-query/mutations/useAssessmentStatus";
 import {
   GraduationCap,
   Users,
@@ -36,9 +33,286 @@ import {
   CheckCircle,
   Clock,
 } from "lucide-react";
-import { useTeachingAssignment } from "@/lib/react-query/hooks/useTeachingAssignment";
 import { toast } from "sonner";
-import { calculateGrade, checkpracticalStatus, checktheoryStatus } from "@/utils/calculateGrade";
+import {
+  calculateGrade,
+  checkpracticalStatus,
+  checktheoryStatus,
+} from "@/utils/calculateGrade";
+
+// Mock data for high school
+const mockHighSchoolAssessmentData = [
+  {
+    id: 1,
+    course: {
+      courseCode: "MATH-10A",
+      title: "Mathematics Grade 10",
+      theoryNhrs: 4,
+    },
+    section: { sectionName: "10-A" },
+    department: { name: "Mathematics" },
+    academicYear: { name: "2024/25" },
+    academicSemester: { name: "First Semester" },
+    teachingAssignment: {
+      academicYear: { name: "2024/25" },
+      section: { sectionName: "10-A" },
+      academicSemester: { name: "First Semester" },
+      course: {
+        courseCode: "MATH-10A",
+        theoryNhrs: 4,
+      },
+    },
+  },
+  {
+    id: 2,
+    course: {
+      courseCode: "PHYS-11B",
+      title: "Physics Grade 11",
+      theoryNhrs: 3,
+    },
+    section: { sectionName: "11-B" },
+    department: { name: "Science" },
+    academicYear: { name: "2024/25" },
+    academicSemester: { name: "First Semester" },
+    teachingAssignment: {
+      academicYear: { name: "2024/25" },
+      section: { sectionName: "11-B" },
+      academicSemester: { name: "First Semester" },
+      course: {
+        courseCode: "PHYS-11B",
+        theoryNhrs: 3,
+      },
+    },
+  },
+  {
+    id: 3,
+    course: {
+      courseCode: "CHEM-12A",
+      title: "Chemistry Grade 12",
+      theoryNhrs: 4,
+    },
+    section: { sectionName: "12-A" },
+    department: { name: "Science" },
+    academicYear: { name: "2024/25" },
+    academicSemester: { name: "First Semester" },
+    teachingAssignment: {
+      academicYear: { name: "2024/25" },
+      section: { sectionName: "12-A" },
+      academicSemester: { name: "First Semester" },
+      course: {
+        courseCode: "CHEM-12A",
+        theoryNhrs: 4,
+      },
+    },
+  },
+];
+
+const mockHighSchoolStudentAssessments = [
+  {
+    id: 1,
+    student: {
+      id: 1,
+      user: {
+        userMainId: "GS/001/2024",
+        firstName: "Sarah",
+        middleName: "Jane",
+        lastName: "Johnson",
+        gender: "Female",
+      },
+    },
+    practical1: 20,
+    practical2: 18,
+    practical3: 22,
+    practical1Title: "Quiz 1",
+    practical2Title: "Test 1",
+    practical3Title: "Assignment 1",
+    theory: 25,
+    comment: "Good performance",
+    assessmentGroup: {
+      id: 1,
+      status: "DRAFT",
+      reason: null,
+    },
+  },
+  {
+    id: 2,
+    student: {
+      id: 2,
+      user: {
+        userMainId: "GS/002/2024",
+        firstName: "Michael",
+        middleName: "David",
+        lastName: "Brown",
+        gender: "Male",
+      },
+    },
+    practical1: 15,
+    practical2: 20,
+    practical3: 18,
+    practical1Title: "Quiz 1",
+    practical2Title: "Test 1",
+    practical3Title: "Assignment 1",
+    theory: 22,
+    comment: "Needs improvement in practicals",
+    assessmentGroup: {
+      id: 1,
+      status: "DRAFT",
+      reason: null,
+    },
+  },
+  {
+    id: 3,
+    student: {
+      id: 3,
+      user: {
+        userMainId: "GS/003/2024",
+        firstName: "Emily",
+        middleName: "Rose",
+        lastName: "Davis",
+        gender: "Female",
+      },
+    },
+    practical1: 25,
+    practical2: 23,
+    practical3: 20,
+    practical1Title: "Quiz 1",
+    practical2Title: "Test 1",
+    practical3Title: "Assignment 1",
+    theory: 28,
+    comment: "Excellent work",
+    assessmentGroup: {
+      id: 1,
+      status: "DRAFT",
+      reason: null,
+    },
+  },
+  {
+    id: 4,
+    student: {
+      id: 4,
+      user: {
+        userMainId: "GS/004/2024",
+        firstName: "James",
+        middleName: "William",
+        lastName: "Wilson",
+        gender: "Male",
+      },
+    },
+    practical1: 12,
+    practical2: 16,
+    practical3: 14,
+    practical1Title: "Quiz 1",
+    practical2Title: "Test 1",
+    practical3Title: "Assignment 1",
+    theory: 18,
+    comment: "Requires additional support",
+    assessmentGroup: {
+      id: 1,
+      status: "DRAFT",
+      reason: null,
+    },
+  },
+];
+
+// Mock hooks to replace API calls
+const useMockAssessments = () => {
+  const [assessments, setAssessments] = useState<any>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateLocalAssessment = (
+    studentId: number,
+    field: string,
+    value: any
+  ) => {
+    setAssessments((prev: any) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [field]: value,
+      },
+    }));
+  };
+
+  const submitAssessments = async (data: any) => {
+    setIsSubmitting(true);
+    // Simulate API delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+      toast.success("Assessments saved successfully!");
+    }, 1000);
+  };
+
+  return {
+    assessments,
+    updateLocalAssessment,
+    submitAssessments,
+    isSubmitting,
+  };
+};
+
+const useMockUpdateAssessmentStatus = () => {
+  const [isPending, setIsPending] = useState(false);
+
+  const mutateAsync = async (data: any) => {
+    setIsPending(true);
+    // Simulate API delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        setIsPending(false);
+        toast.success("Status updated successfully!");
+        resolve(data);
+      }, 1000);
+    });
+  };
+
+  return {
+    isPending,
+    mutateAsync,
+  };
+};
+
+const useMockTeachingAssignment = (teacherId: number) => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
+
+  return {
+    data: mockHighSchoolAssessmentData,
+    isLoading,
+    isError: false,
+    error: null,
+  };
+};
+
+const useMockByTeachingAssessment = (assignmentId: number) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+
+  const refetch = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setData(mockHighSchoolStudentAssessments);
+      setIsLoading(false);
+    }, 500);
+  };
+
+  useEffect(() => {
+    if (assignmentId > 0) {
+      refetch();
+    }
+  }, [assignmentId]);
+
+  return {
+    data,
+    isLoading,
+    isError: false,
+    error: null,
+    refetch,
+  };
+};
 
 interface StudentMark {
   student_main_id: string;
@@ -59,9 +333,9 @@ const ListTable = () => {
     updateLocalAssessment,
     submitAssessments,
     isSubmitting,
-  } = useAssessments();
+  } = useMockAssessments();
 
-  const updateAssessmentStatusMutation = useUpdateAssessmentStatus();
+  const updateAssessmentStatusMutation = useMockUpdateAssessmentStatus();
   const [teacherId, setTeacherId] = useState<number | null>(null);
   const [practical1Type, setPractical1Type] = useState<string>("Test 1");
   const [practical2Type, setPractical2Type] = useState<string>("Test 2");
@@ -150,7 +424,7 @@ const ListTable = () => {
     isLoading,
     isError,
     error,
-  } = useTeachingAssignment(teacherId ?? 1);
+  } = useMockTeachingAssignment(teacherId ?? 1);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const currentTableref = useRef<HTMLDivElement>(null);
@@ -163,7 +437,7 @@ const ListTable = () => {
     isError: isAssessmentsError,
     error: assessmentsError,
     refetch: refetchAssessments,
-  } = useByteachingAssessment(selectedTeachingAssignmentId ?? 0);
+  } = useMockByTeachingAssessment(selectedTeachingAssignmentId ?? 0);
 
   // Update assessment types when fetchedAssessments changes
   useEffect(() => {
@@ -304,12 +578,16 @@ const ListTable = () => {
         const comment = local.comment ?? fetched?.comment ?? "";
 
         // Auto-calculate status fields based on new logic
-      /*   const practicalStatus =
+        /*   const practicalStatus =
           practical1 === null || practical2 === null || practical3 === null
             ? "NA"
             : "OK";
         const theoryStatus = theory === null ? "NA" : "OK"; */
-        const practicalStatus = checkpracticalStatus(practical1, practical2, practical3);
+        const practicalStatus = checkpracticalStatus(
+          practical1,
+          practical2,
+          practical3
+        );
         const theoryStatus = checktheoryStatus(theory);
 
         // Calculate totals with null handling
@@ -325,8 +603,6 @@ const ListTable = () => {
           theory === null
             ? "NG"
             : calculateGrade(totalMark, totalPractical, theory);
-
-     
 
         return {
           teachingAssignmentId: selectedTeachingAssignmentId,
@@ -457,8 +733,6 @@ const ListTable = () => {
     return [saveButton, secondButton];
   };
 
-
-
   const validatePracticalMarks = (
     studentId: number,
     field: string,
@@ -539,7 +813,7 @@ const ListTable = () => {
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Grade Guardian 
+              Grade Guardian
             </h1>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -629,7 +903,8 @@ const ListTable = () => {
                             },
                             REGISTRAR_UNDER_REVIEW: {
                               text: "Under Review",
-                              meaning: "Being reviewed by registrar no more changes allowed",
+                              meaning:
+                                "Being reviewed by registrar no more changes allowed",
                               bgColor: "bg-yellow-100/90",
                               textColor: "text-yellow-800",
                               icon: "👁️",
@@ -645,7 +920,8 @@ const ListTable = () => {
                             },
                             APPROVED: {
                               text: "Approved",
-                              meaning: "Finalized - no more changes allowed, still needs approval from registrar",
+                              meaning:
+                                "Finalized - no more changes allowed, still needs approval from registrar",
                               bgColor: "bg-green-100/90",
                               textColor: "text-green-800",
                               icon: "✅",
@@ -682,7 +958,8 @@ const ListTable = () => {
                               </div>
 
                               {/* Rejection Reason Display - Inline */}
-                              {(status === "DEPARTMENT_REJECTED" || status === "REGISTRAR_REJECTED") &&
+                              {(status === "DEPARTMENT_REJECTED" ||
+                                status === "REGISTRAR_REJECTED") &&
                                 statusInfo.rejectionReason && (
                                   <div className="bg-red-50/95 border border-red-200 rounded-full px-4 py-2 backdrop-blur-sm h-8 flex items-center space-x-2 max-w-md shadow-sm">
                                     <AlertCircle className="w-3 h-3 text-red-500 flex-shrink-0" />
@@ -726,7 +1003,7 @@ const ListTable = () => {
                   <AlertCircle className="w-6 h-6 text-red-500" />
                   <span className="text-red-600 font-medium">
                     Error loading assessments:{" "}
-                    {assessmentsError?.message || "Unknown error"}
+                    {assessmentsError || "Unknown error"}
                   </span>
                 </div>
               )}
@@ -883,14 +1160,18 @@ const ListTable = () => {
                           const theory = local.theory ?? item.theory ?? null;
 
                           // Auto-calculate status fields
-                        /*   const practicalStatus =
+                          /*   const practicalStatus =
                             practical1 === null ||
                             practical2 === null ||
                             practical3 === null
                               ? "NA"
                               : "OK";
                           const theoryStatus = theory === null ? "NA" : "OK"; */
-                          const practicalStatus = checkpracticalStatus(practical1, practical2, practical3);
+                          const practicalStatus = checkpracticalStatus(
+                            practical1,
+                            practical2,
+                            practical3
+                          );
                           const theoryStatus = checktheoryStatus(theory);
 
                           // Calculate totals with null handling
@@ -907,7 +1188,11 @@ const ListTable = () => {
                             practical3 === null ||
                             theory === null
                               ? "NG"
-                              : calculateGrade(totalMark, totalPractical, theory);
+                              : calculateGrade(
+                                  totalMark,
+                                  totalPractical,
+                                  theory
+                                );
                           const fullName = student?.user?.firstName
                             ? `${student.user.firstName} ${
                                 student.user.middleName ?? ""

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,16 +19,186 @@ import {
   FileText,
   GraduationCap,
 } from "lucide-react";
-import { useRegradeRequests } from "@/lib/react-query/hooks/useRegrade";
 import { RegradeAssesmentResponse } from "@/types/types";
 import ReGradeDetailPage from "./re-grade-detail-page-teacher";
 import ReGrade from "./re-grade";
-import {
-  useRegradeRequest,
-  useAllRegradeRequests,
-  useTeacherRegradeRequests,
-} from "@/lib/react-query/hooks/useRegrade";
 import { getLocalStorage } from "@/utils/localStorage";
+
+// Mock data for high school re-grade requests
+const mockHighSchoolRegradeRequests = [
+  {
+    id: 1,
+    student: {
+      id: 1,
+      user: {
+        firstName: "Sarah",
+        lastName: "Johnson",
+        userMainId: "GS/001/2024",
+        studentId: "GS/001/2024",
+        department: "Science",
+      },
+    },
+    teachingAssignment: {
+      course: {
+        courseCode: "MATH-10A",
+        title: "Mathematics Grade 10",
+      },
+      departmentId: "Mathematics",
+      sectionId: "10-A",
+      level: "10",
+      academicYearId: "2024/25",
+      academicSemesterId: "First Semester",
+      teacher: {
+        user: {
+          firstName: "John",
+          lastName: "Smith",
+          userMainId: "TEA001",
+        },
+      },
+    },
+    regradeStatus: "REGRADE_REQUESTED",
+    originalGrade: {
+      gradeInLetter: "C",
+      totalMark: 65,
+      totalPractical: 40,
+      theory: 25,
+    },
+    gradeInLetter: "B",
+    totalMark: 75,
+    totalPractical: 45,
+    theory: 30,
+    practical1: 15,
+    practical2: 15,
+    practical3: 15,
+    regradeReason:
+      "I believe there was an error in calculating my practical marks. The total should be higher.",
+    comment: "Student performed well in lab sessions",
+    createdAt: "2024-01-15T10:30:00Z",
+  },
+  {
+    id: 2,
+    student: {
+      id: 2,
+      user: {
+        firstName: "Michael",
+        lastName: "Brown",
+        userMainId: "GS/002/2024",
+        studentId: "GS/002/2024",
+        department: "Science",
+      },
+    },
+    teachingAssignment: {
+      course: {
+        courseCode: "PHYS-11B",
+        title: "Physics Grade 11",
+      },
+      departmentId: "Science",
+      sectionId: "11-B",
+      level: "11",
+      academicYearId: "2024/25",
+      academicSemesterId: "First Semester",
+      teacher: {
+        user: {
+          firstName: "Dr. Emily",
+          lastName: "Davis",
+          userMainId: "TEA002",
+        },
+      },
+    },
+    regradeStatus: "DEPARTMENT_UNDER_REVIEW",
+    originalGrade: {
+      gradeInLetter: "D",
+      totalMark: 55,
+      totalPractical: 30,
+      theory: 25,
+    },
+    gradeInLetter: "C",
+    totalMark: 70,
+    totalPractical: 45,
+    theory: 25,
+    practical1: 18,
+    practical2: 15,
+    practical3: 12,
+    regradeReason:
+      "My lab report grades seem to be missing from the final calculation.",
+    comment: "Needs more focus on theory concepts",
+    createdAt: "2024-01-10T14:20:00Z",
+  },
+  {
+    id: 3,
+    student: {
+      id: 3,
+      user: {
+        firstName: "Emily",
+        lastName: "Wilson",
+        userMainId: "GS/003/2024",
+        studentId: "GS/003/2024",
+        department: "English",
+      },
+    },
+    teachingAssignment: {
+      course: {
+        courseCode: "ENG-12A",
+        title: "English Literature Grade 12",
+      },
+      departmentId: "English",
+      sectionId: "12-A",
+      level: "12",
+      academicYearId: "2024/25",
+      academicSemesterId: "First Semester",
+      teacher: {
+        user: {
+          firstName: "Ms. Anna",
+          lastName: "Thompson",
+          userMainId: "TEA003",
+        },
+      },
+    },
+    regradeStatus: "DEPARTMENT_APPROVED",
+    originalGrade: {
+      gradeInLetter: "B-",
+      totalMark: 78,
+      totalPractical: 50,
+      theory: 28,
+    },
+    gradeInLetter: "B+",
+    totalMark: 85,
+    totalPractical: 55,
+    theory: 30,
+    practical1: 20,
+    practical2: 18,
+    practical3: 17,
+    regradeReason:
+      "I think my essay analysis was undergraded. I provided detailed literary analysis.",
+    comment: "Excellent analytical skills",
+    createdAt: "2024-01-08T09:15:00Z",
+  },
+];
+
+// Mock hook to replace useTeacherRegradeRequests
+const useMockTeacherRegradeRequests = (teacherId: number) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
+
+  const refetch = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setData(mockHighSchoolRegradeRequests);
+      setIsLoading(false);
+    }, 500);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [teacherId]);
+
+  return {
+    data,
+    isLoading,
+    error: null,
+    refetch,
+  };
+};
 
 type ReGradeStatus =
   | "all"
@@ -47,7 +217,7 @@ export default function ReGradeReview() {
     isLoading,
     error,
     refetch,
-  } = useTeacherRegradeRequests(Number(teacherId));
+  } = useMockTeacherRegradeRequests(Number(teacherId));
 
   const [filter, setFilter] = useState<ReGradeStatus>("all");
   const [selectedRequest, setSelectedRequest] =
@@ -147,16 +317,16 @@ export default function ReGradeReview() {
     return {
       all: allRequests?.length,
       REGRADE_REQUESTED: allRequests?.filter(
-        (r) => r.regradeStatus === "REGRADE_REQUESTED"
+        (r: any) => r.regradeStatus === "REGRADE_REQUESTED"
       ).length,
       DEPARTMENT_UNDER_REVIEW: allRequests?.filter(
-        (r) => r.regradeStatus === "DEPARTMENT_UNDER_REVIEW"
+        (r: any) => r.regradeStatus === "DEPARTMENT_UNDER_REVIEW"
       ).length,
       DEPARTMENT_APPROVED: allRequests?.filter(
-        (r) => r.regradeStatus === "DEPARTMENT_APPROVED"
+        (r: any) => r.regradeStatus === "DEPARTMENT_APPROVED"
       ).length,
       DEPARTMENT_REJECTED: allRequests?.filter(
-        (r) => r.regradeStatus === "DEPARTMENT_REJECTED"
+        (r: any) => r.regradeStatus === "DEPARTMENT_REJECTED"
       ).length,
     };
   };
@@ -273,7 +443,7 @@ export default function ReGradeReview() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredRequests?.map((request) => {
+              {filteredRequests?.map((request: any) => {
                 //const deadlineInfo = getDeadlineStatus(request.deadline);
 
                 return (

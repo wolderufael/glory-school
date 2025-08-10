@@ -28,18 +28,73 @@ import {
   Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useFetchRegrade } from "@/lib/react-query/hooks/useRegrade";
-import { useAssessments } from "@/lib/react-query/hooks/useAssessment";
-import {
-  useCreateRegradeRequest,
-  useUpdateRegradeStatus,
-} from "@/lib/react-query/mutations/useRegradeAssesment";
 import { AssessmentCell } from "@/components/markList/assessmentCell";
 import { Assessment } from "@/utils/assessment";
 import { RegradeAssesment, RegradeAssesmentResponse } from "@/types/types";
 import { Textarea } from "@/components/ui/textarea";
 import { getLocalStorage } from "@/utils/localStorage";
-import { calculateGrade, checkpracticalStatus, checktheoryStatus } from "@/utils/calculateGrade";
+import {
+  calculateGrade,
+  checkpracticalStatus,
+  checktheoryStatus,
+} from "@/utils/calculateGrade";
+
+// Mock hooks to replace API calls
+const useMockAssessments = () => {
+  const [assessments, setAssessments] = useState<any>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateLocalAssessment = (
+    studentId: number,
+    field: string,
+    value: any
+  ) => {
+    setAssessments((prev: any) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [field]: value,
+      },
+    }));
+  };
+
+  const submitAssessments = async (data: any) => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // Simulate success
+      console.log("Mock submit assessments:", data);
+    }, 1000);
+  };
+
+  return {
+    assessments,
+    updateLocalAssessment,
+    submitAssessments,
+    isSubmitting,
+  };
+};
+
+const useMockUpdateRegradeStatus = () => {
+  const [isPending, setIsPending] = useState(false);
+
+  const mutate = (data: any, options?: any) => {
+    setIsPending(true);
+    setTimeout(() => {
+      setIsPending(false);
+      // Simulate success
+      console.log("Mock update regrade status:", data);
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    }, 1000);
+  };
+
+  return {
+    mutate,
+    isPending,
+  };
+};
 
 interface ReGradeProps {
   request: RegradeAssesmentResponse | null;
@@ -64,10 +119,10 @@ export default function ReGrade({
     updateLocalAssessment,
     submitAssessments,
     isSubmitting,
-  } = useAssessments();
+  } = useMockAssessments();
 
   // Initialize the re-grade request mutation
-  const updateRegradeStatus = useUpdateRegradeStatus();
+  const updateRegradeStatus = useMockUpdateRegradeStatus();
 
   // Handle assessment data when fetched
   useEffect(() => {
@@ -174,7 +229,11 @@ export default function ReGrade({
           practical2Type: currentAssessment.practical2Type,
           practical3Type: currentAssessment.practical3Type,
           totalPractical: totalPracticalCalculated,
-          gradeInLetter: calculateGrade(totalMarkCalculated,totalPracticalCalculated,theory||0),
+          gradeInLetter: calculateGrade(
+            totalMarkCalculated,
+            totalPracticalCalculated,
+            theory || 0
+          ),
           regradeStatus: "DEPARTMENT_UNDER_REVIEW",
         },
         {
@@ -199,7 +258,6 @@ export default function ReGrade({
   };
 
   // Helper function to calculate grade based on total marks
-
 
   const getGradeColor = (grade: string) => {
     switch (grade) {
@@ -427,7 +485,11 @@ export default function ReGrade({
                               (practical2 ?? 0) +
                               (practical3 ?? 0);
                             const totalMark = totalPractical + (theory ?? 0);
-                            const dynamicGrade = calculateGrade(totalMark,totalPractical,theory||0);
+                            const dynamicGrade = calculateGrade(
+                              totalMark,
+                              totalPractical,
+                              theory || 0
+                            );
 
                             // Dynamic status calculations
                             /* const practicalStatus =
@@ -438,8 +500,12 @@ export default function ReGrade({
                                 : theory === null
                                 ? "N/A"
                                 : "Error"; */
-                            const practicalStatus = checkpracticalStatus(practical1||0, practical2||0, practical3||0);
-                            const theoryStatus = checktheoryStatus(theory||0);
+                            const practicalStatus = checkpracticalStatus(
+                              practical1 || 0,
+                              practical2 || 0,
+                              practical3 || 0
+                            );
+                            const theoryStatus = checktheoryStatus(theory || 0);
 
                             // Status colors
                             const getPracticalStatusColor = () => {
