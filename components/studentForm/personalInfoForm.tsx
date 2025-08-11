@@ -68,91 +68,72 @@ export default function PersonalInfoForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    async function fetchAndFillStudentInfo() {
+    function loadMockStudentInfo() {
       setLoading(true);
       setFetchError(null);
-      const userMainId = getLocalStorage("userMainId");
-      if (!userMainId) {
-        setFetchError("No userMainId found in localStorage.");
-        setLoading(false);
-        return;
-      }
-      try {
-        // 1. Fetch admission type (REGULAR)
-        const admissionTypeRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/admission-types`
-        );
-        if (!admissionTypeRes.ok)
-          throw new Error("Failed to fetch admission types");
-        const admissionTypes = await admissionTypeRes.json();
-        const admissionType = admissionTypes.find(
-          (type: any) => type.admission_type_id === "REGULAR"
-        );
-        let admissionTypeId = 1;
-        if (admissionType) {
-          setAdmissionTypeName(admissionType.name || "");
-          admissionTypeId = admissionType.admission_type_id;
+
+      // Simulate loading delay
+      setTimeout(() => {
+        try {
+          // Mock high school student data
+          const mockStudentData = {
+            firstName: "Sarah",
+            middleName: "Jane",
+            lastName: "Johnson",
+            userMainId: "GS/2024/001",
+            currentLevel: "10", // Grade 10
+            email: "sarah.johnson@student.gloryschool.edu",
+            phoneNumber: "+1234567890",
+            nationality: "American",
+            gender: "F",
+            date_of_birth: "2007-03-15",
+          };
+
+          // Mock department data for high school
+          const mockDepartment = {
+            id: 1,
+            name: "General Studies", // High school doesn't have specific departments
+            departmentId: 1,
+          };
+
+          // Mock admission type
+          const mockAdmissionType = {
+            name: "Regular Admission",
+            admission_type_id: 1,
+          };
+
+          setDepartmentName(mockDepartment);
+          setAdmissionTypeName(mockAdmissionType.name);
+
+          setPersonalInfo({
+            ...initialPersonalInfo,
+            admission_type_id: mockAdmissionType.admission_type_id,
+            student_temp_id: mockDepartment.id.toString(),
+            department_id: mockDepartment.departmentId,
+            firstName: mockStudentData.firstName,
+            fatherName: mockStudentData.middleName,
+            grandFather_Name: mockStudentData.lastName,
+            student_id: mockStudentData.userMainId,
+            currentLevel: mockStudentData.currentLevel,
+            currentYear: "2024",
+            currentSemester: "1",
+            email: mockStudentData.email,
+            phone_mobile: mockStudentData.phoneNumber,
+            nationality: mockStudentData.nationality,
+            sex: mockStudentData.gender as "F" | "M",
+            date_of_birth: mockStudentData.date_of_birth,
+          });
+
+          console.log("Mock student data loaded successfully");
+        } catch (err: any) {
+          setFetchError("Failed to load mock student info");
+        } finally {
+          setLoading(false);
         }
-
-  
-        const departmentRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/tempstudents/student-main-id`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ studentMainId: userMainId }),
-          }
-        );
-        if (!departmentRes.ok)
-          throw new Error("Failed to fetch department information");
-
-        const departmentData = await departmentRes.json();
-
-        if (departmentData) {
-          setDepartmentName(departmentData.department);
-        }
-
-        console.log("dn", departmentName);
-
-        // 3. Fetch user info (main personal info)
-        const userRes = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/users/main-id`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mainId: userMainId }),
-          }
-        );
-        if (!userRes.ok) throw new Error("Failed to fetch user info");
-        const userData = await userRes.json();
-        setPersonalInfo({
-          ...initialPersonalInfo,
-          admission_type_id: admissionTypeId,
-          student_temp_id: departmentData.id || "",
-          department_id: departmentData.departmentId || 1,
-          firstName: userData?.firstName || "",
-          fatherName: userData?.middleName || "",
-          grandFather_Name: userData?.lastName || "",
-          student_id: userData?.userMainId || "",
-          // program_id: userData?.program_id || '',
-          // registration_date: userData?.registration_date || new Date().toISOString(),
-          currentLevel: userData?.currentLevel || "1", // Default value
-          currentYear: "1",
-          //userData?.currentYear || new Date().getFullYear().toString(),
-          currentSemester: "1",
-          email: userData?.email || "",
-          phone_mobile: userData?.phoneNumber || "",
-          nationality: userData?.nationality || "",
-          sex: userData?.gender || "M",
-          date_of_birth: userData?.date_of_birth || "",
-        });
-      } catch (err: any) {
-        setFetchError(err.message || "Failed to fetch student info");
-      } finally {
-        setLoading(false);
-      }
+      }, 800); // Simulate API delay
     }
-    fetchAndFillStudentInfo();
+
+    loadMockStudentInfo();
   }, [setPersonalInfo]);
 
   console.log("dn", departmentName);
@@ -665,7 +646,7 @@ export default function PersonalInfoForm({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="department_id">
-                  Department <span className="text-red-500">*</span>
+                  Academic Program <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="department_id"

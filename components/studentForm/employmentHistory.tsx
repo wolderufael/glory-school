@@ -100,7 +100,7 @@ export default function EmploymentHistoryForm({
     <div className="w-full max-w-4xl mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-gray-800">
-          Employment History
+          Academic History
         </h2>
         <button
           type="button"

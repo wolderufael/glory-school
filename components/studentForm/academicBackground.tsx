@@ -290,7 +290,7 @@ export default function AcademicBackgroundForm({
               <CardContent className="space-y-6">
                 {/* Grade File Uploads */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[9, 10, 11, 12].map((grade) => {
+                  {[5, 6, 7, 8].map((grade) => {
                     const fileKey =
                       `grade${grade}File` as keyof FileUploadState;
                     return (

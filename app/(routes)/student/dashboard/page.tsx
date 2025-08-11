@@ -11,7 +11,7 @@ import { getLocalStorage } from "@/utils/localStorage";
 
 export default function DashboardPage() {
   const studentId = getLocalStorage("studentId");
-  const {
+ /*  const {
     data: reregistrationData,
     isLoading,
     refetch: refetchReregistration,
@@ -19,7 +19,7 @@ export default function DashboardPage() {
     Number(studentId),
     Number(getLocalStorage("academicSemesterId")) || 0,
     Number(getLocalStorage("academicYearId")) || 0
-  );
+  ); */
   const { data: studentInfo, refetch } = useStudentInfo();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function DashboardPage() {
     department: studentInfo?.department?.name || "Not assigned",
     year: studentInfo?.currentStudyingYear || "Not assigned",
     section: studentInfo?.section?.name || "Not assigned",
-    academicYear: studentInfo?.academicYear || "Not assigned",
+    academicYear: studentInfo?.currentStudyingYear || "Not assigned",
     semester: `Semester ${
       studentInfo?.currentStudyingSemester || "Not assigned"
     }`,
@@ -42,21 +42,21 @@ export default function DashboardPage() {
   // 1. Data has loaded (not loading)
   // 2. AND (reregistrationData is null/undefined/empty OR reregistrationData exists AND hasPassed is not null/undefined)
   // Don't show if still loading OR reregistrationData exists AND hasPassed is null/undefined
-  const shouldShowReregistration =
+ /*  const shouldShowReregistration =
     !isLoading &&
     (!reregistrationData ||
       Object.keys(reregistrationData).length === 0 ||
       (reregistrationData &&
         reregistrationData.hasPassed !== null &&
-        reregistrationData.hasPassed !== undefined));
+        reregistrationData.hasPassed !== undefined)); */
 
 
   return (
     <main className="flex-1 p-6 mt-4">
-      {shouldShowReregistration && (
+     {/*  {shouldShowReregistration && (
         <Reregistration onReregister={refetchReregistration} />
-      )}
-      <StudentInfoCard data={studentInfoData} isLoading={isLoading} />
+      )} */}
+      <StudentInfoCard data={studentInfoData} isLoading={false} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Current Courses */}

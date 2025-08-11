@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLocalStorage } from "@/utils/localStorage";
+import { useEffect, useState } from "react";
 
 interface StudentInfo {
   department: string;
@@ -19,6 +20,18 @@ export function StudentInfoCard({
   data,
   isLoading = false,
 }: StudentInfoCardProps) {
+  const [academicYearId, setAcademicYearId] = useState<string | null>(null);
+  const [currentStudyingSemester, setCurrentStudyingSemester] = useState<
+    string | null
+  >(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setAcademicYearId(getLocalStorage("academicYearId"));
+    setCurrentStudyingSemester(getLocalStorage("currentStudyingSemester"));
+  }, []);
+
   console.log("data", data);
   if (isLoading) {
     return (
@@ -60,7 +73,7 @@ export function StudentInfoCard({
                 {data.department}
               </span>
             </div>
-           
+
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Section:</span>
               <span className="text-sm font-semibold text-gray-900">
@@ -72,16 +85,17 @@ export function StudentInfoCard({
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Academic Year:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {getLocalStorage("academicYearId")}
+                {isClient ? academicYearId || "Not assigned" : "Loading..."}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Semester:</span>
               <span className="text-sm font-semibold text-gray-900">
-                {getLocalStorage("currentStudyingSemester")}
+                {isClient
+                  ? currentStudyingSemester || "Not assigned"
+                  : "Loading..."}
               </span>
             </div>
-           
           </div>
         </div>
       </CardContent>

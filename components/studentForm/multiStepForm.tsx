@@ -20,7 +20,7 @@ const steps = [
   { id: 2, label: "Contact info", description: "Contact details" },
   { id: 3, label: "Academic info", description: "Education background" },
   { id: 4, label: "Family info", description: "Family details" },
-  { id: 5, label: "Employment history", description: "Work experience" },
+  { id: 5, label: "Academic history", description: "Work experience" },
 ];
 
 export default function MultiStepForm() {

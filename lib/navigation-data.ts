@@ -55,6 +55,11 @@ export const navigationItems = [
     title: "Academic",
     items: [
       {
+        title: "Student Registration",
+        icon: User,
+        url: "/student/dashboard/registration",
+      },
+      {
         title: "Course Registration/Slip",
         icon: BookOpen,
         url: "/student/dashboard/course-registration",
@@ -175,10 +180,9 @@ export const registrarNavigationItems = [
         title: "Section Assignment",
         icon: Users,
         url: "/registrar/section-assignment",
-      },
-      /*{ title: "Student Profiles", icon: User, url: "#" },
-      { title: "Attendance", icon: CheckCircle, url: "#" },
-      { title: "Discipline", icon: AlertTriangle, url: "#" }, */
+      }
+      // { title: "Attendance", icon: CheckCircle, url: "#" },
+      // { title: "Discipline", icon: AlertTriangle, url: "#" }, 
     ],
   },
   /*   {
@@ -254,6 +258,16 @@ export const teacherNavigationItems = [
       },
       /*  { title: "Evaluation", icon: BookOpen, url: "#" }, */
       /*    { title: "Grade Approval", icon: Award, url: "#" }, */
+    ],
+  },
+  {
+    title: "Attendance",
+    items: [
+      {
+        title: "Attendance",
+        icon: Calendar,
+        url: "/teacher/attendance",
+      },
     ],
   },
 ];

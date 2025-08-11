@@ -1,22 +1,31 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@radix-ui/react-select";
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface ChildStudent {
   id: string;
   name: string;
   program: string;
-  class:number; 
+  class: number;
 }
-
-
 
 interface CourseResult {
   courseCode: string;
@@ -34,7 +43,12 @@ interface SemesterResult {
 }
 
 const demoChildren: ChildStudent[] = [
-  { id: "stu-1001", name: "Abel Mekonnen", program: "Natural Science", class: 12 },
+  {
+    id: "stu-1001",
+    name: "Abel Mekonnen",
+    program: "Natural Science",
+    class: 12,
+  },
   { id: "stu-1002", name: "Sena Kebede", program: "Social Science", class: 11 },
 ];
 
@@ -164,15 +178,18 @@ const getGradeColor = (grade: string) => {
   return "text-red-600";
 };
 
-const ParentDashboard = () => {
+const ParentDashboardContent = () => {
   const params = useSearchParams();
   const parentId = params.get("parentId") || "101";
-  
-  const [selectedStudentId, setSelectedStudentId] = useState(demoChildren[0].id);
+
+  const [selectedStudentId, setSelectedStudentId] = useState(
+    demoChildren[0].id
+  );
   const [selectedSemester, setSelectedSemester] = useState<string>("");
 
   const selectedStudent = useMemo(
-    () => demoChildren.find(c => c.id === selectedStudentId) || demoChildren[0],
+    () =>
+      demoChildren.find((c) => c.id === selectedStudentId) || demoChildren[0],
     [selectedStudentId]
   );
 
@@ -185,7 +202,7 @@ const ParentDashboard = () => {
     if (!selectedSemester && studentResults.length > 0) {
       return studentResults[0];
     }
-    return studentResults.find(sem => sem.semester === selectedSemester);
+    return studentResults.find((sem) => sem.semester === selectedSemester);
   }, [selectedSemester, studentResults]);
 
   return (
@@ -199,9 +216,9 @@ const ParentDashboard = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <label className="block text-sm mb-2">Select Student</label>
-                <Select 
-                  value={selectedStudentId} 
-                  onValueChange={v => {
+                <Select
+                  value={selectedStudentId}
+                  onValueChange={(v) => {
                     setSelectedStudentId(v);
                     setSelectedSemester("");
                   }}
@@ -210,7 +227,7 @@ const ParentDashboard = () => {
                     <SelectValue placeholder="Choose student" />
                   </SelectTrigger>
                   <SelectContent>
-                    {demoChildren.map(child => (
+                    {demoChildren.map((child) => (
                       <SelectItem key={child.id} value={child.id}>
                         {child.name} • {child.program}
                       </SelectItem>
@@ -218,21 +235,27 @@ const ParentDashboard = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="flex-1">
                 <label className="block text-sm mb-2">Select Semester</label>
-                <Select 
-                  value={selectedSemester} 
+                <Select
+                  value={selectedSemester}
                   onValueChange={setSelectedSemester}
                   disabled={studentResults.length === 0}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={studentResults.length ? "Choose semester" : "No data"}>
-                        {selectedSemester || (studentResults[0]?.semester || "Select")}
+                    <SelectValue
+                      placeholder={
+                        studentResults.length ? "Choose semester" : "No data"
+                      }
+                    >
+                      {selectedSemester ||
+                        studentResults[0]?.semester ||
+                        "Select"}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {studentResults.map(sem => (
+                    {studentResults.map((sem) => (
                       <SelectItem key={sem.semester} value={sem.semester}>
                         {sem.semester}
                       </SelectItem>
@@ -243,18 +266,20 @@ const ParentDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {demoChildren.map(child => (
-                <Card 
-                  key={child.id} 
-                  className={child.id === selectedStudentId ? "border-blue-400" : ""}
+              {demoChildren.map((child) => (
+                <Card
+                  key={child.id}
+                  className={
+                    child.id === selectedStudentId ? "border-blue-400" : ""
+                  }
                 >
                   <CardHeader>
                     <CardTitle>{child.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="mb-2">{child.program}</p>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       onClick={() => setSelectedStudentId(child.id)}
                     >
                       View Results
@@ -296,7 +321,7 @@ const ParentDashboard = () => {
                     Semester GPA: {semesterResults.gpa.toFixed(2)}
                   </span>
                 </div>
-                
+
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -327,6 +352,23 @@ const ParentDashboard = () => {
         </Card>
       </section>
     </div>
+  );
+};
+
+const ParentDashboard = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading results...</p>
+          </div>
+        </div>
+      }
+    >
+      <ParentDashboardContent />
+    </Suspense>
   );
 };
 

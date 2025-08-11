@@ -7,25 +7,23 @@ interface Author {
   email: string;
 }
 
-
-
 export interface MessageSchema {
+  id: number;
+  title: string;
+  message: string;
+  deadline?: string;
+  senderType: "Student" | "Teacher" | "Department" | "Registrar";
+  targetIds: number[] | undefined;
+  author: {
     id: number;
-    title: string;
-    message: string;
-    deadline?: string;
-   senderType: "Student" | "Teacher" | "Department" | "Registrar";
-    targetIds: number[] | undefined;
-    author: {
-      id: number;
-      firstName: string;
-      lastName: string;
-      email: string;
-      phoneNumber?: string;
-    };
-    targetType: "Student" | "Teacher"
-    is_active?: boolean;
-    createdAt?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber?: string;
+  };
+  targetType: "Student" | "Teacher";
+  is_active?: boolean;
+  createdAt?: string;
 }
 
 export interface Notice {
@@ -122,8 +120,6 @@ const notices: Notice[] = [
   },
 ];
 
-
-
 export const getNotice = async (): Promise<Notice[]> => {
   /* const { data } = await axios.get<Notice[]>(
     `${process.env.NEXT_PUBLIC_BASE_URL}/registrar-noticeboard`
@@ -133,6 +129,103 @@ export const getNotice = async (): Promise<Notice[]> => {
   return notices;
 };
 
+const messages: MessageSchema[] = [
+  {
+    id: 1,
+    title: "Grade Review Notification",
+    message:
+      "Your grade for Mathematics has been reviewed and updated. Please check your transcript for the latest information.",
+    deadline: "2025-09-15T23:59:59Z",
+    senderType: "Department",
+    targetIds: [1, 2, 3],
+    author: {
+      id: 1,
+      firstName: "Dr. Sarah",
+      lastName: "Wilson",
+      email: "sarah.wilson@school.edu",
+      phoneNumber: "+1-555-0123",
+    },
+    targetType: "Student",
+    is_active: true,
+    createdAt: "2025-08-10T10:00:00Z",
+  },
+  {
+    id: 2,
+    title: "Assignment Deadline Reminder",
+    message:
+      "This is a reminder that your research paper for English Literature is due tomorrow. Please submit it through the student portal.",
+    deadline: "2025-08-12T23:59:59Z",
+    senderType: "Teacher",
+    targetIds: [1, 4, 5],
+    author: {
+      id: 2,
+      firstName: "Ms. Jennifer",
+      lastName: "Davis",
+      email: "jennifer.davis@school.edu",
+      phoneNumber: "+1-555-0124",
+    },
+    targetType: "Student",
+    is_active: true,
+    createdAt: "2025-08-11T14:30:00Z",
+  },
+  {
+    id: 3,
+    title: "Course Registration Open",
+    message:
+      "Course registration for the next semester is now open. Please log into the student portal to select your courses before the deadline.",
+    deadline: "2025-09-01T23:59:59Z",
+    senderType: "Registrar",
+    targetIds: [1, 2, 3, 4, 5, 6],
+    author: {
+      id: 3,
+      firstName: "Mr. John",
+      lastName: "Martinez",
+      email: "john.martinez@school.edu",
+      phoneNumber: "+1-555-0125",
+    },
+    targetType: "Student",
+    is_active: true,
+    createdAt: "2025-08-08T09:00:00Z",
+  },
+  {
+    id: 4,
+    title: "Scholarship Opportunity",
+    message:
+      "A new scholarship opportunity is available for students with outstanding academic performance. Applications are due by the end of the month.",
+    deadline: "2025-08-31T23:59:59Z",
+    senderType: "Department",
+    targetIds: [1, 2],
+    author: {
+      id: 4,
+      firstName: "Dr. Emily",
+      lastName: "Johnson",
+      email: "emily.johnson@school.edu",
+      phoneNumber: "+1-555-0126",
+    },
+    targetType: "Student",
+    is_active: true,
+    createdAt: "2025-08-05T11:15:00Z",
+  },
+  {
+    id: 5,
+    title: "Library Book Return Reminder",
+    message:
+      "You have overdue books that need to be returned to the library. Please return them as soon as possible to avoid additional fees.",
+    deadline: "2025-08-20T23:59:59Z",
+    senderType: "Department",
+    targetIds: [3, 5],
+    author: {
+      id: 5,
+      firstName: "Ms. Patricia",
+      lastName: "Lee",
+      email: "patricia.lee@school.edu",
+      phoneNumber: "+1-555-0127",
+    },
+    targetType: "Student",
+    is_active: true,
+    createdAt: "2025-08-07T16:45:00Z",
+  },
+];
 
 export const fetchMessages = async ({
   userId,
@@ -141,8 +234,15 @@ export const fetchMessages = async ({
   userId: number;
   userType: string;
 }): Promise<MessageSchema[]> => {
-  const { data } = await axios.get<MessageSchema[]>(
+  /* const { data } = await axios.get<MessageSchema[]>(
     `${process.env.NEXT_PUBLIC_BASE_URL}/messages/by-target/${userType}/${userId}`
   );
-  return data;
+  return data; */
+
+  // Filter messages based on userType and userId for more realistic behavior
+  return messages.filter(
+    (message) =>
+      message.targetType === userType &&
+      (message.targetIds?.includes(userId) || message.targetIds === undefined)
+  );
 };
