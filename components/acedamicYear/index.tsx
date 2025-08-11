@@ -18,7 +18,7 @@ import {
   AcademicYearFormData,
   academicYearSchema,
 } from "@/utils/academicYearSchema";
-import { useAddAcademicYear } from "@/lib/react-query/mutations/useAddAcademicYear";
+
 import { z } from "zod";
 import { parseISO, startOfDay, formatISO } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -92,7 +92,7 @@ const AcademicYearForm = () => {
     isOpen: false,
     message: "",
   });
-  const { mutate, isPending } = useAddAcademicYear();
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -125,46 +125,43 @@ const AcademicYearForm = () => {
     // Clear previous errors if validation passes
     setErrors({});
 
+    // Set loading state
+    setIsLoading(true);
+
     // Format all dates using the helper function
     const formattedData = formatAcademicYearDates(formData);
     console.log("Submitting data:", JSON.stringify(formattedData, null, 2));
 
-    mutate(formattedData, {
-      onSuccess: () => {
-        setFormData({
-          name: "",
-          startDate: "",
-          endDate: "",
-          semester1StartDate: "",
-          semester1EndDate: "",
-          semester2StartDate: "",
-          semester2EndDate: "",
-          semeester1RegistrationStartDate: "",
-          semeester1RegistrationEndDate: "",
-          semeester2RegistrationStartDate: "",
-          semeester2RegistrationEndDate: "",
-        });
-        router.push("/registrar");
-      },
-      onError: (error: any) => {
-        // Extract error message from the response
-        let errorMessage = "An unexpected error occurred. Please try again.";
-
-        if (error?.response?.data?.error) {
-          errorMessage = error.response.data.error;
-        } else if (error?.message) {
-          errorMessage = error.message;
-        } else if (typeof error === "string") {
-          errorMessage = error;
-        }
-
-        // Show error dialog
-        setErrorDialog({
-          isOpen: true,
-          message: errorMessage,
-        });
-      },
-    });
+    try {
+      // Simulate API call with 2 second delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Show success message
+      toast.success("Academic year created successfully!");
+      
+      // Reset form
+      setFormData({
+        name: "",
+        startDate: "",
+        endDate: "",
+        semester1StartDate: "",
+        semester1EndDate: "",
+        semester2StartDate: "",
+        semester2EndDate: "",
+        semeester1RegistrationStartDate: "",
+        semeester1RegistrationEndDate: "",
+        semeester2RegistrationStartDate: "",
+        semeester2RegistrationEndDate: "",
+      });
+      
+      // Navigate to registrar page
+      router.push("/registrar");
+    } catch (error) {
+      // This won't happen in our mock, but keeping for consistency
+      toast.error("An error occurred while creating the academic year");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

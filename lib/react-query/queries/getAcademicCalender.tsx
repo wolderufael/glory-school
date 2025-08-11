@@ -1,7 +1,133 @@
 import { AcademicYear } from "@/types/types";
 
-export const getAcademicCalender = async (): Promise<AcademicYear> => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/`);
+const mockAcademicYears: AcademicYear[] = [
+  {
+    id: 1,
+    name: "2024/2025",
+    startDate: "2024-09-01T00:00:00Z",
+    endDate: "2025-06-30T23:59:59Z",
+    semester1StartDate: "2024-09-01T00:00:00Z",
+    semester1EndDate: "2025-01-31T23:59:59Z",
+    semester2StartDate: "2025-02-01T00:00:00Z",
+    semester2EndDate: "2025-06-30T23:59:59Z",
+    semeester1RegistrationStartDate: "2024-08-15T00:00:00Z",
+    semeester1RegistrationEndDate: "2024-08-31T23:59:59Z",
+    semeester2RegistrationStartDate: "2025-01-15T00:00:00Z",
+    semeester2RegistrationEndDate: "2025-01-31T23:59:59Z",
+    createdAt: "2024-06-01T10:00:00Z",
+    status: "OPEN",
+    semesters: [
+      {
+        id: 1,
+        name: "Semester 1",
+        startDate: "2024-09-01T00:00:00Z",
+        endDate: "2025-01-31T23:59:59Z",
+        academicYearId: 1,
+        registrationStartDate: "2024-08-15T00:00:00Z",
+        registrationEndDate: "2024-08-31T23:59:59Z",
+        status: "OPEN",
+        createdAt: "2024-06-01T10:00:00Z",
+      },
+      {
+        id: 2,
+        name: "Semester 2",
+        startDate: "2025-02-01T00:00:00Z",
+        endDate: "2025-06-30T23:59:59Z",
+        academicYearId: 1,
+        registrationStartDate: "2025-01-15T00:00:00Z",
+        registrationEndDate: "2025-01-31T23:59:59Z",
+        status: "UPCOMING",
+        createdAt: "2024-06-01T10:00:00Z",
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "2023/2024",
+    startDate: "2023-09-01T00:00:00Z",
+    endDate: "2024-06-30T23:59:59Z",
+    semester1StartDate: "2023-09-01T00:00:00Z",
+    semester1EndDate: "2024-01-31T23:59:59Z",
+    semester2StartDate: "2024-02-01T00:00:00Z",
+    semester2EndDate: "2024-06-30T23:59:59Z",
+    semeester1RegistrationStartDate: "2023-08-15T00:00:00Z",
+    semeester1RegistrationEndDate: "2023-08-31T23:59:59Z",
+    semeester2RegistrationStartDate: "2024-01-15T00:00:00Z",
+    semeester2RegistrationEndDate: "2024-01-31T23:59:59Z",
+    createdAt: "2023-06-01T10:00:00Z",
+    status: "CLOSED",
+    semesters: [
+      {
+        id: 3,
+        name: "Semester 1",
+        startDate: "2023-09-01T00:00:00Z",
+        endDate: "2024-01-31T23:59:59Z",
+        academicYearId: 2,
+        registrationStartDate: "2023-08-15T00:00:00Z",
+        registrationEndDate: "2023-08-31T23:59:59Z",
+        status: "CLOSED",
+        createdAt: "2023-06-01T10:00:00Z",
+      },
+      {
+        id: 4,
+        name: "Semester 2",
+        startDate: "2024-02-01T00:00:00Z",
+        endDate: "2024-06-30T23:59:59Z",
+        academicYearId: 2,
+        registrationStartDate: "2024-01-15T00:00:00Z",
+        registrationEndDate: "2024-01-31T23:59:59Z",
+        status: "CLOSED",
+        createdAt: "2023-06-01T10:00:00Z",
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "2025/2026",
+    startDate: "2025-09-01T00:00:00Z",
+    endDate: "2026-06-30T23:59:59Z",
+    semester1StartDate: "2025-09-01T00:00:00Z",
+    semester1EndDate: "2026-01-31T23:59:59Z",
+    semester2StartDate: "2026-02-01T00:00:00Z",
+    semester2EndDate: "2026-06-30T23:59:59Z",
+    semeester1RegistrationStartDate: "2025-08-15T00:00:00Z",
+    semeester1RegistrationEndDate: "2025-08-31T23:59:59Z",
+    semeester2RegistrationStartDate: "2026-01-15T00:00:00Z",
+    semeester2RegistrationEndDate: "2026-01-31T23:59:59Z",
+    createdAt: "2025-06-01T10:00:00Z",
+    status: "CLOSED",
+    semesters: [
+      {
+        id: 5,
+        name: "Semester 1",
+        startDate: "2025-09-01T00:00:00Z",
+        endDate: "2026-01-31T23:59:59Z",
+        academicYearId: 3,
+        registrationStartDate: "2025-08-15T00:00:00Z",
+        registrationEndDate: "2025-08-31T23:59:59Z",
+        status: "UPCOMING",
+        createdAt: "2025-06-01T10:00:00Z",
+      },
+      {
+        id: 6,
+        name: "Semester 2",
+        startDate: "2026-02-01T00:00:00Z",
+        endDate: "2026-06-30T23:59:59Z",
+        academicYearId: 3,
+        registrationStartDate: "2026-01-15T00:00:00Z",
+        registrationEndDate: "2026-01-31T23:59:59Z",
+        status: "UPCOMING",
+        createdAt: "2025-06-01T10:00:00Z",
+      },
+    ],
+  },
+];
+
+export const getAcademicCalender = async (): Promise<AcademicYear[]> => {
+  /* const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/academicyears/`);
   const data = await res.json();
-  return data.reverse();
+  return data.reverse(); */
+
+  // Return reversed mock data to match original API behavior
+  return [...mockAcademicYears].reverse();
 };

@@ -396,7 +396,7 @@ export default function AcademicBackgroundForm({
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                   <FileText className="h-5 w-5 text-green-600" />
-                  Post-Secondary Education
+                  Elementary Education
                 </CardTitle>
                 <Button
                   type="button"

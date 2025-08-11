@@ -280,7 +280,7 @@ export function CreateSection() {
                     value={inputValue}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
-                    placeholder="Search and select department..."
+                    placeholder="Search and select grade..."
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -332,7 +332,7 @@ export function CreateSection() {
                   <div className="flex items-center justify-center">
                     {!formData.departmentId ? (
                       <span className="text-gray-500 font-medium">
-                        Select department
+                        Select grade
                       </span>
                     ) : isStudentCountLoading ? (
                       <div className="flex items-center gap-2">

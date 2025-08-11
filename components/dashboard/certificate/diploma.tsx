@@ -96,7 +96,7 @@ export default function Diploma() {
                 {/* Amharic Column Header */}
                 <div className="text-center mb-4 border-b-2 border-gray-300 pb-2">
                   <div className="text-green-600 font-bold text-lg">
-                    የሥልጠና ማጠናቀቂያ ማረጋገጫ
+                    የማጠናቀቂያ ማረጋገጫ ሰርተፍኬት
                   </div>
                 </div>
                 <div className="mb-3">
@@ -115,7 +115,7 @@ export default function Diploma() {
                 {/* አንግሊስህ Column Header */}
                 <div className="text-center mb-4 border-b-2 border-gray-300 pb-2">
                   <div className="text-green-600 font-bold text-lg">
-                    Training Completion Certificate
+                    Certificate of Completion
                   </div>
                 </div>
                 {/* <div className="mb-3">
