@@ -93,7 +93,6 @@ const AcademicYearForm = () => {
     message: "",
   });
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -134,11 +133,11 @@ const AcademicYearForm = () => {
 
     try {
       // Simulate API call with 2 second delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Show success message
       toast.success("Academic year created successfully!");
-      
+
       // Reset form
       setFormData({
         name: "",
@@ -153,7 +152,7 @@ const AcademicYearForm = () => {
         semeester2RegistrationStartDate: "",
         semeester2RegistrationEndDate: "",
       });
-      
+
       // Navigate to registrar page
       router.push("/registrar");
     } catch (error) {
