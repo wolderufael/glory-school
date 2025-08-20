@@ -84,6 +84,11 @@ export const navigationItems = [
         icon: Calendar,
         url: "/student/dashboard/viewSchedule",
       },
+      {
+        title: "E-Library",
+        icon: BookOpen,
+        url: "/student/dashboard/e-library",
+      },
       /* 
       {
         title: "Grades & Transcripts",
