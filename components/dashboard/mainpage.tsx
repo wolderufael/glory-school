@@ -56,7 +56,9 @@ export default function SchoolPortal() {
     { name: "Announcement", href: "/noticeboard" },
     { name: "Admission", href: "/admission" },
     { name: "Programs", href: "/programs" },
+    { name: "E-Learning", href: "https://brightethiopia.vercel.app/" },
     { name: "Calendar", href: "/calendar" },
+    { name: "Exams", href: "https://exam-center-ten.vercel.app/" },
   ];
 
   const serviceCards = [
