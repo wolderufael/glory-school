@@ -56,11 +56,12 @@ export default function FeaturedBooks({
           Top #3 Books This Month
         </h2>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-          Discover the top three most read books this month! From captivating
-          thrillers to heartwarming tales, these books have captured the
-          attention of readers everywhere. Whether you're looking for your next
-          page-turner or just curious about what's trending, these
-          recommendations are sure to inspire your reading list.
+          Explore the top three most popular academic books this month! From
+          essential textbooks to study guides and reference materials, these
+          books are helping students excel in their studies. Whether you're
+          preparing for exams, working on assignments, or want to deepen your
+          knowledge, these academic resources will support your learning
+          journey.
         </p>
         <Button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-xl">
           Read More
