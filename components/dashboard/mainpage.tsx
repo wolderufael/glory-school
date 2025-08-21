@@ -57,6 +57,7 @@ export default function SchoolPortal() {
     { name: "Admission", href: "/admission" },
     { name: "Programs", href: "/programs" },
     { name: "E-Learning", href: "https://brightethiopia.vercel.app/" },
+    { name: "E-Library", href: "/library" },
     { name: "Calendar", href: "/calendar" },
     { name: "Exams", href: "https://exam-center-ten.vercel.app/" },
   ];
